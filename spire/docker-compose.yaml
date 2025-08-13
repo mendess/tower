@@ -1,0 +1,10 @@
+services:
+  homer:
+    image: b4bz/homer
+    container_name: homer
+    volumes:
+      - ${DATA_DIR}/spire/homer:/www/assets
+    ports:
+      - 1025:8080
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
