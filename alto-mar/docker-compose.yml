@@ -38,7 +38,7 @@ services:
       PGID: ${PGID}
       TZ: ${TZ}
     volumes:
-      - ${CONFIG_DIR}/alto-mar/prowlarr/config:/config
+      - ${CONFIG_DIR}/alto-mar/prowlarr:/config
     ports:
       - 9696:9696
     dns:
@@ -62,7 +62,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${DATA_DIR}/alto-mar:/vault/alto-mar
-      - ${CONFIG_DIR}/alto-mar/radarr/config:/config
+      - ${CONFIG_DIR}/alto-mar/radarr:/config
   sonarr:
     container_name: sonarr
     image: lscr.io/linuxserver/sonarr:latest
@@ -78,7 +78,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${DATA_DIR}/alto-mar:/vault/alto-mar
-      - ${CONFIG_DIR}/alto-mar/sonarr/config:/config
+      - ${CONFIG_DIR}/alto-mar/sonarr:/config
   bazarr:
     container_name: bazarr
     image: lscr.io/linuxserver/bazarr:latest
@@ -94,13 +94,13 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${DATA_DIR}/alto-mar:/vault/alto-mar
-      - ${CONFIG_DIR}/alto-mar/bazarr/config:/config
+      - ${CONFIG_DIR}/alto-mar/bazarr:/config
   scraparr:
     image: ghcr.io/thecfu/scraparr
     container_name: scraparr
     ports:
       - "7100:7100"
     volumes:
-      - ${CONFIG_DIR}/alto-mar/scraparr/config:/scraparr/config
+      - ${CONFIG_DIR}/alto-mar/scraparr:/scraparr/config
     extra_hosts:
       - "host.docker.internal:host-gateway"
