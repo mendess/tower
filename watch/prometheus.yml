@@ -31,6 +31,14 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:19565']
 
+  - job_name: 'scraparr'
+    static_configs:
+      - targets: ['localhost:7100']
+
+  - job_name: 'jellyfin'
+    static_configs:
+      - targets: ['localhost:8096']
+
 # Alertmanager configuration
 # alerting:
   # alertmanagers:
