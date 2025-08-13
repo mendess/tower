@@ -1,0 +1,9 @@
+[Unit]
+Description="Runs the prometheus server"
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.retention.time=365d --storage.tsdb.path /prometheus_data
+
+[Install]
+WantedBy=default.target

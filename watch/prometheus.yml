@@ -1,0 +1,45 @@
+global:
+  scrape_interval:     5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'pendrellvale'
+    static_configs:
+      - targets: ['localhost:9100']
+
+  - job_name: 'planar-bridge'
+    static_configs:
+      - targets: ['localhost:9001']
+
+  - job_name: 'mirrodin'
+    static_configs:
+      - targets: ['localhost:9002']
+
+  - job_name: 'blind-eternities'
+    static_configs:
+      - targets: ['localhost:9003']
+
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['localhost:3000']
+
+  - job_name: 'minecraft'
+    static_configs:
+      - targets: ['localhost:19565']
+
+# Alertmanager configuration
+# alerting:
+  # alertmanagers:
+    # - static_configs:
+        # - targets:
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+# rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+

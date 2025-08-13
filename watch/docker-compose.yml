@@ -1,0 +1,12 @@
+services:
+  grafana:
+    image: grafana/grafana-oss
+    container_name: grafana
+    user: ${PUID}
+    ports:
+      - 3000:3000
+    volumes:
+      - ${DATA_DIR}/watch/grafana:/var/lib/grafana
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
