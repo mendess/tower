@@ -1,0 +1,97 @@
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      TORRENTING_PORT: ${TORRENTING_PORT}
+      WEBUI_PORT: 8090
+    dns:
+      - 1.1.1.1
+    volumes:
+      - ${DATA_DIR}/alto-mar/torrents:/vault/alto-mar/torrents
+      - ${CONFIG_DIR}/alto-mar/qbittorrent:/config
+    ports:
+      - 8090:8090
+      - ${TORRENTING_PORT}:${TORRENTING_PORT}
+      - ${TORRENTING_PORT}:${TORRENTING_PORT}/udp
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      TZ: ${TZ}
+    ports:
+      - 8191:8191
+    dns:
+      - 1.1.1.1
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${CONFIG_DIR}/alto-mar/prowlarr/config:/config
+    ports:
+      - 9696:9696
+    dns:
+      - 1.1.1.1
+    depends_on:
+      - flaresolverr
+    restart: unless-stopped
+
+  radarr:
+    container_name: radarr
+    image: lscr.io/linuxserver/radarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 7878:7878
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATA_DIR}/alto-mar:/vault/alto-mar
+      - ${CONFIG_DIR}/alto-mar/radarr/config:/config
+  sonarr:
+    container_name: sonarr
+    image: lscr.io/linuxserver/sonarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 8989:8989
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATA_DIR}/alto-mar:/vault/alto-mar
+      - ${CONFIG_DIR}/alto-mar/sonarr/config:/config
+  bazarr:
+    container_name: bazarr
+    image: lscr.io/linuxserver/bazarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 6767:6767
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATA_DIR}/alto-mar:/vault/alto-mar
+      - ${CONFIG_DIR}/alto-mar/bazarr/config:/config
