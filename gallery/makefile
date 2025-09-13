@@ -1,4 +1,6 @@
-.PHONY: install
+include .env
+
+.PHONY: install alto-mar
 
 DIRS = jellyfin
 

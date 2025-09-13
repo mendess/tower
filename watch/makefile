@@ -1,4 +1,8 @@
-DIRS = ~/vault/watch/grafana
+include .env
+
+.PHONY: install prometheus update-prom
+
+DIRS = $(DB_DIR)/watch/grafana
 
 install: $(DIRS) prometheus
 
