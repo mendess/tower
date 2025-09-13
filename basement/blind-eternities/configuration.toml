@@ -1,0 +1,9 @@
+port = 1651
+
+[db]
+host = "db"
+port = 5432
+username = "postgres"
+password = "postgres"
+name = "blind_eternities"
+migrate = true

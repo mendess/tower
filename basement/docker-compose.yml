@@ -1,0 +1,96 @@
+services:
+  db:
+    image: postgres:15.13
+    container_name: db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ${DB_DIR}/basement/db:/var/lib/postgresql/data
+    user: ${PUID}:${PGID}
+    restart: unless-stopped
+  blind-eternities:
+    build:
+      context: ${CODE_DIR}/blind-eternities
+      dockerfile: docker/server.Dockerfile
+    container_name: blind-eternities
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    ports:
+      - 1651:1651
+      - 9001:9000 # metrics
+    volumes:
+      - type: bind
+        source: ${CONFIG_DIR}/basement/blind-eternities
+        target: /config
+    depends_on:
+      - db
+    command:
+      - '--config=/config/configuration.toml'
+  planar-bridge:
+    build:
+      context: ${CODE_DIR}/blind-eternities
+      dockerfile: docker/planar-bridge.Dockerfile
+    container_name: planar-bridge
+    user: ${PUID}:${PGID}
+    restart: unless-stopped
+    ports:
+      - 1711:1711
+      - 9002:9000 # metrics
+    volumes:
+      - type: bind
+        source: ${CONFIG_DIR}/basement/planar-bridge
+        target: /config
+    command:
+      - '--config=/config/configuration.toml'
+  memnarch:
+    build:
+      context: ${CODE_DIR}/memnarch
+      dockerfile: DockerfileMemnarch
+    container_name: memnarch
+    user: ${PUID}:${PGID}
+    ports:
+      - 8080:8080
+    volumes:
+      - ${DB_DIR}/basement/memnarch:/files
+    restart: unless-stopped
+  rattlesnake:
+    build:
+      context: ${CODE_DIR}/rattlesnake
+      dockerfile: Dockerfile
+    container_name: rattlesnake
+    user: ${PUID}:${PGID}
+    volumes:
+      - ${DB_DIR}/basement/rattlesnake:/files
+    restart: unless-stopped
+  reaction-bot:
+    build:
+      context: ${CODE_DIR}/reaction-bot
+      dockerfile: Dockerfile
+    container_name: reaction-bot
+    user: ${PUID}:${PGID}
+    volumes:
+      - ${DB_DIR}/basement/reaction-bot:/files
+    restart: unless-stopped
+  mirrodin:
+    build:
+      context: ${CODE_DIR}/mirrodin
+      dockerfile: DockerfileMirrodin
+    container_name: mirrodin
+    user: ${PUID}:${PGID}
+    ports:
+      - 8042:8042
+      - 9003:9000 # metrics
+    environment:
+      - PORT=8042
+    volumes:
+      - ${DB_DIR}/basement/mirrodin:/data
+  # rusteze:
+  #   build:
+  #     context: ${CODE_DIR}/rusteze
+  #     dockerfile: Dockerfile
+  #   container_name: rusteze
+  #   user: ${PUID}:${PGID}
+  #   volumes:
+  #     - ${DATA_DIR}/basement/rusteze:/data
+  #   restart: unless-stopped
