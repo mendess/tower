@@ -98,8 +98,9 @@ services:
   scraparr:
     image: ghcr.io/thecfu/scraparr
     container_name: scraparr
+    restart: unless-stopped
     ports:
-      - "7100:7100"
+      - 7100:7100
     volumes:
       - ${CONFIG_DIR}/alto-mar/scraparr:/scraparr/config
     extra_hosts:

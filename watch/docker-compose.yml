@@ -6,7 +6,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ${DATA_DIR}/watch/grafana:/var/lib/grafana
+      - ${DB_DIR}/watch/grafana:/var/lib/grafana
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
