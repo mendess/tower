@@ -7,6 +7,14 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
+  - job_name: 'prometheus-systemd'
+    static_configs:
+      - targets: ['localhost:9558']
+
+  - job_name: 'prometheus-process'
+    static_configs:
+      - targets: ['localhost:9256']
+
   - job_name: 'pendrellvale'
     static_configs:
       - targets: ['localhost:9100']

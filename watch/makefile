@@ -17,13 +17,21 @@ $(DIRS):
 	sudo pacman -S prometheus-node-exporter
 	sudo systemctl enable prometheus-node-exporter --now
 
+/usr/bin/prometheus-systemd-exporter:
+	sudo pacman -S prometheus-systemd-exporter
+	sudo systemctl enable prometheus-systemd-exporter --now
+
+/usr/bin/process-exporter:
+	aura -S prometheus-process-exporter-bin
+	sudo systemctl enable process-exporter --now
+
 /etc/prometheus/prometheus.yml:
 	sudo cp ./prometheus.yml /etc/prometheus/prometheus.yml
 
 /etc/systemd/system/:
 	sudo cp -v ./prometheus.service /etc/systemd/system/
 
-prometheus: /usr/bin/prometheus /usr/bin/prometheus-node-exporter /etc/prometheus/prometheus.yml /etc/systemd/system
+prometheus: /usr/bin/prometheus /usr/bin/prometheus-node-exporter /etc/prometheus/prometheus.yml /etc/systemd/system /usr/bin/prometheus-systemd-exporter /usr/bin/process-exporter
 
 update-prom:
 	sudo cp ./prometheus.yml /etc/prometheus/prometheus.yml
