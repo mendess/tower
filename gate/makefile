@@ -12,6 +12,8 @@ install: unbound wireguard
 unbound: config /usr/bin/unbound $(call sctl,unbound)
 wireguard: config /usr/bin/qrencode /usr/bin/iptables /usr/bin/wg $(WG0)
 
+# UTILS
+
 update-unbound: config
 	sudo systemctl restart unbound
 

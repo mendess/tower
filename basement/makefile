@@ -1,10 +1,14 @@
+.DEFAULT_GOAL = install
+
 include .env
+DIRS := $(DB_DIR)/basement/db \
+		$(DB_DIR)/basement/memnarch \
+		$(DB_DIR)/basement/rattlesnake \
+		$(DB_DIR)/basement/reaction-bot \
+		blind-eternities \
+		planar-bridge
+include ../root.mk
 
 .PHONY: install
 
-DIRS = $(DB_DIR)/basement/db $(DB_DIR)/basement/memnarch $(DB_DIR)/basement/rattlesnake $(DB_DIR)/basement/reaction-bot blind-eternities planar-bridge
-
-install: $(DIRS)
-
-$(DIRS):
-	mkdir -p $@
+install: dirs

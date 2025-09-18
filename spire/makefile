@@ -1,10 +1,14 @@
+.DEFAULT_GOAL = install
+
 include .env
+DIRS = $(DB_DIR)/spire/homer/
+include ../root.mk
+
+CONFIG = ~/vault/spire/homer/config.yml
 
 .PHONY: install
 
-DIRS = $(DB_DIR)/spire/homer/
+install: dirs $(CONFIG)
 
-install: $(DIRS)
-
-$(DIRS):
-	mkdir -p $@
+$(CONFIG):
+	ln ./homer/config.yml $@

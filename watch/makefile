@@ -1,38 +1,37 @@
+.DEFAULT_GOAL = install
+
 include .env
+DIRS := $(DB_DIR)/watch/grafana
+include ../root.mk
 
-.PHONY: install prometheus update-prom
+EXPORTERS = prometheus-node-exporter prometheus-systemd-exporter process-exporter
 
-DIRS = $(DB_DIR)/watch/grafana
+EXPORTER_SOFTWARE = $(addprefix /usr/bin/, $(EXPORTERS))
+EXPORTER_SERVICES = $(foreach s,$(EXPORTERS),$(call sctl,$(s)))
 
-install: $(DIRS) prometheus
+OVERRIDE_CONF = /etc/systemd/system/prometheus.service.d/override.conf
 
-$(DIRS):
-	mkdir -p $@
+.PHONY: install prometheus exporters update-prom
 
-/usr/bin/prometheus:
-	sudo pacman -S prometheus
-	sudo systemctl enable prometheus --now
+install: dirs prometheus
 
-/usr/bin/prometheus-node-exporter:
-	sudo pacman -S prometheus-node-exporter
-	sudo systemctl enable prometheus-node-exporter --now
+prometheus: /usr/bin/prometheus /etc/prometheus/prometheus.yml $(OVERRIDE_CONF) exporters $(call sctl,prometheus)
 
-/usr/bin/prometheus-systemd-exporter:
-	sudo pacman -S prometheus-systemd-exporter
-	sudo systemctl enable prometheus-systemd-exporter --now
+exporters: $(EXPORTER_SOFTWARE) $(EXPORTER_SERVICES)
 
-/usr/bin/process-exporter:
-	aura -S prometheus-process-exporter-bin
-	sudo systemctl enable process-exporter --now
-
-/etc/prometheus/prometheus.yml:
-	sudo cp ./prometheus.yml /etc/prometheus/prometheus.yml
-
-/etc/systemd/system/prometheus.service:
-	sudo cp -v ./prometheus.service /etc/systemd/system/
-
-prometheus: /usr/bin/prometheus /usr/bin/prometheus-node-exporter /etc/prometheus/prometheus.yml /etc/systemd/system /usr/bin/prometheus-systemd-exporter /usr/bin/process-exporter
+# UTILS
 
 update-prom:
 	sudo cp ./prometheus.yml /etc/prometheus/prometheus.yml
 	sudo systemctl restart prometheus
+
+# FILES
+
+/usr/bin/process-exporter:
+	aura -S prometheus-process-exporter-bin
+
+/etc/prometheus/prometheus.yml:
+	sudo cp ./prometheus.yml /etc/prometheus/prometheus.yml
+
+$(OVERRIDE_CONF):
+	sudo rsync -av --chown=root:root ./prometheus.service.d /etc/systemd/system/
