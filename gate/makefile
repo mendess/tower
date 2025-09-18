@@ -3,6 +3,8 @@
 include .env
 include ../root.mk
 
+# source: https://web.archive.org/web/20250911080027/https://robertlathanh.com/2025/03/setting-up-a-vpn-for-home-intranet-access-with-wireguard/
+
 .PHONY: install unbound wireguard update-unbound update-wg wg-down config wg0
 
 WG0 = /proc/self/net/dev_snmp6/wg0
