@@ -1,7 +1,8 @@
 .DEFAULT_GOAL = install
 
 include .env
-DIRS := jellyfin \
+DIRS := $(DB_DIR)/gallery/jellyfin/config \
+		$(DB_DIR)/gallery/jellyfin/cache \
 		$(DATA_DIR)/gallery/immich \
 		$(DB_DIR)/gallery/immich/ml \
 		$(DB_DIR)/gallery/immich/db

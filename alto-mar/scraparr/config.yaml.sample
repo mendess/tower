@@ -1,0 +1,26 @@
+auth:
+  # Basic Auth
+  # username: user # Optional
+  # password: pass # Optional
+  # Bearer Token
+  # token: token # Optional
+
+prowlarr:
+  url: http://prowlarr:9696
+  api_key: [FILL IN]
+
+radarr:
+  url: http://radarr:7878
+  api_key: [FILL IN]
+
+sonarr:
+  url: http://sonarr:8989
+  api_key: [FILL IN]
+
+bazarr:
+  url: http://bazarr:6767
+  api_key: [FILL IN]
+
+jellyfin:
+  url: http://host.docker.internal:8096
+  api_key: [FILL IN]

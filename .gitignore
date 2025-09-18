@@ -1,8 +1,2 @@
-alto-mar/bazarr/
-alto-mar/prowlarr/
-alto-mar/qbittorrent/
-alto-mar/radarr/
-alto-mar/sonarr/
-alto-mar/scraparr/
-gallery/jellyfin/
+alto-mar/scraparr/config.yaml
 gate/publickey
