@@ -16,3 +16,110 @@ services:
     # Optional - alternative address used for autodiscovery
     # environment:
     #   - JELLYFIN_PublishedServerUrl=http://example.com
+
+  immich-server:
+    container_name: immich_server
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    user: ${PUID}:${PGID}
+    extends:
+      file: hwaccel.transcoding.yml
+      service: quicksync
+    volumes:
+      - ${UPLOAD_LOCATION}:/data
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - .env
+    ports:
+      - '2283:2283'
+      - '8081:8081'
+      - '8082:8082'
+    depends_on:
+      - redis
+      - database
+    restart: unless-stopped
+    healthcheck:
+      disable: false
+    security_opt:
+      # Prevent escalation of privileges after the container is started
+      - no-new-privileges:true
+    cap_drop:
+      # Prevent access to raw network traffic
+      - NET_RAW
+    networks:
+      - default
+      - gallery_internal_network
+
+  immich-machine-learning:
+    container_name: immich_machine_learning
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}-openvino
+    user: ${PUID}:${PGID}
+    extends:
+      file: hwaccel.ml.yml
+      service: openvino
+    volumes:
+      - ${DB_DIR}/gallery/immich/ml:/cache
+      - immich-machine-learning-dot-cache:/.cache
+      - immich-machine-learning-dot-config:/.config
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      disable: false
+    security_opt:
+      # Prevent escalation of privileges after the container is started
+      - no-new-privileges:true
+    cap_drop:
+      # Prevent access to raw network traffic
+      - NET_RAW
+    networks:
+      - gallery_internal_network
+
+  redis:
+    container_name: immich_redis
+    image: docker.io/valkey/valkey:8-bookworm@sha256:fea8b3e67b15729d4bb70589eb03367bab9ad1ee89c876f54327fc7c6e618571
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: redis-cli ping || exit 1
+    restart: unless-stopped
+    security_opt:
+      # Prevent escalation of privileges after the container is started
+      - no-new-privileges:true
+    cap_drop:
+      # Prevent access to raw network traffic
+      - NET_RAW
+    networks:
+      - gallery_internal_network
+
+  database:
+    container_name: immich_postgres
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:8d292bdb796aa58bbbaa47fe971c8516f6f57d6a47e7172e62754feb6ed4e7b0
+    user: ${PUID}:${PGID}
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_DATABASE_NAME}
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+      # Uncomment the DB_STORAGE_TYPE: 'HDD' var if your database isn't stored on SSDs
+      # DB_STORAGE_TYPE: 'HDD'
+    volumes:
+      - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
+    shm_size: 128mb
+    restart: unless-stopped
+    security_opt:
+      # Prevent escalation of privileges after the container is started
+      - no-new-privileges:true
+    cap_drop:
+      # Prevent access to raw network traffic
+      - NET_RAW
+    networks:
+      - gallery_internal_network
+
+volumes:
+  immich-machine-learning-dot-config:
+  immich-machine-learning-dot-cache:
+  redis-data:
+
+networks:
+  gallery_internal_network:
+    internal: true

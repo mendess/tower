@@ -28,7 +28,7 @@ $(DIRS):
 /etc/prometheus/prometheus.yml:
 	sudo cp ./prometheus.yml /etc/prometheus/prometheus.yml
 
-/etc/systemd/system/:
+/etc/systemd/system/prometheus.service:
 	sudo cp -v ./prometheus.service /etc/systemd/system/
 
 prometheus: /usr/bin/prometheus /usr/bin/prometheus-node-exporter /etc/prometheus/prometheus.yml /etc/systemd/system /usr/bin/prometheus-systemd-exporter /usr/bin/process-exporter
