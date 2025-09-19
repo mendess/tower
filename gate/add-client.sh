@@ -26,7 +26,7 @@ cat <<EOF | tee /dev/tty | qrencode -t ansiutf8
 [Interface]
 PrivateKey = $(cat "$privatekey")
 Address = $ip/24
-#DNS = 1.1.1.1, 2606:4700:4700::1111
+DNS = 10.0.0.1
 
 [Peer]
 PublicKey = $(cat ./publickey)
