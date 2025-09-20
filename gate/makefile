@@ -2,7 +2,7 @@
 
 include .env
 ROOT_DIRS = /etc/nginx/sites-enabled /etc/nginx/sites-available
-include ../root.mk
+include ../foundations.mk
 
 
 install: unbound wireguard nginx

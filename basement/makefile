@@ -7,7 +7,7 @@ DIRS := $(DB_DIR)/basement/db \
 		$(DB_DIR)/basement/reaction-bot \
 		blind-eternities \
 		planar-bridge
-include ../root.mk
+include ../foundations.mk
 
 .PHONY: install
 

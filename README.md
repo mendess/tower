@@ -1,5 +1,7 @@
 # Tower - The configuration for my home lab
 
+My docker + makefile configured home server
+
 ```
                  /\                                                        .    |       '
      |          /  \                  o                                        -+-

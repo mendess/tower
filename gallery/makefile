@@ -6,7 +6,7 @@ DIRS := $(DB_DIR)/gallery/jellyfin/config \
 		$(DATA_DIR)/gallery/immich \
 		$(DB_DIR)/gallery/immich/ml \
 		$(DB_DIR)/gallery/immich/db
-include ../root.mk
+include ../foundations.mk
 
 .PHONY: install alto-mar
 

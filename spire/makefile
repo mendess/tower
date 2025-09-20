@@ -2,7 +2,7 @@
 
 include .env
 DIRS = $(DB_DIR)/spire/homer/
-include ../root.mk
+include ../foundations.mk
 
 CONFIG = ~/vault/spire/homer/config.yml
 

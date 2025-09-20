@@ -9,7 +9,7 @@ DIRS := $(DATA_DIR)/alto-marr/media \
 		$(DB_DIR)/alto-marr/qbittorrent \
 		$(DB_DIR)/alto-marr/prowlarr \
 		scraparr
-include ../root.mk
+include ../foundations.mk
 
 .PHONY: install
 

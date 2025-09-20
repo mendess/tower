@@ -2,7 +2,7 @@
 
 include .env
 DIRS := $(DB_DIR)/watch/grafana
-include ../root.mk
+include ../foundations.mk
 
 EXPORTERS = prometheus-node-exporter prometheus-systemd-exporter process-exporter
 
