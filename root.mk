@@ -10,8 +10,13 @@ endef
 
 dirs: $(DIRS)
 
+root_dirs: $(ROOT_DIRS)
+
 $(DIRS):
 	mkdir -p $@
+
+$(ROOT_DIRS):
+	sudo mkdir -p $@
 
 /usr/bin/%:
 	sudo pacman -S $(@F)

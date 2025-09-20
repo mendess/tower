@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+echo "checking if wireguard keys already exist"
 sudo /usr/bin/test -e /etc/wireguard/privatekey && exit
 /usr/bin/test -e publickey && {
     read -p "you lost your public key. Should a new one be generated? [Y/n] "
