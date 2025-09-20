@@ -10,7 +10,7 @@ services:
       - ${DB_DIR}/gallery/jellyfin/config:/config
       - ${DB_DIR}/gallery/jellyfin/cache:/cache
       - type: bind
-        source: ${DATA_DIR}/alto-mar/media
+        source: ${DATA_DIR}/alto-marr/media
         target: /media
     restart: unless-stopped
     # Optional - alternative address used for autodiscovery

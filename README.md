@@ -42,7 +42,7 @@ __________|______0______0|__________________               \   alto-marr      /
 - [gallery](./gallery): Where the art is displayed
 - [gate](./gate): Where would be visitors of the tower are allowed in or denied entrance
 - [basement](./basement): Where I run my experiments
-- [alto-marr](./alto-mar): Ahoy matey! ☠️
+- [alto-marr](./alto-marr): Ahoy matey! ☠️
 
 ---
 

@@ -11,8 +11,8 @@ services:
     dns:
       - 1.1.1.1
     volumes:
-      - ${DATA_DIR}/alto-mar/torrents:/vault/alto-mar/torrents
-      - ${DB_DIR}/alto-mar/qbittorrent:/config/qBittorrent
+      - ${DATA_DIR}/alto-marr/torrents:/vault/alto-marr/torrents
+      - ${DB_DIR}/alto-marr/qbittorrent:/config/qBittorrent
     ports:
       - 8090:8090
       - ${TORRENTING_PORT}:${TORRENTING_PORT}
@@ -38,7 +38,7 @@ services:
       PGID: ${PGID}
       TZ: ${TZ}
     volumes:
-      - ${DB_DIR}/alto-mar/prowlarr:/config
+      - ${DB_DIR}/alto-marr/prowlarr:/config
     ports:
       - 9696:9696
     dns:
@@ -61,8 +61,8 @@ services:
       - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${DATA_DIR}/alto-mar:/vault/alto-mar
-      - ${DB_DIR}/alto-mar/radarr:/config
+      - ${DATA_DIR}/alto-marr:/vault/alto-marr
+      - ${DB_DIR}/alto-marr/radarr:/config
   sonarr:
     container_name: sonarr
     image: lscr.io/linuxserver/sonarr:latest
@@ -77,8 +77,8 @@ services:
       - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${DATA_DIR}/alto-mar:/vault/alto-mar
-      - ${DB_DIR}/alto-mar/sonarr:/config
+      - ${DATA_DIR}/alto-marr:/vault/alto-marr
+      - ${DB_DIR}/alto-marr/sonarr:/config
   bazarr:
     container_name: bazarr
     image: lscr.io/linuxserver/bazarr:latest
@@ -93,8 +93,8 @@ services:
       - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${DATA_DIR}/alto-mar:/vault/alto-mar
-      - ${DB_DIR}/alto-mar/bazarr:/config
+      - ${DATA_DIR}/alto-marr:/vault/alto-mar
+      - ${DB_DIR}/alto-marr/bazarr:/config
   scraparr:
     image: ghcr.io/thecfu/scraparr
     container_name: scraparr
@@ -102,6 +102,6 @@ services:
     ports:
       - 7100:7100
     volumes:
-      - ${CONFIG_DIR}/alto-mar/scraparr:/scraparr/config
+      - ${CONFIG_DIR}/alto-marr/scraparr:/scraparr/config
     extra_hosts:
       - "host.docker.internal:host-gateway"
