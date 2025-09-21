@@ -37,7 +37,8 @@ EOF
 read -p "Client added? [y/N]"
 if [[ "$REPLY" =~ Y|y|yes ]]; then
     cat <<EOF | tee -a ./etc/wireguard/wg0.conf
-\n#-- $name
+
+#-- $name
 [Peer]
 PublicKey = $(cat "$publickey")
 AllowedIPs = $ip/32

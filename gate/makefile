@@ -89,8 +89,10 @@ check_reload:
 	sed "s|DOMAIN|$*|;s|PORT|$$port|" domain-template-file | sudo tee $@
 	@sudo nginx -t
 
-/etc/nginx/nginx.conf:
+/etc/nginx/nginx.conf: ./etc/nginx/nginx.conf
 	sudo cp ./etc/nginx/nginx.conf /etc/nginx/nginx.conf
+	@sudo nginx -t
+	touch /tmp/nginx-needs-reload
 
 /etc/systemd/system/timers.target.wants/certbot-renew.timer:
 	sudo systemctl enable certbot-renew.timer --now

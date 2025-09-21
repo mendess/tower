@@ -19,19 +19,14 @@ prometheus: /usr/bin/prometheus /etc/prometheus/prometheus.yml $(OVERRIDE_CONF) 
 
 exporters: $(EXPORTER_SOFTWARE) $(EXPORTER_SERVICES)
 
-# UTILS
-
-update-prom:
-	sudo cp ./prometheus.yml /etc/prometheus/prometheus.yml
-	sudo systemctl restart prometheus
-
 # FILES
 
 /usr/bin/process-exporter:
 	aura -S prometheus-process-exporter-bin
 
-/etc/prometheus/prometheus.yml:
+/etc/prometheus/prometheus.yml: ./prometheus.yml
 	sudo cp ./prometheus.yml /etc/prometheus/prometheus.yml
+	sudo systemctl restart prometheus
 
 $(OVERRIDE_CONF):
 	sudo rsync -av --chown=root:root ./prometheus.service.d /etc/systemd/system/
