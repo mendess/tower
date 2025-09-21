@@ -5,7 +5,7 @@ define sctl
 endef
 
 define bin
-	/usr/bin/$(1)
+	$(foreach arg,$(1),/usr/bin/$(arg))
 endef
 
 dirs: $(DIRS)

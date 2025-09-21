@@ -6,7 +6,7 @@ include ../foundations.mk
 
 EXPORTERS = prometheus-node-exporter prometheus-systemd-exporter process-exporter nginx-prometheus-exporter
 
-EXPORTER_SOFTWARE = $(addprefix /usr/bin/, $(EXPORTERS))
+EXPORTER_SOFTWARE = $(call bin, $(EXPORTERS))
 EXPORTER_SERVICES = $(foreach s,$(EXPORTERS),$(call sctl,$(s)))
 
 OVERRIDE_CONF = /etc/systemd/system/prometheus.service.d/override.conf
