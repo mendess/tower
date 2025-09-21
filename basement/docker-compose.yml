@@ -50,7 +50,7 @@ services:
     container_name: memnarch
     user: ${PUID}:${PGID}
     ports:
-      - 8080:8080
+      - 8043:8080
     volumes:
       - ${DB_DIR}/basement/memnarch:/files
     restart: unless-stopped
