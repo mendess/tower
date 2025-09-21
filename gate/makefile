@@ -9,19 +9,16 @@ include ../foundations.mk
 install: unbound wireguard nginx
 
 # ----------------- UNBOUND ---------------------
-.PHONY: unbound config-unbound reload-unbound
+.PHONY: unbound config-unbound
 
-unbound: /usr/bin/unbound /etc/unbound/trusted-key.key $(call sctl,unbound) $(shell find ./etc/unbound | sed 's|\.||') reload-unbound
+UNBOUND_CONFIG = $(shell find ./etc/unbound | sed 's|\.||')
 
-/etc/unbound/%: ./etc/unbound/%
-	sudo cp $< $@
-	sudo chown unbound:unbound $@
-	touch /tmp/reload-unbound
+unbound: /usr/bin/unbound /etc/unbound/trusted-key.key $(call sctl,unbound) config-unbound
 
-.ONESHELL: reload-unbound
-reload-unbound:
-	@[[ ! -e /tmp/reload-unbound ]] && exit 0
-	rm /tmp/reload-unbound
+.ONESHELL: config-unbound
+config-unbound: $(UNBOUND_CONFIG)
+	@for f in $(call stamp_file,$(UNBOUND_CONFIG)); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
+	rm $${reload[@]}
 	sudo systemctl restart unbound
 
 /etc/unbound/trusted-key.key:
@@ -56,7 +53,7 @@ $(WG0):
 	sudo wg-quick up /etc/wireguard/wg0.conf
 
 # ----------------- NGINX ---------------------
-.PHONY: nginx configure-domains configure-certbot reload-nginx
+.PHONY: nginx configure-domains configure-certbot
 
 DOMAINS_WITH_PORT = mendess.xyz:8042 \
 	blind-eternities.mendess.xyz:1651 \
@@ -71,22 +68,23 @@ SOFTWARE = $(call bin,nginx certbot certbot)
 
 CERTBOT_NGINX = /usr/lib/python3.13/site-packages/certbot_nginx
 
-nginx: $(ROOT_DIRS) $(SOFTWARE) $(CERTBOT_NGINX) /etc/nginx/nginx.conf configure-domains configure-certbot reload-nginx
+nginx: $(ROOT_DIRS) $(SOFTWARE) $(CERTBOT_NGINX) configure-domains configure-certbot config-nginx
 
 configure-domains: $(NGINX_SITE_FILES)
 
 configure-certbot: /etc/systemd/system/timers.target.wants/certbot-renew.timer
 
-reload-nginx:
-	@[[ ! -e /tmp/reload-nginx ]] && exit 0
-	rm /tmp/reload-nginx
+.ONESHELL: config-nginx
+config-nginx: /etc/nginx/nginx.conf
+	@for f in $(call stamp_file,/etc/nginx/nginx.conf); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
+	rm $${reload[@]}
 	sudo systemctl restart nginx
 
 /etc/nginx/sites-enabled/%: /etc/nginx/sites-available/%
 	sudo ln -s $< $@
 	[[ "$*" =~ pendrellvale* ]] || sudo certbot --nginx -d "$*" --agree-tos
 	@sudo nginx -t
-	touch /tmp/reload-nginx
+	touch $(call stamp_file,/etc/nginx/nginx.conf)
 
 /etc/nginx/sites-available/%.home:
 	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep "$*.home:" | cut -d ':' -f 2); \
@@ -97,11 +95,6 @@ reload-nginx:
 	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep "$*:" | cut -d ':' -f 2); \
 	sed "s|DOMAIN|$*|;s|PORT|$$port|" domain-template-file | sudo tee $@
 	@sudo nginx -t
-
-/etc/nginx/nginx.conf: ./etc/nginx/nginx.conf
-	sudo cp ./etc/nginx/nginx.conf /etc/nginx/nginx.conf
-	@sudo nginx -t
-	touch /tmp/reload-nginx
 
 /etc/systemd/system/timers.target.wants/certbot-renew.timer:
 	sudo systemctl enable certbot-renew.timer --now

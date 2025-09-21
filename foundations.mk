@@ -23,3 +23,11 @@ $(ROOT_DIRS):
 
 $(call sctl,%):
 	sudo systemctl enable $(basename $*) --now
+
+/etc/%: ./etc/%
+	sudo cp $< $@
+	touch $(call stamp_file,$@)
+
+define stamp_file
+	$(foreach arg,$(1),/tmp/tower-stamp$(shell echo $(arg) | tr '/' '-'))
+endef
