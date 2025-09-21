@@ -47,12 +47,6 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:8096']
 
-  - job_name: 'wg-easy'
-    scrape_interval: 30s
-    metrics_path: /metrics/prometheus
-    static_configs:
-        - targets: ['localhost:51821']
-
   - job_name: immich_api
     static_configs:
       - targets: ['localhost:8081']
