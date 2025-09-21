@@ -15,7 +15,11 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9256']
 
-  - job_name: 'pendrellvale'
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['localhost:9113']
+
+  - job_name: 'pendrellvale' # node exporter full
     static_configs:
       - targets: ['localhost:9100']
 

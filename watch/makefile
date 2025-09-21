@@ -4,7 +4,7 @@ include .env
 DIRS := $(DB_DIR)/watch/grafana
 include ../foundations.mk
 
-EXPORTERS = prometheus-node-exporter prometheus-systemd-exporter process-exporter
+EXPORTERS = prometheus-node-exporter prometheus-systemd-exporter process-exporter nginx-prometheus-exporter
 
 EXPORTER_SOFTWARE = $(addprefix /usr/bin/, $(EXPORTERS))
 EXPORTER_SERVICES = $(foreach s,$(EXPORTERS),$(call sctl,$(s)))
