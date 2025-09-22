@@ -8,9 +8,9 @@ DIRS := $(DB_DIR)/gallery/jellyfin/config \
 		$(DB_DIR)/gallery/immich/db
 include ../foundations.mk
 
-.PHONY: install alto-mar
+.PHONY: install alto-marr
 
-install: alto-mar dirs
+install: alto-marr dirs
 
-alto-mar:
-	cd ../alto-mar && $(MAKE)
+alto-marr:
+	cd ../alto-marr && $(MAKE)
