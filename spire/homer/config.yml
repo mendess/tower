@@ -115,4 +115,4 @@ services:
         url: "http://pendrellvale:6767"
       - name: "qBittorrent"
         icon: "fa-solid fa-download"
-        url: "http://pendrellvale:8090/"
+        url: "http://pendrellvale:8090"

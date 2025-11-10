@@ -88,13 +88,14 @@ config-nginx: /etc/nginx/nginx.conf
 	@sudo nginx -t
 	touch $(call stamp_file,/etc/nginx/nginx.conf)
 
-/etc/nginx/sites-available/%.home:
+/etc/nginx/sites-available/%.home: ./domain-template-file.home
 	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep "$*.home:" | cut -d ':' -f 2); \
 	sed "s|DOMAIN|$*|;s|PORT|$$port|" domain-template-file.home | sudo tee $@
 	@sudo nginx -t
 
-/etc/nginx/sites-available/%:
-	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep "$*:" | cut -d ':' -f 2); \
+/etc/nginx/sites-available/%: ./domain-template-file
+	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep "^$*:" | cut -d ':' -f 2); \
+	echo $$port; \
 	sed "s|DOMAIN|$*|;s|PORT|$$port|" domain-template-file | sudo tee $@
 	@sudo nginx -t
 
