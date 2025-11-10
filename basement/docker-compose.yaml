@@ -85,6 +85,17 @@ services:
       - PORT=8042
     volumes:
       - ${DB_DIR}/basement/mirrodin:/data
+    restart: unless-stopped
+  red-fly:
+    build:
+      context: ${CODE_DIR}/red-fly/proxy
+      dockerfile: Dockerfile
+    container_name: red-fly
+    user: ${PUID}:${PGID}
+    ports:
+      - 25500-25510:25500-25510
+    restart: unless-stopped
+
   # rusteze:
   #   build:
   #     context: ${CODE_DIR}/rusteze
