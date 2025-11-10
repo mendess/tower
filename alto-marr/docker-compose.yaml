@@ -93,7 +93,7 @@ services:
       - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${DATA_DIR}/alto-marr:/vault/alto-mar
+      - ${DATA_DIR}/alto-marr:/vault/alto-marr
       - ${DB_DIR}/alto-marr/bazarr:/config
   scraparr:
     image: ghcr.io/thecfu/scraparr
