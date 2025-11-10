@@ -1,4 +1,5 @@
 port = 1651
+data_dir = "/data"
 
 [db]
 host = "db"
@@ -7,3 +8,6 @@ username = "postgres"
 password = "postgres"
 name = "blind_eternities"
 migrate = true
+
+[playlist_config]
+song_dir = "/data/music"

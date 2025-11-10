@@ -23,6 +23,9 @@ services:
       - type: bind
         source: ${CONFIG_DIR}/basement/blind-eternities
         target: /config
+      - type: bind
+        source: ${DB_DIR}/basement/blind-eternities
+        target: /data
     depends_on:
       - db
     command:
