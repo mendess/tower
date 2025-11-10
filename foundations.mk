@@ -25,7 +25,7 @@ $(call sctl,%):
 	sudo systemctl enable $(basename $*) --now
 
 /etc/%: ./etc/%
-	sudo cp $< $@
+	sudo cp -r $< $@
 	touch $(call stamp_file,$@)
 
 define stamp_file

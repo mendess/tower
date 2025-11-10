@@ -18,7 +18,8 @@ unbound: /usr/bin/unbound /etc/unbound/trusted-key.key $(call sctl,unbound) conf
 .ONESHELL: config-unbound
 config-unbound: $(UNBOUND_CONFIG)
 	@for f in $(call stamp_file,$(UNBOUND_CONFIG)); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
-	rm $${reload[@]}
+	rm -v $${reload[@]}
+	@echo "reloading unbound"
 	sudo systemctl restart unbound
 
 /etc/unbound/trusted-key.key:
@@ -77,7 +78,8 @@ configure-certbot: /etc/systemd/system/timers.target.wants/certbot-renew.timer
 .ONESHELL: config-nginx
 config-nginx: /etc/nginx/nginx.conf
 	@for f in $(call stamp_file,/etc/nginx/nginx.conf); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
-	rm $${reload[@]}
+	rm -v $${reload[@]}
+	@echo "reloading nginx"
 	sudo systemctl restart nginx
 
 /etc/nginx/sites-enabled/%: /etc/nginx/sites-available/%
