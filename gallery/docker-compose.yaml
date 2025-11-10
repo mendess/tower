@@ -12,6 +12,9 @@ services:
       - type: bind
         source: ${DATA_DIR}/alto-marr/media
         target: /media
+      - type: bind
+        source: ${DB_DIR}/alto-marr/media/music
+        target: /music
     restart: unless-stopped
     # Optional - alternative address used for autodiscovery
     # environment:
