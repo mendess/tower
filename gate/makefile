@@ -67,7 +67,7 @@ $(WG0):
 	sudo wg-quick up /etc/wireguard/wg0.conf
 
 # ----------------- NGINX ---------------------
-.PHONY: nginx configure-domains configure-certbot
+.PHONY: nginx config-nginx configure-domains configure-certbot
 
 DOMAINS_WITH_PORT = mendess.xyz:8042 \
 	blind-eternities.mendess.xyz:1651 \

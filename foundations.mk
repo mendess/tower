@@ -25,7 +25,12 @@ $(call sctl,%):
 	sudo systemctl enable $(basename $*) --now
 
 /etc/%: ./etc/%
-	sudo cp -r $< $@
+	if [ -d "$<" ]; then \
+		mkdir -v -p $< ;\
+		touch --reference=$@ ;\
+	else \
+		sudo cp -v $< $@ ;\
+	fi
 	touch $(call stamp_file,$@)
 
 define stamp_file
