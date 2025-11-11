@@ -31,11 +31,11 @@ My docker + makefile configured home server
           |      0 gate 0|                                \-----------╩--------/
 __________|______0______0|__________________               \   alto-marr      /
          /               |                 x^^^^^^^^^^^^^^^^\________________/^^^^^^^^^^^^^^^^
-        /                |                  xx              ^^^^^^^^^^^^^^^^^^
-       /                 |                    xx                                    <>::
-      / basement         |                      xxx      <>::
-     /___________________|                         xxxx                 ::<>
-                                                       xxxxx
+        /           o    |                  xx              ^^^^^^^^^^^^^^^^^^
+       /              o  |                    xx                                    <>::
+      /              i   |                      xxx      <>::
+     /  basement    /_\  |                         xxxx                 ::<>
+    /______________┏━━━┓_|                             xxxxx
                                                             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
