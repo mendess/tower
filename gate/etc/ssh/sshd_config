@@ -1,0 +1,20 @@
+# Include drop-in configurations
+Include /etc/ssh/sshd_config.d/*.conf
+
+# The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
+# but this is overridden so installations will only check .ssh/authorized_keys
+AuthorizedKeysFile	.ssh/authorized_keys
+
+PasswordAuthentication no
+
+# Bind to 0.0.0.0 when port forwarding
+GatewayPorts yes
+
+# override default of no subsystems
+Subsystem	sftp	/usr/lib/ssh/sftp-server
+
+Match address 192.168.42.*
+        PasswordAuthentication yes
+
+Match address 10.0.0.*
+        PasswordAuthentication yes

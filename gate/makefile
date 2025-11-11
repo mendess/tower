@@ -6,9 +6,22 @@ include ../foundations.mk
 
 
 .PHONY: install
-install: unbound wireguard nginx
+install: ssh unbound wireguard nginx
 
-# ----------------- UNBOUND ---------------------
+# ------------------- SSHD ----------------------
+.PHONY: ssh
+SSHD_CONFIG = $(shell find ./etc/ssh | sed 's|\.||')
+
+/etc/ssh/sshd_config.bak:
+	sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+
+ssh: /etc/ssh/sshd_config.bak $(SSHD_CONFIG)
+	@for f in $(call stamp_file,$(SSHD_CONFIG)); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
+	rm -v $${reload[@]}
+	@echo "reloading sshd"
+	sudo systemctl restart sshd
+
+# ------------------ UNBOUND --------------------
 .PHONY: unbound config-unbound
 
 UNBOUND_CONFIG = $(shell find ./etc/unbound | sed 's|\.||')
