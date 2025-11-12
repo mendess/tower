@@ -1,0 +1,102 @@
+[spire.homer.web-ui]
+port = 1025
+
+[alto-marr.qbittorrent]
+web-ui = { port = 8090 }
+torrenting = { port = 50000, forwarded = true }
+
+[alto-marr.flaresolverr.api]
+port = 8191
+
+[alto-marr.prowlarr.web-ui]
+port = 9696
+
+[alto-marr.sonarr.web-ui]
+port = 8989
+
+[alto-marr.bazarr.web-ui]
+port = 6767
+
+[alto-marr.radarr.web-ui]
+port = 7878
+
+[alto-marr.scraparr.metrics]
+port = 7100
+
+[gallery.jellyfin]
+web-ui = { port = 8096 }
+discovery = { port = 7359 }
+
+[gallery.immich_server]
+api = { port = 2283 }
+metrics-1 = { port = 8081 }
+metrics-2 = { port = 8082 }
+
+[watch.grafana.web-ui]
+port = 3000
+
+[watch.prometheus.api]
+port = 9090
+
+[watch.prom-node-exp.metrics]
+port = 9100
+
+[watch.prom-systemd-exp.metrics]
+port = 9558
+
+[watch.prom-proc-exp.metrics]
+port = 9256
+
+[watch.prom-nginx-exp.metrics]
+port = 9113
+
+[gate.wireguard.wireguard]
+port = 51820
+
+[gate.unbound]
+dns = { port = 53 }
+sdns = { port = 8953 } # I don't actually know what this port is for
+
+[gate.sshd.ssh]
+port = 22
+
+[gate.nginx]
+http = { port = 80, forwarded = true }
+https = { port = 443, forwarded = true }
+stub_status = { port = 8080 }
+
+[basement.blind-eternities]
+api = { port = 1651 }
+metrics = { port = 9001 }
+
+[basement.planar-bridge]
+web-ui = { port = 1711 }
+metrics = { port = 9002 }
+
+[basement.memnarch]
+api = { port = 8043 }
+
+[basement.mirrodin]
+web-ui = { port = 8042 }
+metrics = { port = 9003 }
+
+[basement.red-fly]
+api = { port = 25500 }
+connect-proxy-1 = { port = 25501 }
+connect-proxy-2 = { port = 25502 }
+connect-proxy-3 = { port = 25503 }
+connect-proxy-4 = { port = 25504 }
+connect-proxy-5 = { port = 25505 }
+connect-proxy-6 = { port = 25506 }
+connect-proxy-7 = { port = 25507 }
+connect-proxy-8 = { port = 25508 }
+connect-proxy-9 = { port = 25509 }
+connect-proxy-10 = { port = 25510 }
+
+[minecraft.server]
+game-connection = { port = 40000 }
+voice-chat = { port = 50002 }
+rcon = { port = 49998 }
+metrics = { port = 19565 }
+gate = { port = 50001, forwarded = true }
+gate-offline = { port = 45000, forwarded = true }

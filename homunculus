@@ -1,0 +1,213 @@
+#!/usr/bin/env rust-script
+//! ```cargo
+//! [dependencies]
+//! toml = "0.9"
+//! serde = { version = "1", features = ["derive"] }
+//! clap = { version = "4", features = ["derive"] }
+//! anyhow = "1"
+//! regex = "1"
+//! comfy-table = "7"
+//! indexmap = { version = "2", features = ["serde"] }
+//! ```
+
+use anyhow::Context as _;
+use clap::Parser;
+use regex::Regex;
+use serde::Deserialize;
+use std::collections::HashSet;
+use indexmap::IndexMap;
+use std::fs;
+use std::io::{BufRead, BufReader};
+use std::process::{Command as System, Stdio};
+use std::sync::LazyLock;
+
+#[derive(Parser)]
+struct Args {
+    #[command(subcommand)]
+    command: Option<Command>,
+}
+
+#[derive(clap::Subcommand)]
+enum Command {
+    Check,
+}
+
+#[derive(Deserialize)]
+#[serde(transparent)]
+struct PortDocs {
+    table: IndexMap<String, Floor>,
+}
+
+impl PortDocs {
+    fn iter(&self) -> impl Iterator<Item = (&str, &Floor)> {
+        self.table.iter().map(|(k, v)| (k.as_str(), v))
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(transparent)]
+struct Floor {
+    table: IndexMap<String, Service>,
+}
+
+#[derive(Deserialize)]
+#[serde(transparent)]
+struct Service {
+    table: IndexMap<String, ServicePort>,
+}
+
+#[derive(Deserialize)]
+struct ServicePort {
+    port: u16,
+    #[serde(default)]
+    forwarded: bool,
+}
+
+fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+
+    match args.command {
+        Some(Command::Check) => doc_check()?,
+        None => print_table()?,
+    }
+    Ok(())
+}
+
+fn parse_port_docs() -> anyhow::Result<PortDocs> {
+    let data = fs::read_to_string("port-docs.toml").context("Failed to read file")?;
+    toml::from_str(&data).context("Failed to parse TOML")
+}
+
+fn print_table() -> anyhow::Result<()> {
+    let port_docs = parse_port_docs()?;
+    let mut printed_floor_name;
+    let mut table = comfy_table::Table::new();
+    table.load_preset(comfy_table::presets::ASCII_MARKDOWN);
+    table.set_header(vec!["floor", "service", "port", "comment", "port forwarded"]);
+    for (floor_name, floor) in port_docs.iter() {
+        printed_floor_name = false;
+        for (service_name, service) in &floor.table {
+            let mut printed_service_name = false;
+            for (port_name, port) in &service.table {
+                table.add_row(vec![
+                    if printed_floor_name { "" } else { floor_name },
+                    if printed_service_name { "" } else { service_name },
+                    &port.port.to_string(),
+                    port_name,
+                    if port.forwarded { "yes" } else { "" },
+                ]);
+                printed_floor_name = true;
+                printed_service_name = true;
+            }
+        }
+    }
+    println!("{table}");
+    Ok(())
+}
+
+fn get_documented_ports() -> anyhow::Result<HashSet<u16>> {
+    Ok(parse_port_docs()?
+        .iter()
+        .flat_map(|(_, v)| v.table.values())
+        .flat_map(|v| v.table.values())
+        .map(|p| p.port)
+        .collect())
+}
+
+static PORT_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r":(\d+)$").unwrap());
+static PID_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"pid=(\d+)").unwrap());
+
+fn doc_check() -> anyhow::Result<()> {
+    let documented_ports = get_documented_ports()?;
+
+    let mut cmd = System::new("sudo")
+        .args(["ss", "-ltnup"])
+        .stdout(Stdio::piped())
+        .spawn()?;
+
+    let stdout = cmd.stdout.take().expect("Failed to open stdout");
+    let reader = BufReader::new(stdout);
+
+    let mut table = comfy_table::Table::new();
+    table.load_preset(comfy_table::presets::NOTHING);
+    table.set_header(vec!["proto", "port", "pid", "cmd"]);
+    for line_result in reader.lines().skip(1) {
+        let line = line_result?;
+
+        let parts: Vec<&str> = line.split_whitespace().collect();
+
+        // A valid 'ss -p' line has at least 7 fields.
+        // Netid, State, Recv-Q, Send-Q, Local-Address:Port, Peer-Address:Port, Process
+        if parts.len() < 7 {
+            println!("skipping {line:?}");
+            continue;
+        }
+
+        let proto = parts[0];
+        let addr = parts[4];
+        // The 'users' (process) field might contain spaces, so join all remaining parts.
+        // This mirrors 'read -r addr users' where 'users' gets the rest of the line.
+        let users = parts[6..].join(" ");
+
+        let port: u16 = match PORT_RE.captures(addr).and_then(|cap| cap.get(1)) {
+            Some(p) => match p.as_str().parse() {
+                Ok(num) => num,
+                Err(_) => {
+                    println!("invalid port in: {addr}");
+                    continue;
+                }
+            },
+            None => {
+                println!("no port??: {addr}");
+                continue;
+            }
+        };
+
+        if documented_ports.contains(&port) {
+            continue;
+        }
+
+        let pid: u32 = match PID_RE.captures(&users).and_then(|cap| cap.get(1)) {
+            Some(p) => match p.as_str().parse() {
+                Ok(num) => num,
+                Err(_) => {
+                    println!("error parsing pid: {users}");
+                    continue;
+                }
+            },
+            None => {
+                println!("no pid in: {users}");
+                continue;
+            }
+        };
+
+        let cmd_path = format!("/proc/{}/cmdline", pid);
+        let cmd = match fs::read(&cmd_path) {
+            Ok(bytes) => {
+                if bytes.is_empty() {
+                    // This is likely a kernel thread.
+                    // We can try to get its name from /proc/$pid/status for a friendlier output.
+                    let status_path = format!("/proc/{}/status", pid);
+                    fs::read_to_string(status_path)
+                        .unwrap_or_default()
+                        .lines()
+                        .find(|l| l.starts_with("Name:"))
+                        .map(|l| format!("[{}]", l.split_whitespace().nth(1).unwrap_or("kernel")))
+                        .unwrap_or_else(|| "[kernel process]".to_string())
+                } else {
+                    // The file is NUL-delimited. Replace NUL bytes with spaces.
+                    let cmd_str = String::from_utf8_lossy(&bytes);
+                    // Trim trailing NUL and replace internal NULs
+                    cmd_str.trim_end_matches('\0').replace('\0', " ")
+                }
+            }
+            Err(_) => "[process died or no permissions]".to_string(),
+        };
+
+        table.add_row(vec![proto, addr, &pid.to_string(), &cmd]);
+    }
+
+    println!("{table}");
+
+    Ok(())
+}
