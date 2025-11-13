@@ -40,31 +40,33 @@ config-unbound: $(UNBOUND_CONFIG)
 
 # ----------------- WIREGUARD ---------------------
 # source: https://web.archive.org/web/20250911080027/https://robertlathanh.com/2025/03/setting-up-a-vpn-for-home-intranet-access-with-wireguard/
-.PHONY: wireguard update-wg wg-down config-wg $(WG0)
 
-WG0 = /proc/self/net/dev_snmp6/wg0
+NETWORK_ENABLED = $(shell find ./etc/wireguard -type f | sed -E 's|^.+/||; s|\.conf||; s|^|/proc/self/net/dev_snmp6/|')
 
-wireguard: config-wg $(call bin,qrencode iptables wg) $(WG0)
+$(info NETWORK_ENABLED is [${NETWORK_ENABLED}])
 
-update-wg: wg-down config-wg $(WG0)
+.PHONY: wireguard wg-update wg-down
 
-wg-down:
-	-ip link show dev wg0 &> /dev/null && sudo wg-quick down /etc/wireguard/wg0.conf
+wireguard: $(call bin,qrencode iptables wg) $(NETWORK_ENABLED)
 
-.ONESHELL: config-wg
-config-wg:
-	@./gen-key.sh
-	@sudo test /etc/wireguard/wg0.conf -nt ./etc/wireguard/wg0.conf && exit 0
-	sed \
-		"s|REPLACE__PRIVATE_KEY|$$(sudo cat /etc/wireguard/privatekey)|" \
-		./etc/wireguard/wg0.conf | \
-		sudo tee /etc/wireguard/wg0.conf
+# wg-up-%:
+/proc/self/net/dev_snmp6/%: wg-%.conf
+	@printf "$(GREEN)   UP$(RESET) Bringing up interface $*\n"
+	sudo wg-quick up /etc/wireguard/$*.conf
+
+wg-update-%: wg-down-% /proc/self/net/dev_snmp6/%
+	@true
+
+wg-down-%:
+	@printf "$(RED) DOWN$(RESET) Taking down interface $*\n"
+	test ! -e /proc/self/net/dev_snmp6/$* || sudo wg-quick down $*
+
+wg-%.conf:
+	@printf "$(YELLOW)CONFIG$(RESET) Generating WireGuard config for $*\n"
+	@./scripts/config-wg.sh $*
 
 /usr/bin/wg:
 	sudo pacman -S wireguard-tools
-
-$(WG0):
-	sudo wg-quick up /etc/wireguard/wg0.conf
 
 # ----------------- NGINX ---------------------
 .PHONY: nginx config-nginx configure-domains configure-certbot
