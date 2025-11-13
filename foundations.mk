@@ -1,5 +1,12 @@
 .PHONY: dirs
 
+RED    := $(shell printf '\033[0;31m')
+GREEN  := $(shell printf '\033[0;32m')
+YELLOW := $(shell printf '\033[0;33m')
+BLUE   := $(shell printf '\033[0;34m')
+CYAN   := $(shell printf '\033[0;36m')
+RESET  := $(shell printf '\033[0m')
+
 define sctl
 	/etc/systemd/system/multi-user.target.wants/$(1).service
 endef
