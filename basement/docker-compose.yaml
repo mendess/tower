@@ -99,6 +99,18 @@ services:
       - 25500-25510:25500-25510
     restart: unless-stopped
 
+  rtp-memoria-dl:
+    build:
+      context: ${CODE_DIR}/rtp-memoria-dl
+      dockerfile: Dockerfile
+    container_name: rtp-memoria-dl
+    user: ${PUID}:${PGID}
+    ports:
+      - 8312:8312
+    volumes:
+      - ${DB_DIR}/basement/rtp-memoria-dl:/data
+    restart: unless-stopped
+
   # rusteze:
   #   build:
   #     context: ${CODE_DIR}/rusteze

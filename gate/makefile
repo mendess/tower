@@ -74,6 +74,7 @@ wg-%.conf:
 DOMAINS_WITH_PORT = mendess.xyz:8042 \
 	blind-eternities.mendess.xyz:1651 \
 	planar-bridge.mendess.xyz:1711 \
+	memoria.mendess.xyz:8312 \
 	pendrellvale.home:1025
 
 DOMAINS = $(shell echo $(DOMAINS_WITH_PORT) | sed 's/:[^ ]*//g')

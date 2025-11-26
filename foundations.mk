@@ -34,7 +34,7 @@ $(call sctl,%):
 /etc/%: ./etc/%
 	if [ -d "$<" ]; then \
 		mkdir -v -p $< ;\
-		touch --reference=$@ ;\
+		touch --reference=$@ $<;\
 	else \
 		sudo cp -v $< $@ ;\
 	fi
