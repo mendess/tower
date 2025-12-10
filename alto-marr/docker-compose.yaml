@@ -11,7 +11,7 @@ services:
     dns:
       - 1.1.1.1
     volumes:
-      - ${DATA_DIR}/alto-marr/torrents:/vault/alto-marr/torrents
+      - ${DB_DIR}/alto-marr/torrents:/vault/alto-marr/torrents
       - ${DB_DIR}/alto-marr/qbittorrent:/config/qBittorrent
     ports:
       - 8090:8090
@@ -61,7 +61,8 @@ services:
       - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${DATA_DIR}/alto-marr:/vault/alto-marr
+      - ${DATA_DIR}/alto-marr/media:/vault/alto-marr/media
+      - ${DB_DIR}/alto-marr/torrents:/vault/alto-marr/torrents
       - ${DB_DIR}/alto-marr/radarr:/config
   sonarr:
     container_name: sonarr
@@ -77,7 +78,8 @@ services:
       - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${DATA_DIR}/alto-marr:/vault/alto-marr
+      - ${DATA_DIR}/alto-marr/media:/vault/alto-marr/media
+      - ${DB_DIR}/alto-marr/torrents:/vault/alto-marr/torrents
       - ${DB_DIR}/alto-marr/sonarr:/config
   bazarr:
     container_name: bazarr
@@ -93,7 +95,8 @@ services:
       - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${DATA_DIR}/alto-marr:/vault/alto-marr
+      - ${DATA_DIR}/alto-marr/media:/vault/alto-marr/media
+      - ${DB_DIR}/alto-marr/torrents:/vault/alto-marr/torrents # TODO check if necessary
       - ${DB_DIR}/alto-marr/bazarr:/config
   scraparr:
     image: ghcr.io/thecfu/scraparr

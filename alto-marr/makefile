@@ -2,10 +2,11 @@
 
 include .env
 DIRS := $(DATA_DIR)/alto-marr/media \
-		$(DATA_DIR)/alto-marr/torrents \
+		$(DB_DIR)/alto-marr/torrents \
 		$(DB_DIR)/alto-marr/bazarr \
 		$(DB_DIR)/alto-marr/radarr \
 		$(DB_DIR)/alto-marr/sonarr \
+		$(DB_DIR)/alto-marr/lidarr \
 		$(DB_DIR)/alto-marr/qbittorrent \
 		$(DB_DIR)/alto-marr/prowlarr \
 		scraparr
