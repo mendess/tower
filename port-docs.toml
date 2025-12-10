@@ -20,6 +20,9 @@ port = 6767
 [alto-marr.radarr.web-ui]
 port = 7878
 
+[alto-marr.lidarr.web-ui]
+port = 8686
+
 [alto-marr.scraparr.metrics]
 port = 7100
 

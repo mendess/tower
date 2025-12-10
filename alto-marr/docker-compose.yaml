@@ -98,6 +98,23 @@ services:
       - ${DATA_DIR}/alto-marr/media:/vault/alto-marr/media
       - ${DB_DIR}/alto-marr/torrents:/vault/alto-marr/torrents # TODO check if necessary
       - ${DB_DIR}/alto-marr/bazarr:/config
+  lidarr:
+    container_name: lidarr
+    image: lscr.io/linuxserver/lidarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 8686:8686
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATA_DIR}/alto-marr/media:/vault/alto-marr/media
+      - ${DB_DIR}/alto-marr/torrents:/vault/alto-marr/torrents # TODO check if necessary
+      - ${DB_DIR}/alto-marr/lidarr:/config
   scraparr:
     image: ghcr.io/thecfu/scraparr
     container_name: scraparr
