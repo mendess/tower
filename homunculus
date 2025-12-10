@@ -211,3 +211,5 @@ fn doc_check() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+// vim: ft=rust
