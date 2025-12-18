@@ -110,6 +110,23 @@ services:
     volumes:
       - ${DB_DIR}/basement/rtp-memoria-dl:/data
     restart: unless-stopped
+  mc-frontend:
+    build:
+      context: ${CODE_DIR}/mc-frontend
+      dockerfile: Dockerfile
+    container_name: mc-frontend
+    user: ${PUID}:${PGID}
+    restart: unless-stopped
+    ports:
+      - 50002:50002
+    volumes:
+      - type: bind
+        source: ${CONFIG_DIR}/basement/mc-frontend
+        target: /config
+      - type: bind
+        source: /minecraft/backups
+        target: /backups
+        read_only: true
 
   # rusteze:
   #   build:
