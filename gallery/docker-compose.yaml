@@ -116,11 +116,30 @@ services:
     networks:
       - gallery_internal_network
 
+  navidrome:
+    container_name: navidrome
+    image: deluan/navidrome:latest
+    user: ${PUID}:${PGID}
+    ports:
+      - "4533:4533"
+    restart: unless-stopped
+    environment:
+      ND_LOGLEVEL: debug
+    networks:
+      - music_network
+    volumes:
+      - "${DB_DIR}/gallery/navidrome/data:/data"
+      - "${DB_DIR}/gallery/navidrome/music:/music:ro"
+
+
 volumes:
   immich-machine-learning-dot-config:
   immich-machine-learning-dot-cache:
   redis-data:
 
 networks:
+  music_network:
+    external: true
   gallery_internal_network:
     internal: true
+

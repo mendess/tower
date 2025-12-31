@@ -5,7 +5,9 @@ DIRS := $(DB_DIR)/gallery/jellyfin/config \
 		$(DB_DIR)/gallery/jellyfin/cache \
 		$(DATA_DIR)/gallery/immich \
 		$(DB_DIR)/gallery/immich/ml \
-		$(DB_DIR)/gallery/immich/db
+		$(DB_DIR)/gallery/immich/db \
+		$(DB_DIR)/gallery/navidrome/data \
+		$(DB_DIR)/gallery/navidrome/music
 include ../foundations.mk
 
 .PHONY: install alto-marr

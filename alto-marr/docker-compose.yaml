@@ -112,7 +112,7 @@ services:
       - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${DATA_DIR}/alto-marr/media:/vault/alto-marr/media
+      - ${DB_DIR}/gallery/navidrome/music:/vault/alto-marr/media/music
       - ${DB_DIR}/alto-marr/torrents:/vault/alto-marr/torrents # TODO check if necessary
       - ${DB_DIR}/alto-marr/lidarr:/config
   scraparr:

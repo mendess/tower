@@ -30,6 +30,9 @@ services:
       - db
     command:
       - '--config=/config/configuration.toml'
+    networks:
+      - default
+      - music_network
   planar-bridge:
     build:
       context: ${CODE_DIR}/blind-eternities
@@ -127,6 +130,10 @@ services:
         source: /minecraft/backups
         target: /backups
         read_only: true
+      - type: bind
+        source: /home/minecraft/large-forever
+        target: /large-forever
+        read_only: true
 
   # rusteze:
   #   build:
@@ -137,3 +144,8 @@ services:
   #   volumes:
   #     - ${DATA_DIR}/basement/rusteze:/data
   #   restart: unless-stopped
+networks:
+  default:
+  music_network:
+    driver: bridge
+    name: music_network

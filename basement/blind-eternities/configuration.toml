@@ -11,3 +11,6 @@ migrate = true
 
 [playlist_config]
 song_dir = "/data/music"
+
+[apis]
+navidrome = "http://navidrome:4533"
