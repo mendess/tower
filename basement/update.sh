@@ -10,9 +10,27 @@ for reference in "${@}"; do
         service="$project"
     fi
 
+    project=${project%@*}
+    proj_dir="$HOME/scriptorium/$project"
     (
-        cd "$HOME/scriptorium/$project"
+        cd "$proj_dir"
         git pull --rebase
     )
+    case "$service" in
+        *@*)
+            IFS='@' read service git_hash <<<"$service"
+            (
+                cd "$proj_dir"
+                git checkout "$git_hash"
+            )
+            undo=1
+            ;;
+    esac
     docker compose up "$service" -d --build
+    if [[ "$undo" ]]; then
+        (
+            cd "$proj_dir"
+            git checkout master
+        )
+    fi
 done
