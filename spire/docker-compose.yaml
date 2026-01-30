@@ -8,3 +8,57 @@ services:
       - 1025:8080
     restart: unless-stopped
     user: ${PUID}:${PGID}
+
+  nextcloud-mariadb:
+    image: mariadb:10.6
+    container_name: nextcloud-mariadb
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
+    restart: unless-stopped
+    volumes:
+      - ${DB_DIR}/spire/nextcloud/mariadb:/var/lib/mysql:Z
+    environment:
+      MYSQL_ROOT_PASSWORD: ${NEXTCLOUD_MARIADB_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${NEXTCLOUD_MARIADB_DB_PASSWORD}
+      MYSQL_DATABASE: ${NEXTCLOUD_MARIADB_DB_NAME}
+      MYSQL_USER: ${NEXTCLOUD_MARIADB_USER}
+      MARIADB_AUTO_UPGRADE: 1
+      MARIADB_DISABLE_UPGRADE_BACKUP: 1
+
+  nextcloud-redis:
+    image: redis:alpine
+    container_name: nextcloud-redis
+    restart: unless-stopped
+
+  nextcloud-cron:
+    image: nextcloud:apache
+    container_name: nextcloud-cron
+    restart: unless-stopped
+    volumes:
+      - ${DB_DIR}/spire/nextcloud/data:/var/www/html:z
+    entrypoint: /cron.sh
+    depends_on:
+      - nextcloud-mariadb
+      - nextcloud-redis
+
+  nextcloud:
+    image: nextcloud:apache
+    container_name: nextcloud
+    restart: unless-stopped
+    ports:
+      - 8085:80
+    volumes:
+      - ${DB_DIR}/spire/nextcloud/data:/var/www/html:z
+    environment:
+      TZ: ${TZ}
+      MYSQL_PASSWORD: ${NEXTCLOUD_MARIADB_DB_PASSWORD}
+      MYSQL_DATABASE: ${NEXTCLOUD_MARIADB_DB_NAME}
+      MYSQL_USER: ${NEXTCLOUD_MARIADB_DB_NAME}
+      MYSQL_HOST: nextcloud-mariadb
+      REDIS_HOST: nextcloud-redis
+      # NEXTCLOUD_TRUSTED_DOMAINS: cloud.${WEBSITE}
+      # OVERWRITECLIURL: https://cloud.${WEBSITE}
+      # OVERWRITEPROTOCOL: https
+    depends_on:
+      - nextcloud-mariadb
+      - nextcloud-redis
+
