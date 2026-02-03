@@ -71,12 +71,19 @@ wg-%.conf:
 # ----------------- NGINX ---------------------
 .PHONY: nginx config-nginx configure-domains configure-certbot
 
+INTERNAL_HOSTNAME = pendrellvale.home
+
 DOMAINS_WITH_PORT = mendess.xyz:8042 \
 	blind-eternities.mendess.xyz:1651 \
 	planar-bridge.mendess.xyz:1711 \
 	memoria.mendess.xyz:8312 \
 	minecraft.mendess.xyz:50002 \
-	pendrellvale.home:1025
+	$(INTERNAL_HOSTNAME):1025 \
+	$(shell cd .. && ./homunculus show web-ui \
+		| tail -n +3 \
+        | cut -d'|' -f3,4 \
+        | tr -d ' \t' \
+        | sed 's/|/.$(INTERNAL_HOSTNAME):/')
 
 DOMAINS = $(shell echo $(DOMAINS_WITH_PORT) | sed 's/:[^ ]*//g')
 
@@ -84,7 +91,7 @@ NGINX_SITE_FILES := $(addprefix /etc/nginx/sites-enabled/,$(DOMAINS))
 
 SOFTWARE = $(call bin,nginx certbot certbot)
 
-CERTBOT_NGINX = /usr/lib/python3.13/site-packages/certbot_nginx
+CERTBOT_NGINX = /usr/lib/python3.14/site-packages/certbot_nginx
 
 nginx: $(ROOT_DIRS) $(SOFTWARE) $(CERTBOT_NGINX) configure-domains configure-certbot config-nginx
 
@@ -101,12 +108,12 @@ config-nginx: /etc/nginx/nginx.conf
 
 /etc/nginx/sites-enabled/%: /etc/nginx/sites-available/%
 	sudo ln -s $< $@
-	[[ "$*" =~ pendrellvale* ]] || sudo certbot --nginx -d "$*" --agree-tos
+	[[ "$*" = *pendrellvale* ]] || sudo certbot --nginx -d "$*" --agree-tos
 	@sudo nginx -t
 	touch $(call stamp_file,/etc/nginx/nginx.conf)
 
 /etc/nginx/sites-available/%.home: ./domain-template-file.home
-	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep "$*.home:" | cut -d ':' -f 2); \
+	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep -E "^$*.home:" | cut -d ':' -f 2); \
 	sed "s|DOMAIN|$*|;s|PORT|$$port|" domain-template-file.home | sudo tee $@
 	@sudo nginx -t
 

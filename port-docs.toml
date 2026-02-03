@@ -1,6 +1,9 @@
 [spire.homer.web-ui]
 port = 1025
 
+[spire.nextcloud.web-ui]
+port = 8085
+
 [alto-marr.qbittorrent]
 web-ui = { port = 8090 }
 torrenting = { port = 50000, forwarded = true }
@@ -30,13 +33,13 @@ port = 7100
 web-ui = { port = 8096 }
 discovery = { port = 7359 }
 
-[gallery.immich_server]
-api = { port = 2283 }
+[gallery.immich]
+web-ui = { port = 2283 }
 metrics-1 = { port = 8081 }
 metrics-2 = { port = 8082 }
 
 [gallery.navidrome]
-api = { port = 4533 }
+web-ui = { port = 4533 }
 
 [watch.grafana.web-ui]
 port = 3000

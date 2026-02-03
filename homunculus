@@ -12,10 +12,10 @@
 
 use anyhow::Context as _;
 use clap::Parser;
+use indexmap::IndexMap;
 use regex::Regex;
 use serde::Deserialize;
 use std::collections::HashSet;
-use indexmap::IndexMap;
 use std::fs;
 use std::io::{BufRead, BufReader};
 use std::process::{Command as System, Stdio};
@@ -30,6 +30,7 @@ struct Args {
 #[derive(clap::Subcommand)]
 enum Command {
     Check,
+    Show { filter: String },
 }
 
 #[derive(Deserialize)]
@@ -68,22 +69,53 @@ fn main() -> anyhow::Result<()> {
 
     match args.command {
         Some(Command::Check) => doc_check()?,
-        None => print_table()?,
+        Some(Command::Show { filter }) => print_table(filter)?,
+        None => print_table(None)?,
     }
     Ok(())
 }
 
-fn parse_port_docs() -> anyhow::Result<PortDocs> {
+fn parse_port_docs(filter: impl Into<Option<String>>) -> anyhow::Result<PortDocs> {
+    let filter = filter.into();
     let data = fs::read_to_string("port-docs.toml").context("Failed to read file")?;
-    toml::from_str(&data).context("Failed to parse TOML")
+    toml::from_str::<PortDocs>(&data)
+        .map(|docs| {
+            if let Some(filter) = filter {
+                let filter_ports = |(port_key, _): &(String, ServicePort)| *port_key == filter;
+                let map_services = |(service_key, service): (String, Service)| {
+                    let service = Service {
+                        table: service.table.into_iter().filter(filter_ports).collect(),
+                    };
+                    (service_key, service)
+                };
+                let map_floors = |(floor_key, floor): (String, Floor)| {
+                    let floor = Floor {
+                        table: floor.table.into_iter().map(map_services).collect(),
+                    };
+                    (floor_key, floor)
+                };
+                PortDocs {
+                    table: docs.table.into_iter().map(map_floors).collect(),
+                }
+            } else {
+                docs
+            }
+        })
+        .context("Failed to parse TOML")
 }
 
-fn print_table() -> anyhow::Result<()> {
-    let port_docs = parse_port_docs()?;
+fn print_table(filter: impl Into<Option<String>>) -> anyhow::Result<()> {
+    let port_docs = parse_port_docs(filter)?;
     let mut printed_floor_name;
     let mut table = comfy_table::Table::new();
     table.load_preset(comfy_table::presets::ASCII_MARKDOWN);
-    table.set_header(vec!["floor", "service", "port", "comment", "port forwarded"]);
+    table.set_header(vec![
+        "floor",
+        "service",
+        "port",
+        "comment",
+        "port forwarded",
+    ]);
     for (floor_name, floor) in port_docs.iter() {
         printed_floor_name = false;
         for (service_name, service) in &floor.table {
@@ -91,7 +123,11 @@ fn print_table() -> anyhow::Result<()> {
             for (port_name, port) in &service.table {
                 table.add_row(vec![
                     if printed_floor_name { "" } else { floor_name },
-                    if printed_service_name { "" } else { service_name },
+                    if printed_service_name {
+                        ""
+                    } else {
+                        service_name
+                    },
                     &port.port.to_string(),
                     port_name,
                     if port.forwarded { "yes" } else { "" },
@@ -105,8 +141,8 @@ fn print_table() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn get_documented_ports() -> anyhow::Result<HashSet<u16>> {
-    Ok(parse_port_docs()?
+fn get_documented_ports(filter: impl Into<Option<String>>) -> anyhow::Result<HashSet<u16>> {
+    Ok(parse_port_docs(filter)?
         .iter()
         .flat_map(|(_, v)| v.table.values())
         .flat_map(|v| v.table.values())
@@ -118,7 +154,7 @@ static PORT_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r":(\d+)$").unwrap
 static PID_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"pid=(\d+)").unwrap());
 
 fn doc_check() -> anyhow::Result<()> {
-    let documented_ports = get_documented_ports()?;
+    let documented_ports = get_documented_ports(None)?;
 
     let mut cmd = System::new("sudo")
         .args(["ss", "-ltnup"])
