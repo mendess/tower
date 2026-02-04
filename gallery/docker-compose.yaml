@@ -119,6 +119,23 @@ services:
     networks:
       - gallery_internal_network
 
+  immich-public-proxy:
+    image: alangrainger/immich-public-proxy:latest
+    container_name: immich-public-proxy
+    restart: unless-stopped
+    ports:
+      - "2284:3000"
+    environment:
+      PUBLIC_BASE_URL: 'https://immich-share.mendess.xyz'
+      IMMICH_URL: 'http://immich_server:2283'
+    healthcheck:
+      test: curl -s http://localhost:3000/share/healthcheck -o /dev/null || exit 1
+      start_period: 10s
+      timeout: 5s
+    networks:
+      - default
+      - gallery_internal_network
+
   navidrome:
     container_name: navidrome
     image: deluan/navidrome:latest
