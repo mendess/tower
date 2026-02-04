@@ -14,6 +14,9 @@ services:
       - ${DB_DIR}/gallery/jellyfin/cache:/cache
       - ${DATA_DIR}/alto-marr/media:/media
     restart: unless-stopped
+    networks:
+      jellyfin:
+        ipv4_address: 10.5.0.2
     # Optional - alternative address used for autodiscovery
     # environment:
     #   - JELLYFIN_PublishedServerUrl=http://example.com
@@ -142,4 +145,9 @@ networks:
     external: true
   gallery_internal_network:
     internal: true
-
+  jellyfin:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1
