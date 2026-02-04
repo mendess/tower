@@ -78,6 +78,7 @@ DOMAINS_WITH_PORT = mendess.xyz:8042 \
 	planar-bridge.mendess.xyz:1711 \
 	memoria.mendess.xyz:8312 \
 	minecraft.mendess.xyz:50002 \
+	immich-share.mendess.xyz:2284 \
 	$(INTERNAL_HOSTNAME):1025 \
 	$(shell cd .. && ./homunculus show web-ui \
 		| tail -n +3 \
