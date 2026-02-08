@@ -4,6 +4,9 @@ port = 1025
 [spire.nextcloud.web-ui]
 port = 8085
 
+[spire.homeassistant.web-ui]
+port = 8123
+
 [alto-marr.qbittorrent]
 web-ui = { port = 8090 }
 torrenting = { port = 50000, forwarded = true }
