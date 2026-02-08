@@ -1,0 +1,35 @@
+server {
+    server_name jellyfin.pendrellvale.home;
+    listen 80;
+    http2 on;
+
+    # allow large file uploads
+    client_max_body_size 20M;
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Protocol $scheme;
+    proxy_set_header X-Forwarded-Host $http_host;
+
+    allow 192.168.42.0/24;
+    allow 10.0.0.0/24;
+    deny all;
+
+    location / {
+        proxy_pass http://127.0.0.1:8096;
+        # Disable buffering when the nginx proxy gets very resource heavy upon streaming
+        proxy_buffering off;
+    }
+
+    # Proxy Jellyfin Websockets traffic
+    location /socket {
+        proxy_pass http://127.0.0.1:8096;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        # enable websockets: http://nginx.org/en/docs/http/websocket.html
+        proxy_redirect     off;
+    }
+}

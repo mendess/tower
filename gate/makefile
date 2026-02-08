@@ -113,6 +113,9 @@ config-nginx: /etc/nginx/nginx.conf
 	@sudo nginx -t
 	touch $(call stamp_file,/etc/nginx/nginx.conf)
 
+/etc/nginx/sites-available/%.home: ./etc/nginx/sites-available/%.home
+	sudo cp -v ./etc/nginx/sites-available/$*.home /etc/nginx/sites-available/$*.home
+
 /etc/nginx/sites-available/%.home: ./domain-template-file.home
 	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep -E "^$*.home:" | cut -d ':' -f 2); \
 	sed "s|DOMAIN|$*|;s|PORT|$$port|" domain-template-file.home | sudo tee $@
