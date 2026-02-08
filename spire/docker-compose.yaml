@@ -62,3 +62,21 @@ services:
       - nextcloud-mariadb
       - nextcloud-redis
 
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - ${DB_DIR}/spire/home-assistant:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    ports:
+      - 8123:8123
+    privileged: true
+    cap_add:
+    - NET_ADMIN
+    - NET_RAW
+    environment:
+      TZ: ${TZ}
+    extra_hosts:
+    - "host.docker.internal:host-gateway"

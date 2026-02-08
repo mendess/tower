@@ -1,2 +1,7 @@
 alto-marr/scraparr/config.yaml
 gate/wireguard-keys/
+spire/home-assistant/.storage
+spire/home-assistant/home-assistant.log*
+spire/home-assistant/home-assistant_v2*
+spire/home-assistant/.HA_VERSION
+spire/home-assistant/.ha_run.lock
