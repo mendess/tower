@@ -41,6 +41,9 @@ web-ui = { port = 2283 }
 metrics-1 = { port = 8081 }
 metrics-2 = { port = 8082 }
 
+[gallery.immich-share]
+web-ui = { port = 2284 }
+
 [gallery.navidrome]
 web-ui = { port = 4533 }
 
