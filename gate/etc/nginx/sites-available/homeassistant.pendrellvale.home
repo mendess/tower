@@ -7,6 +7,10 @@ server {
     # Update this line to be your domain
     server_name homeassistant.pendrellvale.home;
 
+    allow 192.168.42.0/24;
+    allow 10.0.0.0/24;
+    deny all;
+
     add_header Strict-Transport-Security "max-age=31536000; includeSubdomains";
 
     proxy_buffering off;

@@ -105,6 +105,7 @@ config-nginx: /etc/nginx/nginx.conf
 	@for f in $(call stamp_file,/etc/nginx/nginx.conf); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
 	rm -v $${reload[@]}
 	@echo "reloading nginx"
+	sudo nginx -t || exit 1
 	sudo systemctl restart nginx
 
 /etc/nginx/sites-enabled/%: /etc/nginx/sites-available/%

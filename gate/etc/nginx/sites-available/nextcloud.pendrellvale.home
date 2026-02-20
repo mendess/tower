@@ -17,6 +17,10 @@ server {
     proxy_buffering off;
     proxy_request_buffering off;
 
+    allow 192.168.42.0/24;
+    allow 10.0.0.0/24;
+    deny all;
+
     client_max_body_size 0;
     client_body_buffer_size 512k;
     http3_stream_buffer_size 512k; # uncomment to enable HTTP/3 / QUIC - supported on nginx v1.25.0+
