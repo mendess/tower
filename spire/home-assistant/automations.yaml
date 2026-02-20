@@ -1,1 +1,34 @@
-[]
+- id: '1771246066484'
+  alias: Welcome home
+  description: ''
+  triggers:
+  - device_id: 63e3d64a1a19eff86f97a51317750168
+    domain: device_tracker
+    entity_id: 436c9eb2cc16d3c98b8af6324030d4ce
+    type: enters
+    trigger: device
+    zone: zone.home
+  conditions: []
+  actions:
+  - action: script.wake_aramanthinewall
+    metadata: {}
+    data: {}
+  mode: single
+- id: '1771331270206'
+  alias: Leave home
+  description: ''
+  triggers:
+  - device_id: 63e3d64a1a19eff86f97a51317750168
+    domain: device_tracker
+    entity_id: 436c9eb2cc16d3c98b8af6324030d4ce
+    type: leaves
+    trigger: device
+    zone: zone.home
+  conditions: []
+  actions:
+  - action: webostv.command
+    metadata: {}
+    data:
+      command: system/turnOff
+      entity_id: media_player.aramanthinewall
+  mode: single

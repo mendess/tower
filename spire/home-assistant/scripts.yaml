@@ -1,0 +1,45 @@
+tv_sleep_timer:
+  sequence:
+  - delay:
+      hours: 0
+      minutes: 30
+      seconds: 0
+      milliseconds: 0
+  - action: webostv.command
+    metadata: {}
+    data:
+      entity_id: media_player.aramanthinewall
+      command: system/turnOff
+  alias: TV sleep timer
+  description: ''
+  icon: mdi:sleep
+wake_aramanthinewall:
+  sequence:
+  - action: shell_command.wake_on_lan
+    metadata: {}
+    data:
+      mac: aramanthinewall.mac
+    response_variable: r
+  alias: Wake aramanthinewall
+  description: ''
+  icon: mdi:television
+toggle_tv:
+  sequence:
+  - if:
+    - condition: state
+      entity_id: media_player.aramanthinewall
+      state:
+      - 'on'
+    then:
+    - action: webostv.command
+      metadata: {}
+      data:
+        entity_id: media_player.aramanthinewall
+        command: system/turnOff
+    else:
+    - action: script.wake_aramanthinewall
+      metadata: {}
+      data: {}
+  alias: Toggle Tv
+  description: ''
+  icon: mdi:remote-tv

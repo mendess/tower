@@ -1,0 +1,12 @@
+[Unit]
+Description=Listen for wake-on-lan from docker via pipe
+
+[Service]
+Restart=always
+User=root
+ExecStartPre=/usr/bin/mkdir -p /tmp/home-assistant
+ExecStartPre=/usr/bin/rm -f /tmp/home-assistant/wol.fifo ; /usr/bin/mkfifo -m 0666 /tmp/home-assistant/wol.fifo
+ExecStart=/usr/bin/socat -u -v PIPE:/tmp/home-assistant/wol.fifo EXEC:"xargs wol"
+
+[Install]
+WantedBy=multi-user.target

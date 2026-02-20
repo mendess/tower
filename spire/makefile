@@ -8,7 +8,10 @@ CONFIG = ~/vault/spire/homer/config.yml
 
 .PHONY: install
 
-install: dirs $(CONFIG)
+/usr/%: ./usr/%
+	sudo rsync -av $< $@
+
+install: $(call bin,wol) dirs $(CONFIG) /usr/lib/systemd/system/docker-wol.service $(call sctl,docker-wol)
 
 $(CONFIG):
 	ln ./homer/config.yml $@

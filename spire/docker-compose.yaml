@@ -69,6 +69,7 @@ services:
       - ${CONFIG_DIR}/spire/home-assistant:/config
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
+      - /tmp/home-assistant:/pipes
     restart: unless-stopped
     ports:
       - 8123:8123

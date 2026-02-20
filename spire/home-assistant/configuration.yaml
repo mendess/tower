@@ -13,3 +13,6 @@ http:
   use_x_forwarded_for: true
   trusted_proxies:
     - 10.6.0.1
+
+shell_command:
+  wake_on_lan: socat -u FILE:{{ mac }} PIPE:/pipes/wol.fifo
