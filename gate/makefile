@@ -6,7 +6,7 @@ include ../foundations.mk
 
 
 .PHONY: install
-install: ssh unbound wireguard nginx
+install: ssh unbound wireguard nginx dhcp
 
 # ------------------- SSHD ----------------------
 .PHONY: ssh
@@ -133,3 +133,8 @@ config-nginx: /etc/nginx/nginx.conf
 
 $(CERTBOT_NGINX):
 	sudo pacman -S certbot-nginx
+
+# ----------------- DHCP ---------------------
+
+dhcp: /etc/dhcpd.conf /etc/conf.d/dhcpd $(call sctl,dhcpd4)
+	./toggle-static-ip.sh apply
