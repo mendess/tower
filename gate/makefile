@@ -36,7 +36,7 @@ config-unbound: $(UNBOUND_CONFIG)
 	sudo systemctl restart unbound
 
 /etc/unbound/trusted-key.key:
-	sudo -u unbound unbound-anchor -a /etc/unbound/trusted-key.key
+	-sudo -u unbound unbound-anchor -a /etc/unbound/trusted-key.key
 
 # ----------------- WIREGUARD ---------------------
 # source: https://web.archive.org/web/20250911080027/https://robertlathanh.com/2025/03/setting-up-a-vpn-for-home-intranet-access-with-wireguard/
