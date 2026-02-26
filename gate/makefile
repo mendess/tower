@@ -136,5 +136,16 @@ $(CERTBOT_NGINX):
 
 # ----------------- DHCP ---------------------
 
-dhcp: /etc/dhcpd.conf /etc/conf.d/dhcpd $(call sctl,dhcpd4)
+.PHONY: dnsmasq config-dnsmasq
+
+DNSMASQ_CONFIG = /etc/dnsmasq.conf
+
+dnsmasq: config-dnsmasq $(call sctl,dnsmasq)
 	./toggle-static-ip.sh apply
+
+.ONESHELL: config-dnsmasq
+config-dnsmasq: $(DNSMASQ_CONFIG)
+	@for f in $(call stamp_file,$(DNSMASQ_CONFIG)); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
+	rm -v $${reload[@]}
+	@echo "reloading dnsmasq"
+	sudo systemctl restart unbound

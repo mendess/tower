@@ -23,9 +23,10 @@ static-ip() {
                 ipv4.address "192.168.42.2/24" \
                 ipv4.gateway "192.168.42.1" \
                 ipv4.dns "127.0.0.1" \
+                ipv4.dns-search "lan" \
                 ipv4.method "manual"
-            nmcli con down "$con"
-            nmcli con up "$con"
+            sudo nmcli con down "$con"
+            sudo nmcli con up "$con"
             ;;
         revert)
             if [[ "$method" = ipv4.method:auto ]]; then
@@ -37,9 +38,10 @@ static-ip() {
                 ipv4.address "" \
                 ipv4.gateway "" \
                 ipv4.dns "" \
+                ipv4.dns-search "" \
                 ipv4.method "auto"
-            nmcli con down "$con"
-            nmcli con up "$con"
+            sudo nmcli con down "$con"
+            sudo nmcli con up "$con"
             ;;
         *)
             echo "usage $0 apply|revert"
