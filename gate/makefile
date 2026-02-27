@@ -33,6 +33,7 @@ config-unbound: $(UNBOUND_CONFIG)
 	@for f in $(call stamp_file,$(UNBOUND_CONFIG)); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
 	rm -v $${reload[@]}
 	@echo "reloading unbound"
+	sudo unbound-checkconf || exit 1
 	sudo systemctl restart unbound
 
 /etc/unbound/trusted-key.key:
