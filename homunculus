@@ -16,8 +16,8 @@ use indexmap::IndexMap;
 use regex::Regex;
 use serde::Deserialize;
 use std::collections::HashSet;
-use std::fs;
-use std::io::{BufRead, BufReader};
+use std::fs::{self, File};
+use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use std::process::{Command as System, Stdio};
 use std::sync::LazyLock;
 
@@ -31,6 +31,7 @@ struct Args {
 enum Command {
     Check,
     Show { filter: String },
+    GenEnv,
 }
 
 #[derive(Deserialize)]
@@ -70,8 +71,30 @@ fn main() -> anyhow::Result<()> {
     match args.command {
         Some(Command::Check) => doc_check()?,
         Some(Command::Show { filter }) => print_table(filter)?,
+        Some(Command::GenEnv) => gen_env()?,
         None => print_table(None)?,
     }
+    Ok(())
+}
+
+fn gen_env() -> anyhow::Result<()> {
+    let mut public = BufReader::new(File::open(".env.public").context("no public env file found")?);
+    let mut private =
+        BufReader::new(File::open(".env.private").context("no private env file found")?);
+    let mut out = BufWriter::new(File::create(".env")?);
+
+    let mut buf = String::new();
+    while {
+        buf.clear();
+        public.read_line(&mut buf)? > 0
+    } {
+        if buf.starts_with("%private-vars") {
+            io::copy(&mut private, &mut out)?;
+        } else {
+            out.write_all(buf.as_bytes())?;
+        }
+    }
+
     Ok(())
 }
 
