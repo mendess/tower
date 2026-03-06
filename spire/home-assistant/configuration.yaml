@@ -14,5 +14,23 @@ http:
   trusted_proxies:
     - 127.0.0.1
 
+
+switch:
+  - platform: wake_on_lan
+    mac: 24:4b:fe:81:b6:ab
+    name: tolaria
+    host: tolaria.lan
+    turn_off:
+      action: shell_command.turn_off_tolaria
+
+
 shell_command:
-  wake_on_lan: socat -u FILE:{{ mac }} PIPE:/pipes/wol.fifo
+  turn_off_tolaria: ssh -i /config/.ssh/id_ed25519 -o UserKnownHostsFile=/config/.ssh/known_hosts mendess@tolaria.lan -- sudo shutdown now
+  tolaria_turn_on_steam: ssh -i /config/.ssh/id_ed25519 -o UserKnownHostsFile=/config/.ssh/known_hosts mendess@tolaria.lan -- shyprctl l /home/mendess/.local/bin/setup-remote-steam
+
+logger:
+  default: warning
+  logs:
+    homeassistant.components.shell_command: debug
+
+

@@ -15,11 +15,11 @@ tv_sleep_timer:
   icon: mdi:sleep
 wake_aramanthinewall:
   sequence:
-  - action: shell_command.wake_on_lan
+  - action: button.press
     metadata: {}
-    data:
-      mac: aramanthinewall.mac
-    response_variable: r
+    target:
+      entity_id: button.wake_on_lan_00_a1_59_f0_03_7f
+    data: {}
   alias: Wake aramanthinewall
   description: ''
   icon: mdi:television
@@ -43,3 +43,27 @@ toggle_tv:
   alias: Toggle Tv
   description: ''
   icon: mdi:remote-tv
+turn_on_tolaria_w_steam_if_tolaria_is_off:
+  sequence:
+  - if:
+    - condition: state
+      entity_id: switch.wake_on_lan
+      state:
+      - 'off'
+    then:
+    - action: switch.turn_on
+      metadata: {}
+      target:
+        entity_id: switch.wake_on_lan
+      data: {}
+    - action: input_boolean.turn_on
+      metadata: {}
+      target:
+        entity_id: input_boolean.tolaria_steam_intent
+      data: {}
+    else:
+    - action: shell_command.tolaria_turn_on_steam
+      metadata: {}
+      data: {}
+  alias: 'tolaria: start remote steam'
+  description: ''

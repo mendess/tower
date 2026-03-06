@@ -32,3 +32,44 @@
       command: system/turnOff
       entity_id: media_player.aramanthinewall
   mode: single
+- id: '1771934637797'
+  alias: Avisar a Andreia <3
+  description: ''
+  triggers:
+  - type: battery_level
+    device_id: 2d2c2820b54f2d03eecd136594a62365
+    entity_id: f982c0eb5ef422cd77b9e8a6faa6f966
+    domain: sensor
+    trigger: device
+    below: 20
+  conditions:
+  - condition: device
+    device_id: 2d2c2820b54f2d03eecd136594a62365
+    domain: device_tracker
+    entity_id: dd8d91c3d376dfb09b50e31442f4825e
+    type: is_not_home
+  actions:
+  - action: notify.mobile_app_pixel_9a
+    metadata: {}
+    data:
+      title: Tens pouca bateria no telemovel!
+      message: "Se calhar era melhor por a carregar \U0001F917"
+  mode: single
+- id: '1772244305879'
+  alias: Start Gaming Mode
+  description: ''
+  triggers:
+  - trigger: webhook
+    allowed_methods:
+    - POST
+    local_only: true
+    webhook_id: start_gaming_mode
+  conditions: []
+  actions:
+  - action: script.turn_on_tolaria_w_steam_if_tolaria_is_off
+    metadata: {}
+    data: {}
+  - action: script.wake_aramanthinewall
+    metadata: {}
+    data: {}
+  mode: single

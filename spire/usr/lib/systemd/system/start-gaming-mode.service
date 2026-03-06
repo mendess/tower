@@ -1,0 +1,4 @@
+[Service]
+Type=oneshot
+User=mendess
+ExecStart=/usr/local/bin/start-gaming-mode

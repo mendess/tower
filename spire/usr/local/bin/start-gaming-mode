@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if ! pgrep steamlink &>/dev/null; do
+    shyprctl l flatpak run com.valvesoftware.SteamLink
+done
+
+curl -X POST http://localhost:8123/api/webhook/start_gaming_mode
+
+sleep 1m
+/home/mendess/.local/share/cargo/bin/m set-pause
+pid=$(pgrep steamlink)
+tail --pid=$pid -f /dev/null
+/home/mendess/.local/share/cargo/bin/m set-play

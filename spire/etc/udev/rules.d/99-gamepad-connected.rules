@@ -1,0 +1,1 @@
+SUBSYSTEM=="usb", ATTR{idVendor}=="2dc8", ATTR{idProduct}=="310b", ACTION=="add", RUN+="/usr/bin/systemctl --no-block start start-gaming-mode"
