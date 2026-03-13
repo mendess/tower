@@ -1,13 +1,53 @@
 #!/bin/bash
 
-if ! pgrep steamlink &>/dev/null; do
+set -euo pipefail
+
+m() {
+    /home/mendess/.local/share/cargo/bin/m "$@"
+}
+
+if ! pgrep steamlink &>/dev/null; then
     shyprctl l flatpak run com.valvesoftware.SteamLink
-done
+fi
 
 curl -X POST http://localhost:8123/api/webhook/start_gaming_mode
 
-sleep 1m
-/home/mendess/.local/share/cargo/bin/m set-pause
-pid=$(pgrep steamlink)
-tail --pid=$pid -f /dev/null
-/home/mendess/.local/share/cargo/bin/m set-play
+pid=
+for _ in {0..10}; do
+    if pid=$(pgrep steamlink); then
+        break
+    fi
+    sleep 1
+done
+
+(
+    token=$(cat ~/tower/spire/home-assistant-token)
+
+    tolaria=$(curl -X GET \
+      -H "Authorization: Bearer $token" \
+      -H "Content-Type: application/json" \
+      http://localhost:8123/api/states/switch.wake_on_lan | jq .state -r)
+    if [[ "$tolaria" != on ]]; then
+        sleep 1m
+    fi
+    while [[ "$(m volume)" -gt 20 ]]; do
+        m vd 2
+        sleep 1
+    done
+    m vd 20
+    m set-pause
+    curl -X POST http://localhost:8123/api/webhook/set_tv_volume_25
+) &
+
+tail --pid="$pid" -f /dev/null
+jobs=$(jobs -p)
+if [[ "$jobs" ]]; then
+    kill "$jobs" || :
+fi
+
+curl -X POST http://localhost:8123/api/webhook/set_tv_volume_10
+m set-play
+while [[ "$(m volume)" -lt 100 ]]; do
+    m vu 5
+    sleep 0.5
+done

@@ -66,10 +66,48 @@
     webhook_id: start_gaming_mode
   conditions: []
   actions:
-  - action: script.turn_on_tolaria_w_steam_if_tolaria_is_off
-    metadata: {}
-    data: {}
   - action: script.wake_aramanthinewall
     metadata: {}
     data: {}
+  - action: script.turn_on_tolaria_w_steam_if_tolaria_is_off
+    metadata: {}
+    data: {}
+  mode: single
+- id: '1773092194701'
+  alias: Set TV Volume 25
+  description: ''
+  triggers:
+  - trigger: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
+    webhook_id: set_tv_volume_25
+  conditions: []
+  actions:
+  - action: media_player.volume_set
+    metadata: {}
+    target:
+      entity_id: media_player.aramanthinewall
+    data:
+      volume_level: 0.25
+  mode: single
+- id: '1773092252112'
+  alias: Set TV volume 10
+  description: ''
+  triggers:
+  - trigger: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
+    webhook_id: set_tv_volume_10
+  conditions: []
+  actions:
+  - action: media_player.volume_set
+    metadata: {}
+    target:
+      entity_id: media_player.aramanthinewall
+    data:
+      volume_level: 0.1
   mode: single

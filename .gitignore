@@ -7,5 +7,6 @@ spire/home-assistant/.HA_VERSION
 spire/home-assistant/.ha_run.lock
 spire/home-assistant/.shopping_list.json
 spire/home-assistant/.ssh
+spire/home-assistant-token
 .env
 .env.private
