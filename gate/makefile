@@ -6,7 +6,7 @@ include ../foundations.mk
 
 
 .PHONY: install
-install: ssh unbound wireguard nginx dhcp
+install: ssh unbound wireguard nginx dnsmasq
 
 # ------------------- SSHD ----------------------
 .PHONY: ssh

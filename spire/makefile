@@ -9,9 +9,6 @@ HOME_ASSISTANT_CONFIG = $(shell find ./etc | sed 's|\.||') $(shell find ./usr | 
 
 .PHONY: install
 
-/usr/%: ./usr/%
-	sudo rsync -av $< $@
-
 install: dirs $(CONFIG) $(HOME_ASSISTANT_CONFIG)
 
 $(CONFIG):

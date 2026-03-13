@@ -33,8 +33,17 @@ $(call sctl,%):
 
 /etc/%: ./etc/%
 	if [ -d "$<" ]; then \
-		mkdir -v -p $< ;\
-		touch --reference=$@ $<;\
+		sudo mkdir -v -p $@ ;\
+		sudo touch --reference=$< $@;\
+	else \
+		sudo cp -v $< $@ ;\
+	fi
+	touch $(call stamp_file,$@)
+
+/usr/%: ./usr/%
+	if [ -d "$<" ]; then \
+		sudo mkdir -v -p $@ ;\
+		sudo touch --reference=$< $@;\
 	else \
 		sudo cp -v $< $@ ;\
 	fi
