@@ -20,9 +20,9 @@ static-ip() {
             echo gateway=$gateway
             echo dns=$dns
             sudo nmcli con mod "$con" \
-                ipv4.address "192.168.42.2/24" \
-                ipv4.gateway "192.168.42.1" \
-                ipv4.dns "127.0.0.1" \
+                ipv4.address "$address" \
+                ipv4.gateway "$gateway" \
+                ipv4.dns "$dns" \
                 ipv4.dns-search "lan" \
                 ipv4.method "manual"
             sudo nmcli con down "$con"
