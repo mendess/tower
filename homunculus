@@ -15,9 +15,10 @@ use clap::Parser;
 use indexmap::IndexMap;
 use regex::Regex;
 use serde::Deserialize;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fs::{self, File};
 use std::io::{self, BufRead, BufReader, BufWriter, Write};
+use std::net::Ipv4Addr;
 use std::process::{Command as System, Stdio};
 use std::sync::LazyLock;
 
@@ -32,6 +33,8 @@ enum Command {
     Check,
     Show { filter: String },
     GenEnv,
+    WgUsers { ip: Option<Ipv4Addr> },
+    DnsStats,
 }
 
 #[derive(Deserialize)]
@@ -72,6 +75,8 @@ fn main() -> anyhow::Result<()> {
         Some(Command::Check) => doc_check()?,
         Some(Command::Show { filter }) => print_table(filter)?,
         Some(Command::GenEnv) => gen_env()?,
+        Some(Command::WgUsers { ip }) => show_wg_users(ip)?,
+        Some(Command::DnsStats) => show_dns_stats()?,
         None => print_table(None)?,
     }
     Ok(())
@@ -268,6 +273,112 @@ fn doc_check() -> anyhow::Result<()> {
 
     println!("{table}");
 
+    Ok(())
+}
+
+fn show_wg_users(ip: Option<Ipv4Addr>) -> anyhow::Result<()> {
+    for network in ["wg0", "mc1"] {
+        let users = users_for_vpn(network)?;
+        for User { name, ip } in users
+            .into_iter()
+            .filter(|u| ip.map(|ip| ip == u.ip).unwrap_or(true))
+        {
+            println!("[{network}] {ip}: {name}");
+        }
+    }
+    Ok(())
+}
+
+#[derive(Debug, Clone)]
+struct User {
+    name: String,
+    ip: Ipv4Addr,
+}
+
+fn users_for_vpn(network: &str) -> anyhow::Result<Vec<User>> {
+    let text = std::fs::read_to_string(format!("./gate/etc/wireguard/{network}.conf"))?;
+    #[derive(Debug)]
+    enum StateMachine {
+        BeforeDevices,
+        SeekingUser,
+        InUser { name: String },
+    }
+
+    let mut state = StateMachine::BeforeDevices;
+    let mut users = Vec::new();
+
+    for line in text.split('\n') {
+        match &mut state {
+            StateMachine::BeforeDevices => {
+                if line.starts_with("#== devices") {
+                    state = StateMachine::SeekingUser;
+                }
+            }
+            StateMachine::SeekingUser => {
+                if let Some(name) = line.strip_prefix("#-- ") {
+                    state = StateMachine::InUser {
+                        name: name.to_owned(),
+                    };
+                }
+            }
+            StateMachine::InUser { name } => {
+                if let Some(ip) = line.strip_prefix("AllowedIPs = ") {
+                    users.push(User {
+                        ip: ip.trim_end_matches("/32").parse()?,
+                        name: std::mem::take(name),
+                    });
+                    state = StateMachine::SeekingUser;
+                }
+            }
+        }
+    }
+
+    Ok(users)
+}
+
+fn show_dns_stats() -> anyhow::Result<()> {
+    let users = ["wg0", "mc1"]
+        .into_iter()
+        .map(users_for_vpn)
+        .collect::<anyhow::Result<Vec<_>>>()?
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>();
+    let output = std::process::Command::new("sudo")
+        .args(["journalctl", "-u", "unbound.service"])
+        .output()?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let mut counts = HashMap::<Ipv4Addr, u64>::new();
+    for line in stdout.split('\n') {
+        static REGEX: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"info: (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})").unwrap());
+        if let Some(captures) = REGEX.captures(line) {
+            let ip = captures[1].parse()?;
+            *counts.entry(ip).or_default() += 1;
+        }
+    }
+    let mut leader_board = counts
+        .into_iter()
+        .map(|(ip, count)| {
+            (
+                count,
+                users
+                    .iter()
+                    .find(|u| u.ip == ip)
+                    .cloned()
+                    .unwrap_or_else(|| User {
+                        ip,
+                        name: "unknown".to_owned(),
+                    }),
+            )
+        })
+        .collect::<Vec<_>>();
+
+    leader_board.sort_by_key(|(count, _)| std::cmp::Reverse(*count));
+    println!("===== DNS USERS LEADERBOARD =====");
+    for (count, user) in leader_board {
+        println!("{}@{} : {count}", user.name, user.ip);
+    }
     Ok(())
 }
 
