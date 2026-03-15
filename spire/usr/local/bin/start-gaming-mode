@@ -6,11 +6,28 @@ m() {
     /home/mendess/.local/share/cargo/bin/m "$@"
 }
 
-if ! pgrep steamlink &>/dev/null; then
-    shyprctl l flatpak run com.valvesoftware.SteamLink
+export HASS_TOKEN=$(cat ~/tower/spire/home-assistant-token)
+
+tv-is-off() {
+    state=$(curl -q -X GET \
+      -H "Authorization: Bearer $HASS_TOKEN" \
+      -H "Content-Type: application/json" \
+      http://localhost:8123/api/states/media_player.aramanthinewall | jq .state -r)
+
+    [[ "$state" != on ]]
+}
+
+if pgrep steamlink &>/dev/null; then
+    exit
 fi
 
-curl -X POST http://localhost:8123/api/webhook/start_gaming_mode
+curl -q -X POST http://localhost:8123/api/webhook/start_gaming_mode
+
+while tv-is-off; do
+    sleep 1
+done
+
+shyprctl l flatpak run com.valvesoftware.SteamLink
 
 pid=
 for _ in {0..10}; do
@@ -21,10 +38,8 @@ for _ in {0..10}; do
 done
 
 (
-    token=$(cat ~/tower/spire/home-assistant-token)
-
-    tolaria=$(curl -X GET \
-      -H "Authorization: Bearer $token" \
+    tolaria=$(curl -q -X GET \
+      -H "Authorization: Bearer $HASS_TOKEN" \
       -H "Content-Type: application/json" \
       http://localhost:8123/api/states/switch.wake_on_lan | jq .state -r)
     if [[ "$tolaria" != on ]]; then
@@ -45,7 +60,7 @@ if [[ "$jobs" ]]; then
     kill "$jobs" || :
 fi
 
-curl -X POST http://localhost:8123/api/webhook/set_tv_volume_10
+curl -q -X POST http://localhost:8123/api/webhook/set_tv_volume_10
 m set-play
 while [[ "$(m volume)" -lt 100 ]]; do
     m vu 5
