@@ -50,7 +50,6 @@ done
         sleep 1
     done
     m vd 20
-    m set-pause
     curl -X POST http://localhost:8123/api/webhook/set_tv_volume_25
 ) &
 
@@ -61,7 +60,7 @@ if [[ "$jobs" ]]; then
 fi
 
 curl -q -X POST http://localhost:8123/api/webhook/set_tv_volume_10
-m set-play
+ssh tolaria -- shyprctl l /home/mendess/.local/bin/toggle-resolution 21:9
 while [[ "$(m volume)" -lt 100 ]]; do
     m vu 5
     sleep 0.5

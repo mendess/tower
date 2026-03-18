@@ -8,7 +8,13 @@
     type: enters
     trigger: device
     zone: zone.home
-  conditions: []
+  conditions:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.ornithopter_connected_to_xm5
+      state:
+      - 'on'
   actions:
   - action: script.wake_aramanthinewall
     metadata: {}
