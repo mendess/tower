@@ -141,7 +141,7 @@ $(CERTBOT_NGINX):
 
 DNSMASQ_CONFIG = /etc/dnsmasq.conf
 
-dnsmasq: config-dnsmasq $(call sctl,dnsmasq)
+dnsmasq: config-dnsmasq $(call sctl,dnsmasq) /etc/hosts
 	./toggle-static-ip.sh apply
 
 .ONESHELL: config-dnsmasq

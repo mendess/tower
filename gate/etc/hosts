@@ -1,0 +1,7 @@
+# Static table lookup for hostnames.
+# See hosts(5) for details.
+127.0.0.1        localhost
+::1              localhost
+192.168.42.2	 pendrellvale.lan
+192.168.42.3	 tolaria.lan
+192.168.42.50	 aramanthinewall.lan
