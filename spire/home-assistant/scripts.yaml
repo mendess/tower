@@ -1,5 +1,14 @@
 tv_sleep_timer:
   sequence:
+  - if:
+    - condition: state
+      entity_id: input_boolean.tv_screen
+      state:
+      - 'on'
+    then:
+    - action: script.turn_off_tv_screen
+      metadata: {}
+      data: {}
   - delay:
       hours: 0
       minutes: 30
@@ -67,3 +76,33 @@ turn_on_tolaria_w_steam_if_tolaria_is_off:
       data: {}
   alias: 'tolaria: start remote steam'
   description: ''
+turn_off_tv_screen:
+  sequence:
+  - action: webostv.command
+    metadata: {}
+    data:
+      entity_id: media_player.aramanthinewall
+      command: com.webos.service.tvpower/power/turnOffScreen
+  - action: input_boolean.turn_off
+    metadata: {}
+    target:
+      entity_id: input_boolean.tv_screen
+    data: {}
+  alias: Turn off TV screen
+  description: ''
+  icon: mdi:television
+turn_on_tv_screen:
+  sequence:
+  - action: webostv.command
+    metadata: {}
+    data:
+      entity_id: media_player.aramanthinewall
+      command: com.webos.service.tvpower/power/turnOnScreen
+  - action: input_boolean.turn_on
+    metadata: {}
+    target:
+      entity_id: input_boolean.tv_screen
+    data: {}
+  alias: Turn on TV screen
+  description: ''
+  icon: mdi:television

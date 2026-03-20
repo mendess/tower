@@ -117,3 +117,22 @@
     data:
       volume_level: 0.1
   mode: single
+- id: '1773967837355'
+  alias: Screen turns on when tv turns on
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - media_player.aramanthinewall
+    from:
+    - unavailable
+    - 'off'
+    to:
+  conditions: []
+  actions:
+  - action: input_boolean.turn_on
+    metadata: {}
+    target:
+      entity_id: input_boolean.tv_screen
+    data: {}
+  mode: single
