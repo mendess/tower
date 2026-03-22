@@ -61,6 +61,7 @@ fi
 
 curl -q -X POST http://localhost:8123/api/webhook/set_tv_volume_10
 ssh tolaria -- shyprctl l /home/mendess/.local/bin/toggle-resolution 21:9
+m set-play
 while [[ "$(m volume)" -lt 100 ]]; do
     m vu 5
     sleep 0.5
