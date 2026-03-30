@@ -142,7 +142,7 @@ services:
   #   container_name: rusteze
   #   user: ${PUID}:${PGID}
   #   volumes:
-  #     - ${DATA_DIR}/basement/rusteze:/data
+  #     - ${DB_DIR}/basement/rusteze:/data
   #   restart: unless-stopped
 networks:
   default:
