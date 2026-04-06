@@ -11,6 +11,10 @@ define sctl
 	/etc/systemd/system/multi-user.target.wants/$(1).service
 endef
 
+define user-sctl
+	$(HOME)/.config/systemd/user/default.target.wants/$(1).service
+endef
+
 define bin
 	$(foreach arg,$(1),/usr/bin/$(arg))
 endef
@@ -31,23 +35,22 @@ $(ROOT_DIRS):
 $(call sctl,%):
 	sudo systemctl enable $(basename $*) --now
 
+$(call user-sctl,%):
+	systemctl --user enable $(basename $*) --now
+
+define install_conf
+	if [ -d "$(1)" ]; then sudo mkdir -v -p $(2) ; else  sudo cp -v $(1) $(2) ; fi
+	sudo chown root:root $(2)
+	sudo chmod --reference=$(1) $(2)
+	sudo touch --reference=$(1) $(2)
+	touch $(call stamp_file,$(2))
+endef
+
 /etc/%: ./etc/%
-	if [ -d "$<" ]; then \
-		sudo mkdir -v -p $@ ;\
-		sudo touch --reference=$< $@;\
-	else \
-		sudo cp -v $< $@ ;\
-	fi
-	touch $(call stamp_file,$@)
+	$(call install_conf,$<,$@)
 
 /usr/%: ./usr/%
-	if [ -d "$<" ]; then \
-		sudo mkdir -v -p $@ ;\
-		sudo touch --reference=$< $@;\
-	else \
-		sudo cp -v $< $@ ;\
-	fi
-	touch $(call stamp_file,$@)
+	$(call install_conf,$<,$@)
 
 define stamp_file
 	$(foreach arg,$(1),/tmp/tower-stamp$(shell echo $(arg) | tr '/' '-'))
