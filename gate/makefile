@@ -111,7 +111,6 @@ config-nginx: /etc/nginx/nginx.conf
 
 /etc/nginx/sites-enabled/%: /etc/nginx/sites-available/%
 	sudo ln -s $< $@
-	[[ "$*" = *pendrellvale* ]] || sudo certbot --nginx -d "$*" --agree-tos
 	@sudo nginx -t
 	touch $(call stamp_file,/etc/nginx/nginx.conf)
 
@@ -134,6 +133,7 @@ config-nginx: /etc/nginx/nginx.conf
 
 $(CERTBOT_NGINX):
 	sudo pacman -S certbot-nginx
+	sudo certbot certonly --preferred-challenges=dns -d '*.mendess.xyz'  -d 'mendess.xyz'
 
 # ----------------- DHCP ---------------------
 
