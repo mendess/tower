@@ -232,6 +232,108 @@
       entity_id: input_boolean.tv_screen
     data: {}
   mode: single
+- id: '1775378866438'
+  alias: Morning open covers
+  description: ''
+  triggers:
+  - trigger: time
+    at: 09:00:00
+  conditions: []
+  actions:
+  - action: cover.open_cover
+    metadata: {}
+    data: {}
+    target:
+      label_id: estores_sala
+  mode: single
+- id: '1775379350361'
+  alias: Close shutters when tv turns on
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.gaming_mode
+    to:
+    - 'on'
+  - trigger: state
+    entity_id:
+    - media_player.aramanthinewall
+    attribute: source
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
+    to:
+    - Jellyfin
+    - YouTube AdFree
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.tv_is_on
+    state:
+    - 'on'
+  actions:
+  - action: cover.close_cover
+    metadata: {}
+    data: {}
+    target:
+      label_id: estores_sala
+  mode: single
+- id: '1775381062641'
+  alias: Close estores when night falls
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.night_time
+    to:
+    - 'off'
+  conditions: []
+  actions:
+  - action: cover.close_cover
+    metadata: {}
+    data: {}
+    target:
+      label_id: estores_all
+  mode: single
+- id: '1775383359573'
+  alias: Stopped watching tv
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.gaming_mode
+    to:
+    - 'off'
+  - trigger: state
+    entity_id:
+    - media_player.aramanthinewall
+    attribute: source
+    to:
+    - PC
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.night_time
+    state:
+    - 'on'
+  - condition: state
+    entity_id: binary_sensor.tv_is_on
+    state:
+    - 'on'
+  - condition: state
+    entity_id: input_boolean.gaming_mode
+    state:
+    - 'off'
+  actions:
+  - action: cover.open_cover
+    metadata: {}
+    target:
+      label_id: estores_sala
+    data: {}
+  mode: single
 - id: '1775386644374'
   alias: Stop Gaming mode
   description: ''
