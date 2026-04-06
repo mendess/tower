@@ -7,6 +7,9 @@ port = 8085
 [spire.homeassistant.web-ui]
 port = 8123
 
+[spire.zigbee2mqtt.web-ui]
+port = 8124
+
 [alto-marr.qbittorrent]
 web-ui = { port = 8090 }
 torrenting = { port = 50000, forwarded = true }

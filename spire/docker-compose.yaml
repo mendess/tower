@@ -82,3 +82,29 @@ services:
     environment:
       TZ: ${TZ}
     network_mode: "host"
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    user: ${PUID}:${PGID}
+    ports:
+      - 1883:1883
+      - 1884:1884
+    volumes:
+      - ${DB_DIR}/spire/mosquitto/config:/mosquitto/config
+      - ${DB_DIR}/spire/mosquitto/data:/mosquitto/data
+      - ${DB_DIR}/spire/mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: ghcr.io/koenkk/zigbee2mqtt
+    restart: unless-stopped
+    volumes:
+        - ${DB_DIR}/spire/zigbee2mqtt/data:/app/data
+        - /run/udev:/run/udev:ro
+    ports:
+        - 8124:8080
+    environment:
+        - TZ={TZ}
+    devices:
+        - /dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Plus_MG24_e4e582f637a2ef11afaa8c6661ce3355-if00-port0:/dev/ttyACM0
+

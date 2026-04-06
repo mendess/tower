@@ -6,10 +6,17 @@ include ../foundations.mk
 
 CONFIG = ~/vault/spire/homer/config.yml
 HOME_ASSISTANT_CONFIG = $(shell find ./etc | sed 's|\.||') $(shell find ./usr | sed 's|\.||')
+SERVICES = $(call user-sctl,hass-bridge)
 
 .PHONY: install
 
-install: dirs $(CONFIG) $(HOME_ASSISTANT_CONFIG)
+.ONESHELL: install
+install: dirs $(CONFIG) $(HOME_ASSISTANT_CONFIG) $(SERVICES)
+	@for f in $(call stamp_file,$(HOME_ASSISTANT_CONFIG)); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
+	rm -v $${reload[@]}
+	@echo "reloading home-assistant-bridge"
+	systemctl --user daemon-reload
+	systemctl --user restart home-assistant-bridge.service
 
 $(DB_DIR)/spire/nextcloud/backups:
 	mkdir $@
