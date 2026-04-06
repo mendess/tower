@@ -16,6 +16,7 @@ services:
     restart: unless-stopped
     volumes:
       - ${DB_DIR}/spire/nextcloud/mariadb:/var/lib/mysql:Z
+      - /run/user/${PUID}:/run/user/${PUID} # mount the runtime dir so that brogmatic can export the database correctly
     # user: ${PUID}:${PGID}
     environment:
       MYSQL_ROOT_PASSWORD: ${NEXTCLOUD_MARIADB_ROOT_PASSWORD}
