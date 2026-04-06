@@ -65,19 +65,110 @@
   alias: Start Gaming Mode
   description: ''
   triggers:
-  - trigger: webhook
-    allowed_methods:
-    - POST
-    local_only: true
-    webhook_id: start_gaming_mode
+  - trigger: state
+    entity_id:
+    - input_boolean.gaming_mode
+    to:
+    - 'on'
   conditions: []
   actions:
-  - action: script.wake_aramanthinewall
-    metadata: {}
-    data: {}
   - action: script.turn_on_tolaria_w_steam_if_tolaria_is_off
     metadata: {}
     data: {}
+    enabled: true
+  - action: switch.turn_on
+    metadata: {}
+    target:
+      entity_id:
+      - switch.tv_screen_switch
+      - switch.wake_on_lan
+      - switch.aramathinewall_power_button
+    data: {}
+  - if:
+    - condition: state
+      entity_id: binary_sensor.tv_is_on
+      state:
+      - 'off'
+    then:
+    - wait_for_trigger:
+      - trigger: state
+        entity_id:
+        - binary_sensor.tv_is_on
+        from:
+        to:
+        - 'on'
+      timeout:
+        hours: 0
+        minutes: 5
+        seconds: 0
+        milliseconds: 0
+      continue_on_timeout: false
+    alias: wait for tv to turn on
+  - action: media_player.select_source
+    metadata: {}
+    target:
+      device_id: b5098e373bea279a182da7c91e908c4f
+    data:
+      source: PC
+  - if:
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.aramanthinewall
+        state:
+        - PC
+        attribute: source
+    then:
+    - wait_for_trigger:
+      - trigger: state
+        entity_id:
+        - media_player.aramanthinewall
+        attribute: source
+        to:
+        - PC
+      continue_on_timeout: false
+      timeout:
+        hours: 0
+        minutes: 2
+        seconds: 0
+        milliseconds: 0
+      alias: wait for source to change to PC
+    alias: wait for source to change to PC
+  - action: shell_command.host_run
+    metadata: {}
+    data:
+      command: /usr/bin/shyprctl l flatpak run com.valvesoftware.SteamLink
+    alias: start steam link
+  - if:
+    - condition: state
+      entity_id: switch.wake_on_lan
+      state:
+      - 'off'
+    then:
+    - wait_for_trigger:
+      - trigger: state
+        entity_id:
+        - switch.wake_on_lan
+        to:
+        - 'on'
+      continue_on_timeout: false
+      timeout:
+        hours: 0
+        minutes: 2
+        seconds: 0
+        milliseconds: 0
+    alias: wait for tolaria to turn on
+  - action: shell_command.host_run
+    metadata: {}
+    data:
+      command: /usr/local/bin/fade-out-music
+    alias: Fade out music
+  - action: media_player.volume_set
+    metadata: {}
+    target:
+      entity_id: media_player.aramanthinewall
+    data:
+      volume_level: 0.25
   mode: single
 - id: '1773092194701'
   alias: Set TV Volume 25
@@ -135,4 +226,30 @@
     target:
       entity_id: input_boolean.tv_screen
     data: {}
+  mode: single
+- id: '1775386644374'
+  alias: Stop Gaming mode
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.gaming_mode
+    to:
+    - 'off'
+  conditions: []
+  actions:
+  - action: media_player.volume_set
+    metadata: {}
+    target:
+      entity_id: media_player.aramanthinewall
+    data:
+      volume_level: 0.1
+  - action: shell_command.tolaria_restore_resolution
+    metadata: {}
+    data: {}
+  - action: shell_command.host_run
+    metadata: {}
+    data:
+      command: /usr/local/bin/fade-in-music
+    alias: Fade in music
   mode: single

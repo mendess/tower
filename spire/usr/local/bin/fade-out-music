@@ -1,0 +1,11 @@
+#!/bin/bash
+
+m() {
+    /home/mendess/.local/share/cargo/bin/m "$@"
+}
+
+while [[ "$(m volume)" -gt 20 ]]; do
+    m vd 2
+    sleep 1
+done
+m vd 20

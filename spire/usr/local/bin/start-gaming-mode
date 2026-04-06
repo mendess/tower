@@ -1,57 +1,32 @@
 #!/bin/bash
 
-set -euo pipefail
-
-m() {
-    /home/mendess/.local/share/cargo/bin/m "$@"
-}
+set -xeuo pipefail
 
 export HASS_TOKEN=$(cat ~/tower/spire/home-assistant-token)
 
-tv-is-off() {
-    state=$(curl -q -X GET \
+state=$(curl -q -X GET \
       -H "Authorization: Bearer $HASS_TOKEN" \
       -H "Content-Type: application/json" \
-      http://localhost:8123/api/states/media_player.aramanthinewall | jq .state -r)
+      http://localhost:8123/api/states/input_boolean.gaming_mode | jq -r .state)
 
-    [[ "$state" != on ]]
-}
+pid=
 
-if pgrep steamlink &>/dev/null; then
+if [[ "$state" = on ]]; then
     exit
 fi
 
-curl -q -X POST http://localhost:8123/api/webhook/start_gaming_mode
+curl -q -X POST \
+      -H "Authorization: Bearer $HASS_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{"entity_id": "input_boolean.gaming_mode"}' \
+      http://localhost:8123/api/services/input_boolean/turn_on
 
-while tv-is-off; do
-    sleep 1
-done
-
-shyprctl l flatpak run com.valvesoftware.SteamLink
-
-pid=
-for _ in {0..10}; do
+for _ in {0..30}; do
     if pid=$(pgrep steamlink); then
         break
     fi
     sleep 1
 done
-
-(
-    tolaria=$(curl -q -X GET \
-      -H "Authorization: Bearer $HASS_TOKEN" \
-      -H "Content-Type: application/json" \
-      http://localhost:8123/api/states/switch.wake_on_lan | jq .state -r)
-    if [[ "$tolaria" != on ]]; then
-        sleep 1m
-    fi
-    while [[ "$(m volume)" -gt 20 ]]; do
-        m vd 2
-        sleep 1
-    done
-    m vd 20
-    curl -X POST http://localhost:8123/api/webhook/set_tv_volume_25
-) &
 
 tail --pid="$pid" -f /dev/null
 jobs=$(jobs -p)
@@ -59,10 +34,8 @@ if [[ "$jobs" ]]; then
     kill "$jobs" || :
 fi
 
-curl -q -X POST http://localhost:8123/api/webhook/set_tv_volume_10
-ssh tolaria -- shyprctl l /home/mendess/.local/bin/toggle-resolution 21:9
-m set-play
-while [[ "$(m volume)" -lt 100 ]]; do
-    m vu 5
-    sleep 0.5
-done
+curl -q -X POST \
+      -H "Authorization: Bearer $HASS_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{"entity_id": "input_boolean.gaming_mode"}' \
+      http://localhost:8123/api/services/input_boolean/turn_off

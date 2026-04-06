@@ -23,14 +23,11 @@ switch:
     turn_off:
       action: shell_command.turn_off_tolaria
 
-
 shell_command:
-  turn_off_tolaria: ssh -i /config/.ssh/id_ed25519 -o UserKnownHostsFile=/config/.ssh/known_hosts mendess@tolaria.lan -- sudo shutdown now
-  tolaria_turn_on_steam: ssh -i /config/.ssh/id_ed25519 -o UserKnownHostsFile=/config/.ssh/known_hosts mendess@tolaria.lan -- shyprctl l /home/mendess/.local/bin/setup-remote-steam
+  turn_off_tolaria: ./ssh-tolaria.sh sudo shutdown now
+  tolaria_turn_on_steam: ./ssh-tolaria.sh shyprctl l /home/mendess/.local/bin/setup-remote-steam
+  tolaria_restore_resolution: ./ssh-tolaria.sh shyprctl l /home/mendess/.local/bin/toggle-resolution 21:9
+  host_run: ./host-run.sh {{ command }}
 
 logger:
   default: warning
-  logs:
-    homeassistant.components.shell_command: debug
-
-

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+m() {
+    /home/mendess/.local/share/cargo/bin/m "$@"
+}
+
+m set-play
+while [[ "$(m volume)" -lt 100 ]]; do
+    m vu 5
+    sleep 0.5
+done

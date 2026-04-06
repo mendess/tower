@@ -1,0 +1,11 @@
+[Unit]
+Description=Shell bridge for home assistant
+After=network.target
+
+[Service]
+ExecStart=/bin/bash -c 'exec ${CARGO_HOME:-$HOME/.cargo}/bin/hass-bridge'
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target
