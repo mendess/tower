@@ -15,6 +15,7 @@ SSHD_CONFIG = $(shell find ./etc/ssh | sed 's|\.||')
 /etc/ssh/sshd_config.bak:
 	sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
 
+.ONESHELL: ssh
 ssh: /etc/ssh/sshd_config.bak $(SSHD_CONFIG)
 	@for f in $(call stamp_file,$(SSHD_CONFIG)); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
 	rm -v $${reload[@]}
