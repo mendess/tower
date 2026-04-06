@@ -15,10 +15,15 @@
       entity_id: binary_sensor.ornithopter_connected_to_xm5
       state:
       - 'on'
+  - condition: time
+    after: 08:00:00
+    before: '23:40:00'
   actions:
-  - action: script.wake_aramanthinewall
+  - action: switch.turn_on
     metadata: {}
     data: {}
+    target:
+      entity_id: switch.aramathinewall_power_button
   mode: single
 - id: '1771331270206'
   alias: Leave home
@@ -32,11 +37,11 @@
     zone: zone.home
   conditions: []
   actions:
-  - action: webostv.command
+  - action: switch.turn_off
     metadata: {}
-    data:
-      command: system/turnOff
-      entity_id: media_player.aramanthinewall
+    data: {}
+    target:
+      entity_id: switch.aramathinewall_power_button
   mode: single
 - id: '1771934637797'
   alias: Avisar a Andreia <3

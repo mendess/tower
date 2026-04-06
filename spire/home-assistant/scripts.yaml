@@ -1,57 +1,23 @@
 tv_sleep_timer:
   sequence:
-  - if:
-    - condition: state
-      entity_id: input_boolean.tv_screen
-      state:
-      - 'on'
-    then:
-    - action: script.turn_off_tv_screen
-      metadata: {}
-      data: {}
+  - action: switch.turn_off
+    metadata: {}
+    target:
+      entity_id: switch.tv_screen_switch
+    data: {}
   - delay:
       hours: 0
       minutes: 30
       seconds: 0
       milliseconds: 0
-  - action: webostv.command
+  - action: switch.turn_off
     metadata: {}
-    data:
-      entity_id: media_player.aramanthinewall
-      command: system/turnOff
+    data: {}
+    target:
+      entity_id: switch.aramathinewall_power_button
   alias: TV sleep timer
   description: ''
   icon: mdi:sleep
-wake_aramanthinewall:
-  sequence:
-  - action: button.press
-    metadata: {}
-    target:
-      entity_id: button.wake_on_lan_00_a1_59_f0_03_7f
-    data: {}
-  alias: Wake aramanthinewall
-  description: ''
-  icon: mdi:television
-toggle_tv:
-  sequence:
-  - if:
-    - condition: state
-      entity_id: media_player.aramanthinewall
-      state:
-      - 'on'
-    then:
-    - action: webostv.command
-      metadata: {}
-      data:
-        entity_id: media_player.aramanthinewall
-        command: system/turnOff
-    else:
-    - action: script.wake_aramanthinewall
-      metadata: {}
-      data: {}
-  alias: Toggle Tv
-  description: ''
-  icon: mdi:remote-tv
 turn_on_tolaria_w_steam_if_tolaria_is_off:
   sequence:
   - if:
@@ -65,44 +31,9 @@ turn_on_tolaria_w_steam_if_tolaria_is_off:
       target:
         entity_id: switch.wake_on_lan
       data: {}
-    - action: input_boolean.turn_on
-      metadata: {}
-      target:
-        entity_id: input_boolean.tolaria_steam_intent
-      data: {}
     else:
     - action: shell_command.tolaria_turn_on_steam
       metadata: {}
       data: {}
   alias: 'tolaria: start remote steam'
   description: ''
-turn_off_tv_screen:
-  sequence:
-  - action: webostv.command
-    metadata: {}
-    data:
-      entity_id: media_player.aramanthinewall
-      command: com.webos.service.tvpower/power/turnOffScreen
-  - action: input_boolean.turn_off
-    metadata: {}
-    target:
-      entity_id: input_boolean.tv_screen
-    data: {}
-  alias: Turn off TV screen
-  description: ''
-  icon: mdi:television
-turn_on_tv_screen:
-  sequence:
-  - action: webostv.command
-    metadata: {}
-    data:
-      entity_id: media_player.aramanthinewall
-      command: com.webos.service.tvpower/power/turnOnScreen
-  - action: input_boolean.turn_on
-    metadata: {}
-    target:
-      entity_id: input_boolean.tv_screen
-    data: {}
-  alias: Turn on TV screen
-  description: ''
-  icon: mdi:television
