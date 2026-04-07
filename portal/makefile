@@ -7,9 +7,11 @@ include ../foundations.mk
 
 CONFIG = $(shell find ./etc | sed 's|\.||') $(shell find ./usr | sed 's|\.||')
 
-SERVICES = $(call user-sctl,nextcloud-backup,timer)
+SERVICES = $(call user-timer,nextcloud-backup) $(call user-timer,borgmatic)
 
 install: /usr/bin/borgmatic $(CONFIG) ~/.local/share/borgmatic $(SERVICES)
+test: /usr/bin/borgmatic $(CONFIG) ~/.local/share/borgmatic $(SERVICES)
+	echo $^
 
 ~/.local/share/borgmatic:
 	mkdir $@

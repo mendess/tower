@@ -12,7 +12,11 @@ define sctl
 endef
 
 define user-sctl
-	$(HOME)/.config/systemd/user/default.target.wants/$(1).$(or $(2),service)
+	$(HOME)/.config/systemd/user/default.target.wants/$(1).service
+endef
+
+define user-timer
+	$(HOME)/.config/systemd/user/timers.target.wants/$(1).timer
 endef
 
 define bin
@@ -34,19 +38,26 @@ $(ROOT_DIRS):
 
 $(call sctl,%):
 	sudo systemctl enable $(basename $*) --now
+	sudo systemctl daemon-reload
 
 $(call user-sctl,%):
 	systemctl --user enable $(basename $*).service --now
+	systemctl --user daemon-reload
 
-$(call user-sctl,%,timer):
+$(call user-timer,%):
 	systemctl --user enable $(basename $*).timer --now
+	systemctl --user daemon-reload
 
 define install_conf
-	if [ -d "$(1)" ]; then sudo mkdir -v -p $(2) ; else  sudo cp -v $(1) $(2) ; fi
-	sudo chown root:root $(2)
-	sudo chmod --reference=$(1) $(2)
-	sudo touch --reference=$(1) $(2)
+	@if [ -d "$(1)" ]; then sudo mkdir -v -p $(2) ; else  sudo cp -v $(1) $(2) ; fi
+	@sudo chown -v root:root $(2)
+	@sudo chmod -v --reference=$(1) $(2)
+	@sudo touch --reference=$(1) $(2)
 	touch $(call stamp_file,$(2))
+	@case "$(1)" in \
+		*/systemd/user/*.service | */systemd/user/*.timer) systemctl --user daemon-reload && echo "reloaded user daemon";; \
+		*/systemd/system/*.service | */systemd/system/*.timer) sudo systemctl daemon-reload && echo "reloaded system daemon";; \
+	esac
 endef
 
 /etc/%: ./etc/%
