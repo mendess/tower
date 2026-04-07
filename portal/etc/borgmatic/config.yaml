@@ -27,8 +27,8 @@ keep_monthly: 6
 keep_yearly: 1
 retries: 3
 retry_wait: 10
-borg_base_directory: /home/mendess/.local/share/borg
-log_file: /home/mendess/.local/share/borgmatic/logfile.txt
+# borg_base_directory: /home/mendess/.local/share/borg
+# log_file: /home/mendess/.local/share/borgmatic/logfile.txt
 progress: true
 statistics: true
 

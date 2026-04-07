@@ -3,6 +3,7 @@ Description=Backup nextcloud
 After=default.target
 
 [Service]
+Type=oneshot
 ExecStart=/usr/local/bin/backup-nextcloud
 
 [Install]
