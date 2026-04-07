@@ -5,9 +5,11 @@ include ../foundations.mk
 
 .PHONY: install borgmatic repo-create run-backup
 
-install: borgmatic /etc/borgmatic /etc/borgmatic/config.yaml ~/.local/share/borgmatic
+CONFIG = $(shell find ./etc | sed 's|\.||') $(shell find ./usr | sed 's|\.||')
 
-borgmatic: /usr/bin/borgmatic
+SERVICES = $(call user-sctl,nextcloud-backup,timer)
+
+install: /usr/bin/borgmatic $(CONFIG) ~/.local/share/borgmatic $(SERVICES)
 
 ~/.local/share/borgmatic:
 	mkdir $@

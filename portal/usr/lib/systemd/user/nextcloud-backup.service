@@ -1,0 +1,9 @@
+[Unit]
+Description=Backup nextcloud
+After=default.target
+
+[Service]
+ExecStart=/usr/local/bin/backup-nextcloud
+
+[Install]
+WantedBy=default.target

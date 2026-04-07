@@ -4,16 +4,17 @@ source_directories:
     - /vault/gallery
 
 repositories:
-    - path: /backups/self/repo
-      label: local
-      encryption: repokey-blake2
     - path: ssh://flopy//hdd/@backups/mendess/repo
       label: flopy
       storage_quota: 1024G
       encryption: repokey-blake2
+    - path: /backups/self/repo
+      label: local
+      encryption: repokey-blake2
 
 patterns:
     - '- /home/mendess/vault/basement/rtp-memoria-dl'
+    - '- /home/mendess/vault/alto-marr/torrents'
     - '- /home/mendess/vault/spire/homer'
     - '! /home/mendess/vault/spire/nextcloud/data'
     - '! /home/mendess/vault/spire/nextcloud/mariadb'
@@ -32,8 +33,6 @@ progress: true
 statistics: true
 
 commands:
-    - before: repository
-      run: [/home/mendess/tower/spire/backup-nextcloud.sh]
     - before: repository
       run: [/home/mendess/tower/portal/setup-mariadb-credentials.sh]
 

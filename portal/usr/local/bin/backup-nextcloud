@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-nextcloud=~/vault/spire/nextcloud
+nextcloud=/home/mendess/vault/spire/nextcloud
 
 backup_dir=$nextcloud/backups
 mkdir -p "$backup_dir"

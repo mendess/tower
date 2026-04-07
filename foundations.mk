@@ -8,11 +8,11 @@ CYAN   := $(shell printf '\033[0;36m')
 RESET  := $(shell printf '\033[0m')
 
 define sctl
-	/etc/systemd/system/multi-user.target.wants/$(1).service
+	/etc/systemd/system/multi-user.target.wants/$(1).$(or $(2),service)
 endef
 
 define user-sctl
-	$(HOME)/.config/systemd/user/default.target.wants/$(1).service
+	$(HOME)/.config/systemd/user/default.target.wants/$(1).$(or $(2),service)
 endef
 
 define bin
@@ -36,7 +36,10 @@ $(call sctl,%):
 	sudo systemctl enable $(basename $*) --now
 
 $(call user-sctl,%):
-	systemctl --user enable $(basename $*) --now
+	systemctl --user enable $(basename $*).service --now
+
+$(call user-sctl,%,timer):
+	systemctl --user enable $(basename $*).timer --now
 
 define install_conf
 	if [ -d "$(1)" ]; then sudo mkdir -v -p $(2) ; else  sudo cp -v $(1) $(2) ; fi
