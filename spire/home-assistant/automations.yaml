@@ -360,3 +360,60 @@
       command: /usr/local/bin/fade-in-music
     alias: Fade in music
   mode: single
+- id: '1775574119677'
+  alias: Backup Alert Notification
+  description: ''
+  triggers:
+  - trigger: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
+    webhook_id: backup-notification
+  conditions: []
+  actions:
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      title: Backup Alert for {{ trigger.json.repository }}
+      message: '{{ trigger.json.message }}'
+  - action: notify.mobile_app_ornithopter
+    metadata: {}
+    data:
+      message: '{{ trigger.json.message }}'
+      title: Backup Alert for {{ trigger.json.repository }}
+  mode: single
+- id: '1775574197183'
+  alias: latest-backup-update
+  description: ''
+  triggers:
+  - trigger: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
+    webhook_id: latest-backup-update
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ "self" in trigger.json.repository }}'
+      sequence:
+      - action: input_datetime.set_datetime
+        metadata: {}
+        target:
+          entity_id: input_datetime.latest_backup_self
+        data:
+          datetime: '{{ now() }}'
+    - conditions:
+      - condition: template
+        value_template: '{{ "flopy" in trigger.json.repository }}'
+      sequence:
+      - action: input_datetime.set_datetime
+        metadata: {}
+        data:
+          datetime: '{{ now() }}'
+        target:
+          entity_id: input_datetime.latest_backup_flopy
+  mode: single

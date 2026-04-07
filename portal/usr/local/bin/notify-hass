@@ -1,0 +1,32 @@
+#!/bin/bash
+
+declare -A body_map
+path="$1"
+shift
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        *'='*)
+            key=${1%%=*}
+            value=${1##*=}
+            body_map[$key]=$value
+            shift
+            ;;
+        *)
+            echo "$1: invalid argument"
+            exit 1
+    esac
+done
+
+body='{'
+for key in ${!body_map[@]}; do
+    value=${body_map[$key]}
+    if [[ "$body" != '{' ]]; then
+        body="$body,"
+    fi
+    body="$body\"$key\":\"$value\""
+done
+body="$body}"
+
+curl http://homeassistant.pendrellvale.home/api/webhook/$path \
+      -H 'content-type:application/json' \
+      -d "$body"

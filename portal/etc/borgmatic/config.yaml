@@ -33,8 +33,15 @@ progress: true
 statistics: true
 
 commands:
-    - before: repository
-      run: [/home/mendess/tower/portal/setup-mariadb-credentials.sh]
+  - before: configuration
+    run:
+      - /home/mendess/tower/portal/setup-mariadb-credentials.sh
+  - after: create
+    run:
+      - /usr/local/bin/notify-hass latest-backup-update repository={repository_label}
+  - after: error
+    run:
+      - /usr/local/bin/notify-hass backup-notification repository={repository_label} message={error}
 
 postgresql_databases:
   - name: blind_eternities
