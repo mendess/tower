@@ -333,14 +333,15 @@
       entity_id: media_player.aramanthinewall
     data:
       volume_level: 0.1
-  - action: shell_command.tolaria_restore_resolution
-    metadata: {}
-    data: {}
-  - action: shell_command.host_run
-    metadata: {}
-    data:
-      command: /usr/local/bin/fade-in-music
-    alias: Fade in music
+  - parallel:
+    - action: shell_command.host_run
+      metadata: {}
+      data:
+        command: /usr/local/bin/fade-in-music
+      alias: Fade in music
+    - action: shell_command.tolaria_restore_resolution
+      metadata: {}
+      data: {}
   mode: single
 - id: '1775574119677'
   alias: Backup Alert Notification
