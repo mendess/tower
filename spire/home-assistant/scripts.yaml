@@ -37,3 +37,41 @@ turn_on_tolaria_w_steam_if_tolaria_is_off:
       data: {}
   alias: 'tolaria: start remote steam'
   description: ''
+boot_to_source:
+  sequence:
+  - if:
+    - condition: state
+      entity_id: switch.aramathinewall_power_button
+      state:
+      - 'off'
+    then:
+    - action: switch.turn_on
+      metadata: {}
+      target:
+        entity_id: switch.aramathinewall_power_button
+      data: {}
+    - wait_for_trigger:
+      - trigger: state
+        entity_id:
+        - switch.aramathinewall_power_button
+        to:
+        - 'on'
+      timeout:
+        hours: 0
+        minutes: 2
+        seconds: 0
+        milliseconds: 0
+  - action: media_player.select_source
+    metadata: {}
+    data:
+      source: '{{ source }}'
+    target:
+      device_id: b5098e373bea279a182da7c91e908c4f
+  alias: Boot to source
+  description: ''
+  icon: mdi:import
+  fields:
+    source:
+      selector:
+        text: {}
+  mode: restart
