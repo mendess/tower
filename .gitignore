@@ -14,3 +14,8 @@ spire/home-assistant/.storage
 spire/home-assistant/backups
 spire/home-assistant/home-assistant.log*
 spire/home-assistant/home-assistant_v2*
+spire/home-assistant/blueprints/automation/hvorragend/
+spire/home-assistant/custom_components/
+spire/home-assistant/image/
+spire/home-assistant/themes/
+spire/home-assistant/www/
