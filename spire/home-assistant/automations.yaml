@@ -91,14 +91,14 @@
     data: {}
   - if:
     - condition: state
-      entity_id: binary_sensor.tv_is_on
+      entity_id: switch.aramathinewall_power_button
       state:
       - 'off'
     then:
     - wait_for_trigger:
       - trigger: state
         entity_id:
-        - binary_sensor.tv_is_on
+        - switch.aramathinewall_power_button
         from:
         to:
         - 'on'
@@ -219,11 +219,9 @@
   triggers:
   - trigger: state
     entity_id:
-    - media_player.aramanthinewall
-    from:
-    - unavailable
-    - 'off'
+    - switch.aramathinewall_power_button
     to:
+    - 'on'
   conditions: []
   actions:
   - action: input_boolean.turn_on
@@ -268,7 +266,7 @@
     - YouTube AdFree
   conditions:
   - condition: state
-    entity_id: binary_sensor.tv_is_on
+    entity_id: switch.aramathinewall_power_button
     state:
     - 'on'
   actions:
@@ -320,7 +318,7 @@
     state:
     - 'on'
   - condition: state
-    entity_id: binary_sensor.tv_is_on
+    entity_id: switch.aramathinewall_power_button
     state:
     - 'on'
   - condition: state
