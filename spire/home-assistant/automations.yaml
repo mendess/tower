@@ -208,7 +208,7 @@
   description: ''
   triggers:
   - trigger: time
-    at: 09:00:00
+    at: 08:00:00
   conditions: []
   actions:
   - action: cover.open_cover
@@ -216,6 +216,18 @@
     data: {}
     target:
       label_id: estores_sala
+  - if:
+    - condition: not
+      conditions:
+      - condition: zone
+        entity_id: person.mendess
+        zone: zone.home
+    then:
+    - action: cover.open_cover
+      metadata: {}
+      target:
+        label_id: estores_quarto
+      data: {}
   mode: single
 - id: '1775379350361'
   alias: Close shutters when tv turns on
@@ -236,7 +248,6 @@
       seconds: 10
     to:
     - Jellyfin
-    - YouTube AdFree
   conditions:
   - condition: state
     entity_id: switch.aramathinewall_power_button
@@ -369,12 +380,12 @@
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ "self" in trigger.json.repository }}'
+        value_template: '{{ "local" in trigger.json.repository }}'
       sequence:
       - action: input_datetime.set_datetime
         metadata: {}
         target:
-          entity_id: input_datetime.latest_backup_self
+          entity_id: input_datetime.latest_backup_local
         data:
           datetime: '{{ now() }}'
     - conditions:
@@ -387,4 +398,84 @@
           datetime: '{{ now() }}'
         target:
           entity_id: input_datetime.latest_backup_flopy
+  mode: single
+- id: '1776161237853'
+  alias: Smart Wake up
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - event.sleep_as_android_smart_wake_up
+    attribute: event_type
+    to:
+    - before_smart_period
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+  conditions:
+  - condition: zone
+    entity_id: person.mendess
+    zone: zone.home
+  actions:
+  - action: cover.set_cover_position
+    metadata: {}
+    data:
+      position: 10
+    target:
+      entity_id: cover.estores_quarto_wc
+  mode: single
+- id: '1776261226221'
+  alias: Abrir estores quando o alarme toca
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - event.sleep_as_android_alarm_clock
+    attribute: event_type
+    to:
+    - alert_start
+  conditions:
+  - condition: state
+    entity_id: sensor.sleep_as_android_alarm_label
+    state:
+    - work
+  - condition: zone
+    entity_id: person.mendess
+    zone: zone.home
+  actions:
+  - repeat:
+      while:
+      - condition: numeric_state
+        entity_id: cover.estores_quarto_wc
+        attribute: current_position
+        below: 100
+      sequence:
+      - action: cover.set_cover_position
+        metadata: {}
+        target:
+          entity_id: cover.estores_quarto_wc
+        data:
+          position: '{{ min(100, (state_attr(''cover.estores_quarto_wc'', ''current_position'')
+            + 10)) }}'
+      - delay:
+          hours: 0
+          minutes: 1
+          seconds: 0
+          milliseconds: 0
+  mode: single
+- id: '1776289999583'
+  alias: turn of tv when sleeping
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - event.sleep_as_android_sleep_tracking
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    target:
+      entity_id: switch.aramathinewall_power_button
+    data: {}
   mode: single
