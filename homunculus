@@ -69,6 +69,7 @@ struct ServicePort {
 }
 
 fn main() -> anyhow::Result<()> {
+    std::env::set_current_dir(std::env::home_dir().unwrap().join("tower"))?;
     let args = Args::parse();
 
     match args.command {
