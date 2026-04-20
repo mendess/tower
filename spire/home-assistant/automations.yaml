@@ -168,50 +168,23 @@
     data:
       command: /usr/local/bin/fade-out-music
     alias: Fade out music
-  - action: media_player.volume_set
-    metadata: {}
-    target:
-      entity_id: media_player.aramanthinewall
-    data:
-      volume_level: 0.25
-  mode: single
-- id: '1773092194701'
-  alias: Set TV Volume 25
-  description: ''
-  triggers:
-  - trigger: webhook
-    allowed_methods:
-    - POST
-    - PUT
-    local_only: true
-    webhook_id: set_tv_volume_25
-  conditions: []
-  actions:
-  - action: media_player.volume_set
-    metadata: {}
-    target:
-      entity_id: media_player.aramanthinewall
-    data:
-      volume_level: 0.25
-  mode: single
-- id: '1773092252112'
-  alias: Set TV volume 10
-  description: ''
-  triggers:
-  - trigger: webhook
-    allowed_methods:
-    - POST
-    - PUT
-    local_only: true
-    webhook_id: set_tv_volume_10
-  conditions: []
-  actions:
-  - action: media_player.volume_set
-    metadata: {}
-    target:
-      entity_id: media_player.aramanthinewall
-    data:
-      volume_level: 0.1
+  - repeat:
+      while:
+      - condition: numeric_state
+        entity_id: media_player.aramanthinewall
+        attribute: volume_level
+        below: 0.25
+      sequence:
+      - action: media_player.volume_up
+        metadata: {}
+        target:
+          entity_id: media_player.aramanthinewall
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
   mode: single
 - id: '1773967837355'
   alias: Screen turns on when tv turns on
