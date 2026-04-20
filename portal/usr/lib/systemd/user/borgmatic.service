@@ -71,4 +71,4 @@ LogRateLimitIntervalSec=0
 #ProtectHome=yes
 LoadCredential=borg-passphrase:/home/mendess/tower/portal/borg-passphrase
 Environment="BORG_PASSCOMMAND=cat %d/borg-passphrase"
-ExecStart=systemd-inhibit --who="borgmatic" --what="sleep:shutdown" --why="Prevent interrupting scheduled backup" /usr/bin/borgmatic --verbosity 2 --syslog-verbosity 1
+ExecStart=systemd-inhibit --who="borgmatic" --what="sleep:shutdown" --why="Prevent interrupting scheduled backup" /usr/bin/borgmatic --verbosity 2 --syslog-verbosity 2

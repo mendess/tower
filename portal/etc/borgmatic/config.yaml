@@ -4,12 +4,12 @@ source_directories:
     - /vault/gallery
 
 repositories:
+    - path: /backups/self/repo
+      label: local
+      encryption: repokey-blake2
     - path: ssh://flopy//hdd/@backups/mendess/repo
       label: flopy
       storage_quota: 1024G
-      encryption: repokey-blake2
-    - path: /backups/self/repo
-      label: local
       encryption: repokey-blake2
 
 patterns:
@@ -36,17 +36,19 @@ commands:
   - before: configuration
     run:
       - /home/mendess/tower/portal/setup-mariadb-credentials.sh
-  - after: create
+  - after: action
+    when: [create]
     run:
       - /usr/local/bin/notify-hass latest-backup-update repository={repository_label}
   - after: error
+    when: [create, prune]
     run:
-      - /usr/local/bin/notify-hass backup-notification repository={repository_label} message={error}
+      - /usr/local/bin/notify-hass backup-notification repository={repository_label} "message={error}"
 
 postgresql_databases:
   - name: blind_eternities
     hostname: 127.0.0.1
-    pg_dump_command: docker exec --user 1000 db pg_dump -U postgres
+    pg_dump_command: timeout 1h docker exec --user 1000 db pg_dump -U postgres
 
 mariadb_databases:
   - name: nextcloud
