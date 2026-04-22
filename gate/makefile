@@ -44,21 +44,22 @@ config-unbound: $(UNBOUND_CONFIG)
 # ----------------- WIREGUARD ---------------------
 # source: https://web.archive.org/web/20250911080027/https://robertlathanh.com/2025/03/setting-up-a-vpn-for-home-intranet-access-with-wireguard/
 
-NETWORK_ENABLED = $(shell find ./etc/wireguard -type f | sed -E 's|^.+/||; s|\.conf||; s|^|/proc/self/net/dev_snmp6/|') /etc/sysctl.conf
-
-$(info NETWORK_ENABLED is [${NETWORK_ENABLED}])
+WG_CONFIGS := $(wildcard ./etc/wireguard/*.conf)
+WG_NETWORKS := $(patsubst ./etc/wireguard/%.conf,%,$(WG_CONFIGS))
+WG_SERVICES := $(addprefix /etc/systemd/system/multi-user.target.wants/wg-quick@, $(addsuffix .service, $(WG_NETWORKS)))
+WG_NETWORK_ENABLED = $(addprefix /proc/self/net/dev_snmp6/, $(WG_NETWORKS))
 
 .PHONY: wireguard wg-update wg-down
 
-wireguard: $(call bin,qrencode iptables wg) $(NETWORK_ENABLED)
+wireguard: $(call bin,qrencode iptables wg) $(WG_NETWORK_ENABLED) $(WG_SERVICES) /etc/sysctl.conf $(shell find ./etc/systemd | sed 's|\.||')
 
 # wg-up-%:
 /proc/self/net/dev_snmp6/%: wg-%.conf
 	@printf "$(GREEN)   UP$(RESET) Bringing up interface $*\n"
 	sudo wg-quick up /etc/wireguard/$*.conf
 
-wg-update-%: wg-down-% /proc/self/net/dev_snmp6/%
-	@true
+wg-update-%: wg-down-%
+	make /proc/self/net/dev_snmp6/$*
 
 wg-down-%:
 	@printf "$(RED) DOWN$(RESET) Taking down interface $*\n"
@@ -157,7 +158,7 @@ config-dnsmasq: $(DNSMASQ_CONFIG)
 # ----------------- NFT ---------------------
 .PHONY: nft
 
-NFT_CONFIG = /etc/nftables.conf /etc/sysctl.conf
+NFT_CONFIG = /etc/nftables.conf /etc/sysctl.conf $(call sctl,nftables)
 
 .ONESHELL: nft
 nft: /usr/bin/nft $(NFT_CONFIG)
