@@ -6,7 +6,7 @@ include ../foundations.mk
 
 
 .PHONY: install
-install: ssh unbound wireguard nginx dnsmasq
+install: ssh unbound wireguard nginx dnsmasq nft
 
 # ------------------- SSHD ----------------------
 .PHONY: ssh
@@ -43,7 +43,7 @@ config-unbound: $(UNBOUND_CONFIG)
 # ----------------- WIREGUARD ---------------------
 # source: https://web.archive.org/web/20250911080027/https://robertlathanh.com/2025/03/setting-up-a-vpn-for-home-intranet-access-with-wireguard/
 
-NETWORK_ENABLED = $(shell find ./etc/wireguard -type f | sed -E 's|^.+/||; s|\.conf||; s|^|/proc/self/net/dev_snmp6/|')
+NETWORK_ENABLED = $(shell find ./etc/wireguard -type f | sed -E 's|^.+/||; s|\.conf||; s|^|/proc/self/net/dev_snmp6/|') /etc/sysctl.conf
 
 $(info NETWORK_ENABLED is [${NETWORK_ENABLED}])
 
@@ -151,3 +151,20 @@ config-dnsmasq: $(DNSMASQ_CONFIG)
 	rm -v $${reload[@]}
 	@echo "reloading dnsmasq"
 	sudo systemctl restart unbound
+
+
+# ----------------- NFT ---------------------
+.PHONY: nft
+
+NFT_CONFIG = /etc/nftables.conf /etc/sysctl.conf
+
+.ONESHELL: nft
+nft: /usr/bin/nft $(NFT_CONFIG)
+	@for f in $(call stamp_file,$(NFT_CONFIG)); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
+	rm -v $${reload[@]}
+	@echo "reloading nft"
+	sudo systemctl restart nftables
+	sudo sysctl -p
+
+/usr/bin/nft:
+	sudo pacman -S nftables
