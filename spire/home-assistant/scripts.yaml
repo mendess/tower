@@ -22,14 +22,14 @@ turn_on_tolaria_w_steam_if_tolaria_is_off:
   sequence:
   - if:
     - condition: state
-      entity_id: switch.wake_on_lan
+      entity_id: switch.tolaria
       state:
       - 'off'
     then:
     - action: switch.turn_on
       metadata: {}
       target:
-        entity_id: switch.wake_on_lan
+        entity_id: switch.tolaria
       data: {}
     else:
     - action: shell_command.tolaria_turn_on_steam
