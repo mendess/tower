@@ -1,17 +1,19 @@
 #!/usr/bin/env rust-script
 //! ```cargo
 //! [dependencies]
-//! toml = "0.9"
-//! serde = { version = "1", features = ["derive"] }
-//! clap = { version = "4", features = ["derive"] }
 //! anyhow = "1"
-//! regex = "1"
+//! clap = { version = "4", features = ["derive"] }
+//! colored = "3"
 //! comfy-table = "7"
 //! indexmap = { version = "2", features = ["serde"] }
+//! regex = "1"
+//! serde = { version = "1", features = ["derive"] }
+//! toml = "0.9"
 //! ```
 
 use anyhow::Context as _;
 use clap::Parser;
+use colored::Colorize as _;
 use indexmap::IndexMap;
 use regex::Regex;
 use serde::Deserialize;
@@ -19,6 +21,7 @@ use std::collections::{HashMap, HashSet};
 use std::fs::{self, File};
 use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use std::net::Ipv4Addr;
+use std::path::Path;
 use std::process::{Command as System, Stdio};
 use std::sync::LazyLock;
 
@@ -277,20 +280,38 @@ fn doc_check() -> anyhow::Result<()> {
     Ok(())
 }
 
+fn compare_network_paths(a: &Path, b: &Path) -> std::cmp::Ordering {
+    let bytes = |x: &Path| x.file_stem().unwrap().as_encoded_bytes().last().copied();
+    bytes(a).cmp(&bytes(b))
+}
+
 fn show_wg_users(ip: Option<Ipv4Addr>) -> anyhow::Result<()> {
-    for network in std::fs::read_dir("gate/etc/wireguard")? {
-        let network = network?.path();
+    let mut networks = std::fs::read_dir("gate/etc/wireguard")?
+        .map(|f| f.map(|f| f.path()))
+        .collect::<io::Result<Vec<_>>>()?;
+    networks.sort_by(|a, b| compare_network_paths(a, b));
+    for network in networks {
         let network = network.file_stem().unwrap().to_str().unwrap();
         let connected_users = connected_users(network)?;
         let users = users_for_vpn(network)?;
-        println!("{network}");
+        let longest_device_name = users.iter().map(|x| x.name.len()).max();
         for User { name, ip } in users
             .into_iter()
             .filter(|u| ip.map(|ip| ip == u.ip).unwrap_or(true))
         {
-            print!("[{network}] {ip}: {name}");
-            if let Some(lhs) = connected_users.get(&ip) {
-                print!(" CONNECTED! latest handshake: {lhs}");
+            let longest_device_name = longest_device_name.unwrap();
+            let connected_user = connected_users.get(&ip);
+            print!(
+                "[{}] {ip:9}: {name:width$}",
+                if connected_user.is_some() {
+                    network.green()
+                } else {
+                    network.red()
+                },
+                width = longest_device_name
+            );
+            if let Some(lhs) = connected_user {
+                print!(" latest handshake: {lhs}");
             }
             println!()
         }
