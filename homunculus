@@ -279,12 +279,17 @@ fn doc_check() -> anyhow::Result<()> {
 
 fn show_wg_users(ip: Option<Ipv4Addr>) -> anyhow::Result<()> {
     for network in ["wg0", "mc1"] {
+        let connected_users = connected_users(network)?;
         let users = users_for_vpn(network)?;
         for User { name, ip } in users
             .into_iter()
             .filter(|u| ip.map(|ip| ip == u.ip).unwrap_or(true))
         {
-            println!("[{network}] {ip}: {name}");
+            print!("[{network}] {ip}: {name}");
+            if let Some(lhs) = connected_users.get(&ip) {
+                print!(" CONNECTED! latest handshake: {lhs}");
+            }
+            println!()
         }
     }
     Ok(())
@@ -331,6 +336,39 @@ fn users_for_vpn(network: &str) -> anyhow::Result<Vec<User>> {
                     state = StateMachine::SeekingUser;
                 }
             }
+        }
+    }
+
+    Ok(users)
+}
+
+fn connected_users(network: &str) -> anyhow::Result<HashMap<Ipv4Addr, String>> {
+    let wg = System::new("sudo").args(["wg", "show", network]).output()?;
+    let wg = String::from_utf8_lossy(&wg.stdout);
+    #[derive(Debug)]
+    enum ParseState {
+        Peer,
+        PeerWithIp { ip: Ipv4Addr },
+    }
+    let mut state = ParseState::Peer;
+    let mut users = HashMap::new();
+    for line in wg.split('\n') {
+        if line.starts_with("peer:") {
+            state = ParseState::Peer;
+        }
+        match state {
+            ParseState::Peer if line.contains("allowed ips") => {
+                if let Some((_, ip)) = line.split_once(':') {
+                    let ip = ip.trim().trim_end_matches("/32").parse().unwrap();
+                    state = ParseState::PeerWithIp { ip };
+                }
+            }
+            ParseState::PeerWithIp { ip } if line.contains("latest handshake:") => {
+                let (_, latest_hs) = line.split_once(':').unwrap();
+                users.insert(ip, latest_hs.to_owned());
+                state = ParseState::Peer;
+            }
+            _ => {}
         }
     }
 
