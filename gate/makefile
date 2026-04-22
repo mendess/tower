@@ -35,6 +35,7 @@ config-unbound: $(UNBOUND_CONFIG)
 	rm -v $${reload[@]}
 	@echo "reloading unbound"
 	sudo unbound-checkconf || exit 1
+	sudo chown unbound:unbound /etc/unbound -Rv
 	sudo systemctl restart unbound
 
 /etc/unbound/trusted-key.key:

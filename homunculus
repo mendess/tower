@@ -278,12 +278,15 @@ fn doc_check() -> anyhow::Result<()> {
 }
 
 fn show_wg_users(ip: Option<Ipv4Addr>) -> anyhow::Result<()> {
-    for network in ["wg0", "mc1"] {
+    for network in std::fs::read_dir("gate/etc/wireguard")? {
+        let network = network?.path();
+        let network = network.file_stem().unwrap().to_str().unwrap();
         let connected_users = connected_users(network)?;
         let users = users_for_vpn(network)?;
+        println!("{network}");
         for User { name, ip } in users
             .into_iter()
-            .filter(|u| ip.map(|ip| ip == u.ip).unwrap_or(true))
+            .filter(|u| dbg!(ip).map(|ip| ip == dbg!(u).ip).unwrap_or(true))
         {
             print!("[{network}] {ip}: {name}");
             if let Some(lhs) = connected_users.get(&ip) {
