@@ -368,10 +368,6 @@
     to:
     - alert_start
   conditions:
-  - condition: state
-    entity_id: sensor.sleep_as_android_alarm_label
-    state:
-    - work
   - condition: zone
     entity_id: person.mendess
     zone: zone.home
@@ -392,7 +388,7 @@
             + 10)) }}'
       - delay:
           hours: 0
-          minutes: 1
+          minutes: 2
           seconds: 0
           milliseconds: 0
   mode: single
