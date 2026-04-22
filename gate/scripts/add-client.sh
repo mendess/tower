@@ -4,6 +4,20 @@ cd "$(dirname "$0")/.." || exit
 source ./scripts/common.sh
 
 read -p "client name? " name
+case "$network" in
+    wg0) read -p "split tunnel? [Y/n] " split_tunnel ;;
+    mc1) split_tunnel=y ;;
+    ex2) split_tunnel=n ;;
+esac
+
+case "$split_tunnel" in
+    n)
+        allowed_ips="0.0.0.0, ::/0"
+        ;;
+    *)
+        allowed_ips="10.0.$network_number.1, 192.168.42.2"
+        ;;
+esac
 
 lattest=$(grep -h 'AllowedIPs' "$local_conf" |
     cut -d= -f2 |
@@ -31,7 +45,7 @@ DNS = 10.0.$network_number.1
 
 [Peer]
 PublicKey = $(cat "$publickey")
-AllowedIPs = 10.0.$network_number.1, 192.168.42.2
+AllowedIPs = $allowed_ips
 Endpoint = mendess.xyz:5182$network_number
 EOF
 

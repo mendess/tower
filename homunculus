@@ -286,7 +286,7 @@ fn show_wg_users(ip: Option<Ipv4Addr>) -> anyhow::Result<()> {
         println!("{network}");
         for User { name, ip } in users
             .into_iter()
-            .filter(|u| dbg!(ip).map(|ip| ip == dbg!(u).ip).unwrap_or(true))
+            .filter(|u| ip.map(|ip| ip == u.ip).unwrap_or(true))
         {
             print!("[{network}] {ip}: {name}");
             if let Some(lhs) = connected_users.get(&ip) {
