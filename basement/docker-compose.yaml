@@ -58,6 +58,7 @@ services:
     ports:
       - 8043:8080
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - ${DB_DIR}/basement/memnarch:/files
     restart: unless-stopped
   rattlesnake:
