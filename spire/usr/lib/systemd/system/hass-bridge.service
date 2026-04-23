@@ -3,7 +3,9 @@ Description=Shell bridge for home assistant
 After=network.target
 
 [Service]
-ExecStart=/bin/bash -c 'exec ${CARGO_HOME:-$HOME/.cargo}/bin/hass-bridge'
+User=mendess
+Group=mendess
+ExecStart=/usr/local/bin/hass-bridge
 Restart=always
 RestartSec=3
 

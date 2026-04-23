@@ -74,7 +74,7 @@ services:
       - ${CONFIG_DIR}/spire/home-assistant:/config
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
-      - /run/user/${PUID}/hass-bridge:/hass-bridge
+      - /var/lib/hass-bridge:/hass-bridge
     restart: unless-stopped
     privileged: true
     cap_add:

@@ -11,6 +11,10 @@ define sctl
 	/etc/systemd/system/multi-user.target.wants/$(1).$(or $(2),service)
 endef
 
+define socket
+	/etc/systemd/system/sockets.target.wants/$(1).socket
+endef
+
 define user-sctl
 	$(HOME)/.config/systemd/user/default.target.wants/$(1).service
 endef
@@ -37,16 +41,20 @@ $(ROOT_DIRS):
 	sudo pacman -S $(@F)
 
 $(call sctl,%):
-	sudo systemctl enable $(basename $*) --now
 	sudo systemctl daemon-reload
+	sudo systemctl enable $(basename $*).service --now
+
+$(call socket,%):
+	sudo systemctl daemon-reload
+	sudo systemctl enable $(basename $*).socket --now
 
 $(call user-sctl,%):
-	systemctl --user enable $(basename $*).service --now
 	systemctl --user daemon-reload
+	systemctl --user enable $(basename $*).service --now
 
 $(call user-timer,%):
-	systemctl --user enable $(basename $*).timer --now
 	systemctl --user daemon-reload
+	systemctl --user enable $(basename $*).timer --now
 
 define install_conf
 	@if [ -d "$(1)" ]; then sudo mkdir -v -p $(2) ; else  sudo cp -v $(1) $(2) ; fi

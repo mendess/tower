@@ -95,9 +95,9 @@
     data:
       command: /usr/bin/shyprctl l flatpak run com.valvesoftware.SteamLink
     alias: start steam link
-  - wait_template: '{{ states("switch.tolaria", "on") }}'
+  - alias: wait for tolaria to come online
+    wait_template: '{{ is_state("switch.tolaria", "on") }}'
     continue_on_timeout: true
-    alias: wait for tolaria to come online
   - action: shell_command.host_run
     metadata: {}
     data:
