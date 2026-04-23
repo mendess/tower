@@ -59,6 +59,10 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:8082']
 
+  - job_name: wireguard
+    static_configs:
+      - targets: ['localhost:9586']
+
 
 # Alertmanager configuration
 # alerting:

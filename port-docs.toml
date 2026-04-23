@@ -68,6 +68,9 @@ port = 9256
 [watch.prom-nginx-exp.metrics]
 port = 9113
 
+[watch.prom-wireguard-exp.metrics]
+port = 9586
+
 [gate.wireguard.wireguard]
 port = 51820
 

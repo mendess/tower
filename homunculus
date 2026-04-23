@@ -329,23 +329,23 @@ fn users_for_vpn(network: &str) -> anyhow::Result<Vec<User>> {
     let text = std::fs::read_to_string(format!("./gate/etc/wireguard/{network}.conf"))?;
     #[derive(Debug)]
     enum StateMachine {
-        BeforeDevices,
-        SeekingUser,
+        Seeking,
+        Peer,
         InUser { name: String },
     }
 
-    let mut state = StateMachine::BeforeDevices;
+    let mut state = StateMachine::Seeking;
     let mut users = Vec::new();
 
     for line in text.split('\n') {
         match &mut state {
-            StateMachine::BeforeDevices => {
-                if line.starts_with("#== devices") {
-                    state = StateMachine::SeekingUser;
+            StateMachine::Seeking => {
+                if line.starts_with("[Peer]") {
+                    state = StateMachine::Peer;
                 }
             }
-            StateMachine::SeekingUser => {
-                if let Some(name) = line.strip_prefix("#-- ") {
+            StateMachine::Peer => {
+                if let Some(name) = line.strip_prefix("# friendly_name = ") {
                     state = StateMachine::InUser {
                         name: name.to_owned(),
                     };
@@ -357,7 +357,7 @@ fn users_for_vpn(network: &str) -> anyhow::Result<Vec<User>> {
                         ip: ip.trim_end_matches("/32").parse()?,
                         name: std::mem::take(name),
                     });
-                    state = StateMachine::SeekingUser;
+                    state = StateMachine::Seeking;
                 }
             }
         }
