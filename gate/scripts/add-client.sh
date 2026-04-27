@@ -54,8 +54,8 @@ if [[ "$REPLY" =~ Y|y|yes ]]; then
     echo -e "\n============= NEW $network PEER CONFIG ============="
     cat <<EOF | tee -a "$local_conf"
 
-#-- $name
 [Peer]
+# friendly_name = $name
 PublicKey = $(cat "$client_publickey")
 AllowedIPs = $ip/32
 EOF
