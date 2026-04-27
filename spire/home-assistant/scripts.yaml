@@ -49,8 +49,8 @@ boot_to_source:
     continue_on_timeout: false
     timeout:
       hours: 0
-      minutes: 0
-      seconds: 30
+      minutes: 1
+      seconds: 0
       milliseconds: 0
   - action: media_player.select_source
     metadata: {}
