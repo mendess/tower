@@ -445,3 +445,28 @@
       entity_id: media_player.aramanthinewall
       button: '6'
   mode: single
+- id: '1777300497238'
+  alias: Backup stale alert
+  description: ''
+  triggers:
+  - trigger: time
+    at:
+      entity_id: input_datetime.latest_backup_flopy
+      offset: '-168:00:00'
+  - trigger: time
+    at:
+      entity_id: input_datetime.latest_backup_local
+      offset: '-168:00:00'
+  conditions: []
+  actions:
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: There is a backup that has gone very stale
+      title: Backup stale alert
+  - action: notify.mobile_app_ornithopter
+    metadata: {}
+    data:
+      message: There is a backup that has gone very stale
+      title: Backup stale alert
+  mode: single
