@@ -28,8 +28,8 @@ $(DB_DIR)/spire/nextcloud/backups:
 	chmod 770 $@
 	sudo chown 33:mendess $@
 
-$(CONFIG):
-	ln ./homer/config.yml $@
+$(CONFIG): ./homer/config.yml
+	cp ./homer/config.yml $@
 
 hass-bridge:
 	cargo install --git https://github.com/mendess/hass-bridge.git

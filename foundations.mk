@@ -57,9 +57,8 @@ $(call user-timer,%):
 	systemctl --user enable $(basename $*).timer --now
 
 define install_conf
-	@if [ -d "$(1)" ]; then sudo mkdir -v -p $(2) ; else  sudo cp -v $(1) $(2) ; fi
+	@if [ -d "$(1)" ]; then sudo mkdir -v -p $(2); sudo chmod -v 755 $(2) ; else sudo cp -v $(1) $(2); sudo chmod -v 644 $(2) ; fi
 	@sudo chown -v root:root $(2)
-	@sudo chmod -v --reference=$(1) $(2)
 	@sudo touch --reference=$(1) $(2)
 	touch $(call stamp_file,$(2))
 	@case "$(1)" in \
