@@ -391,6 +391,12 @@
           minutes: 2
           seconds: 0
           milliseconds: 0
+      - condition: state
+        state:
+        - stopped
+        - paused
+        entity_id: event.sleep_as_android_sleep_tracking
+        attribute: event_type
   mode: single
 - id: '1776289999583'
   alias: turn off tv when sleeping
