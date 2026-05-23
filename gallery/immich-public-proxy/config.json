@@ -1,0 +1,31 @@
+{
+  "ipp": {
+    "responseHeaders": {
+      "Cache-Control": "public, max-age=2592000",
+      "Access-Control-Allow-Origin":  "*"
+    },
+    "singleImageGallery": false,
+    "singleItemAutoOpen": true,
+    "downloadOriginalPhoto": true,
+    "downloadedFilename": 0,
+    "allowDownloadAll": 1,
+    "allowSlugLinks": true,
+    "showHomePage": true,
+    "showGalleryTitle": true,
+    "showGalleryDescription": true,
+    "showMetadata": {
+      "description": true
+    },
+    "customInvalidResponse": false
+  },
+  "lightGallery": {
+    "controls": true,
+    "download": true,
+    "customSlideName": true,
+    "mobileSettings": {
+      "controls": false,
+      "showCloseIcon": true,
+      "download": true
+    }
+  }
+}

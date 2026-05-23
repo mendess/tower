@@ -128,6 +128,8 @@ services:
     environment:
       PUBLIC_BASE_URL: 'https://immich-share.mendess.xyz'
       IMMICH_URL: 'http://immich_server:2283'
+    volumes:
+      - ./immich-public-proxy/config.json:/app/config.json
     healthcheck:
       test: curl -s http://localhost:3000/share/healthcheck -o /dev/null || exit 1
       start_period: 10s
