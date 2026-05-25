@@ -75,6 +75,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
       - /var/lib/hass-bridge:/hass-bridge
+      - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     privileged: true
     cap_add:
