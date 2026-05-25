@@ -515,11 +515,11 @@
   - trigger: time
     at:
       entity_id: input_datetime.latest_backup_flopy
-      offset: '-168:00:00'
+      offset: '168:00:00'
   - trigger: time
     at:
       entity_id: input_datetime.latest_backup_local
-      offset: '-168:00:00'
+      offset: '168:00:00'
   conditions: []
   actions:
   - action: persistent_notification.create
