@@ -491,6 +491,11 @@
     entity_id: person.mendess
     state:
     - home
+  - condition: state
+    entity_id: event.sleep_as_android_sleep_tracking
+    state:
+    - stopped
+    attribute: event_type
   actions:
   - action: script.boot_to_source
     metadata: {}
