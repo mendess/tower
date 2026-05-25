@@ -618,3 +618,22 @@
       entity_id: switch.tv_screen_switch
     data: {}
   mode: single
+- id: '1779720840090'
+  alias: summer time shade
+  description: ''
+  triggers:
+  - trigger: time
+    at: '12:00:00'
+  conditions:
+  - condition: numeric_state
+    entity_id: weather.forecast_home
+    attribute: temperature
+    above: 30
+  actions:
+  - action: cover.set_cover_position
+    metadata: {}
+    target:
+      entity_id: cover.estores_todos
+    data:
+      position: 35
+  mode: single
