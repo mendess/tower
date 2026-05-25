@@ -275,6 +275,22 @@
     data: {}
     target:
       label_id: estores_all
+    enabled: false
+  - repeat:
+      for_each: '{{ state_attr(''cover.estores_todos'', ''entity_id'') | sort }}'
+      sequence:
+      - action: cover.close_cover
+        metadata: {}
+        target:
+          entity_id: '{{ repeat.item }}'
+        data: {}
+      - wait_template: '{{ state_attr(repeat.item, ''current_position'') == 0 }}'
+        continue_on_timeout: true
+        timeout:
+          hours: 0
+          minutes: 1
+          seconds: 0
+          milliseconds: 0
   mode: single
 - id: '1775383359573'
   alias: Stopped watching tv
