@@ -228,9 +228,9 @@
     then:
     - action: cover.open_cover
       metadata: {}
-      target:
-        label_id: estores_quarto
       data: {}
+      target:
+        entity_id: cover.estores_quarto_wc
   mode: single
 - id: '1775379350361'
   alias: Close shutters when tv turns on
