@@ -12,7 +12,7 @@ esac
 
 case "$split_tunnel" in
     n)
-        allowed_ips="0.0.0.0, ::/0"
+        allowed_ips="0.0.0.0/0, ::/0"
         ;;
     *)
         allowed_ips="10.0.$network_number.1, 192.168.42.2"
