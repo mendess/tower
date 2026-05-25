@@ -533,3 +533,88 @@
       message: There is a backup that has gone very stale
       title: Backup stale alert
   mode: single
+- id: '1779702947947'
+  alias: Turn off tv screen while working
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.oboro
+    from:
+    to:
+    - 'on'
+    for:
+      hours: 1
+      minutes: 0
+      seconds: 0
+  - trigger: state
+    entity_id:
+    - media_player.aramanthinewall
+    for:
+      hours: 1
+      minutes: 0
+      seconds: 0
+    attribute: source
+    to:
+    - PC
+  - trigger: state
+    entity_id:
+    - switch.tv_screen_switch
+    to:
+    - 'on'
+    for:
+      hours: 1
+      minutes: 0
+      seconds: 0
+  conditions:
+  - condition: time
+    after: 09:00:00
+    before: '18:00:00'
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  - condition: state
+    entity_id: media_player.aramanthinewall
+    state:
+    - PC
+    attribute: source
+    for:
+      hours: 0
+      minutes: 59
+      seconds: 0
+  - condition: state
+    entity_id: switch.tv_screen_switch
+    state:
+    - 'on'
+    for:
+      hours: 0
+      minutes: 59
+      seconds: 0
+  - condition: state
+    entity_id: binary_sensor.oboro
+    state:
+    - 'on'
+    for:
+      hours: 0
+      minutes: 59
+      seconds: 0
+  actions:
+  - action: notify.lg_webos_tv_oled65b46la_deuqljp
+    metadata: {}
+    data:
+      message: Turning off tv screen because you're working
+      title: Turn of tv scree while working
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - action: switch.turn_off
+    metadata: {}
+    target:
+      entity_id: switch.tv_screen_switch
+    data: {}
+  mode: single
