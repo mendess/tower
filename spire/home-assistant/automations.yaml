@@ -72,55 +72,105 @@
   - trigger: state
     entity_id:
     - input_boolean.gaming_mode
+    id: 'on'
     to:
     - 'on'
+  - trigger: state
+    entity_id:
+    - input_boolean.gaming_mode
+    to:
+    - 'off'
+    id: 'off'
   conditions: []
   actions:
-  - action: script.turn_on_tolaria_w_steam_if_tolaria_is_off
-    metadata: {}
-    data: {}
-    enabled: true
-  - action: switch.turn_on
-    metadata: {}
-    target:
-      entity_id:
-      - switch.tv_screen_switch
-    data: {}
-  - action: script.boot_to_source
-    metadata: {}
-    data:
-      source: PC
-  - action: shell_command.host_run
-    metadata: {}
-    data:
-      command: /usr/bin/shyprctl l flatpak run com.valvesoftware.SteamLink
-    alias: start steam link
-  - alias: wait for tolaria to come online
-    wait_template: '{{ is_state("switch.tolaria", "on") }}'
-    continue_on_timeout: true
-  - action: shell_command.host_run
-    metadata: {}
-    data:
-      command: /usr/local/bin/fade-out-music
-    alias: Fade out music
-  - repeat:
-      while:
-      - condition: numeric_state
-        entity_id: media_player.aramanthinewall
-        attribute: volume_level
-        below: 0.25
-      sequence:
-      - action: media_player.volume_up
+  - if:
+    - condition: trigger
+      id:
+      - 'on'
+    then:
+    - action: script.turn_on_tolaria_w_steam_if_tolaria_is_off
+      metadata: {}
+      data: {}
+      enabled: true
+    - action: switch.turn_on
+      metadata: {}
+      target:
+        entity_id:
+        - switch.tv_screen_switch
+      data: {}
+    - action: script.boot_to_source
+      metadata: {}
+      data:
+        source: PC
+    - action: shell_command.host_run
+      metadata: {}
+      data:
+        command: /usr/bin/shyprctl l flatpak run com.valvesoftware.SteamLink
+      alias: start steam link
+    - alias: wait for tolaria to come online
+      wait_template: '{{ is_state("switch.tolaria", "on") }}'
+      continue_on_timeout: true
+    - parallel:
+      - repeat:
+          while:
+          - condition: numeric_state
+            entity_id: media_player.aramanthinewall
+            attribute: volume_level
+            above: 0.25
+          sequence:
+          - action: media_player.volume_down
+            metadata: {}
+            target:
+              entity_id: media_player.aramanthinewall
+            data: {}
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 1
+              milliseconds: 0
+        alias: reduce tv volume to 25
+      - action: shell_command.host_run
         metadata: {}
-        target:
+        data:
+          command: /usr/local/bin/fade-out-music
+        alias: Fade out music
+      alias: fade out music
+    - repeat:
+        while:
+        - condition: numeric_state
           entity_id: media_player.aramanthinewall
+          attribute: volume_level
+          below: 0.25
+        sequence:
+        - action: media_player.volume_up
+          metadata: {}
+          target:
+            entity_id: media_player.aramanthinewall
+          data: {}
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 1
+            milliseconds: 0
+      alias: bring tv volume up to 25
+    else:
+    - action: media_player.volume_set
+      metadata: {}
+      target:
+        entity_id: media_player.aramanthinewall
+      data:
+        volume_level: 0.1
+    - parallel:
+      - action: shell_command.host_run
+        metadata: {}
+        data:
+          command: /usr/local/bin/fade-in-music
+        alias: Fade in music
+      - action: shell_command.tolaria_restore_resolution
+        metadata: {}
         data: {}
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 1
-          milliseconds: 0
-  mode: single
+      alias: fade in music and restore tolaria resolution
+  mode: restart
 - id: '1773967837355'
   alias: Screen turns on when tv turns on
   description: ''
@@ -130,13 +180,31 @@
     - switch.aramathinewall_power_button
     to:
     - 'on'
+    id: 'on'
+  - trigger: state
+    entity_id:
+    - switch.aramathinewall_power_button
+    to:
+    - 'off'
+    id: 'off'
   conditions: []
   actions:
-  - action: input_boolean.turn_on
-    metadata: {}
-    target:
-      entity_id: input_boolean.tv_screen
-    data: {}
+  - if:
+    - condition: trigger
+      id:
+      - 'on'
+    then:
+    - action: input_boolean.turn_on
+      metadata: {}
+      target:
+        entity_id: input_boolean.tv_screen
+      data: {}
+    else:
+    - action: input_boolean.turn_off
+      metadata: {}
+      target:
+        entity_id: input_boolean.tv_screen
+      data: {}
   mode: single
 - id: '1775378866438'
   alias: Morning open covers
@@ -246,33 +314,6 @@
     target:
       label_id: estores_sala
     data: {}
-  mode: single
-- id: '1775386644374'
-  alias: Stop Gaming mode
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - input_boolean.gaming_mode
-    to:
-    - 'off'
-  conditions: []
-  actions:
-  - action: media_player.volume_set
-    metadata: {}
-    target:
-      entity_id: media_player.aramanthinewall
-    data:
-      volume_level: 0.1
-  - parallel:
-    - action: shell_command.host_run
-      metadata: {}
-      data:
-        command: /usr/local/bin/fade-in-music
-      alias: Fade in music
-    - action: shell_command.tolaria_restore_resolution
-      metadata: {}
-      data: {}
   mode: single
 - id: '1775574119677'
   alias: Backup Alert Notification
