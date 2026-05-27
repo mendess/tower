@@ -205,7 +205,7 @@
       target:
         entity_id: input_boolean.tv_screen
       data: {}
-  mode: single
+  mode: restart
 - id: '1775378866438'
   alias: Morning open covers
   description: ''
@@ -214,11 +214,12 @@
     at: 08:00:00
   conditions: []
   actions:
-  - action: cover.open_cover
+  - action: cover.set_cover_position
     metadata: {}
-    data: {}
     target:
-      label_id: estores_sala
+      entity_id: cover.estores_sala
+    data:
+      position: '{{ states(''number.forecast_estores_open_percentage'') }}'
   - if:
     - condition: not
       conditions:
@@ -226,11 +227,12 @@
         entity_id: person.mendess
         zone: zone.home
     then:
-    - action: cover.open_cover
+    - action: cover.set_cover_position
       metadata: {}
-      data: {}
       target:
         entity_id: cover.estores_quarto_wc
+      data:
+        position: '{{ states(''number.forecast_estores_open_percentage'') }}'
   mode: single
 - id: '1775379350361'
   alias: Close shutters when tv turns on
@@ -325,11 +327,12 @@
     state:
     - 'off'
   actions:
-  - action: cover.open_cover
+  - action: cover.set_cover_position
     metadata: {}
     target:
-      label_id: estores_sala
-    data: {}
+      entity_id: cover.estores_sala
+    data:
+      position: '{{ states(''number.forecast_estores_open_percentage'') }}'
   mode: single
 - id: '1775574119677'
   alias: Backup Alert Notification
@@ -434,7 +437,7 @@
       - condition: numeric_state
         entity_id: cover.estores_quarto_wc
         attribute: current_position
-        below: 100
+        below: 50
       sequence:
       - action: cover.set_cover_position
         metadata: {}
@@ -448,12 +451,11 @@
           minutes: 2
           seconds: 0
           milliseconds: 0
-      - condition: state
-        state:
-        - stopped
-        - paused
-        entity_id: event.sleep_as_android_sleep_tracking
-        attribute: event_type
+  - action: cover.open_cover
+    metadata: {}
+    target:
+      entity_id: cover.estores_quarto_wc
+    data: {}
   mode: single
 - id: '1776289999583'
   alias: turn off tv when sleeping
@@ -614,8 +616,8 @@
       title: Turn of tv scree while working
   - delay:
       hours: 0
-      minutes: 1
-      seconds: 0
+      minutes: 0
+      seconds: 10
       milliseconds: 0
   - action: switch.turn_off
     metadata: {}
@@ -631,14 +633,34 @@
     at: '12:00:00'
   conditions:
   - condition: numeric_state
-    entity_id: weather.forecast_home
-    attribute: temperature
-    above: 30
+    entity_id: number.forecast_estores_open_percentage
+    below: 100
   actions:
   - action: cover.set_cover_position
     metadata: {}
     target:
       entity_id: cover.estores_todos
     data:
-      position: 35
+      position: '{{ states(''number.forecast_estores_open_percentage'') }}'
+  mode: single
+- id: '1779911838483'
+  alias: Open covers in warm days when the sun is setting
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sun.sun
+    attribute: elevation
+    below: 30
+  conditions:
+  - condition: template
+    value_template: '{{ state_attr("cover.estores_todos", "current_position") == states("number.forecast_estores_open_percentage")
+      }}'
+    alias: All estores are at the sunny day percentage
+  actions:
+  - action: cover.open_cover
+    metadata: {}
+    target:
+      entity_id: cover.estores_todos
+    data: {}
   mode: single
