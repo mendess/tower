@@ -5,7 +5,6 @@ source ./scripts/common.sh
 
 genkey() {
     mkdir -vp "$keys"
-    echo "checking if wireguard keys already exist"
     sudo /usr/bin/test -e "/etc/wireguard/$network-privatekey" &&
         /usr/bin/test -e "$publickey" &&
         return
@@ -33,13 +32,10 @@ test -e "$local_conf" || {
     exit
 }
 
-echo "configuring $network"
-
 genkey
 
 sudo test -e "$installed_conf" &&
     sudo test "$installed_conf" -nt "$local_conf" &&
-    echo "no need to update $installed_conf" &&
     exit 0
 
 echo -e "\n============= INSTALLING $network CONFIG =============\n"

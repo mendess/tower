@@ -1,0 +1,20 @@
+#!/bin/bash
+
+cd "$(dirname "$0")/.." || exit
+source ./scripts/common.sh
+
+before_mtime=$(stat --print '%Y' "$installed_conf")
+./scripts/config-wg.sh "$network"
+after_mtime=$(stat --print '%Y' "$installed_conf")
+
+if [[ "$before_mtime" != "$after_mtime" ]]; then
+    printf "$RED DOWN$RESET Bringing up interface $*\n"
+    sudo wg-quick down /etc/wireguard/$network.conf
+fi
+
+if ! [[ -e "/proc/self/net/dev_snmp6/$network" ]]; then
+    printf "$GREEN   UP$RESET Bringing up interface $*\n"
+    sudo wg-quick up /etc/wireguard/$network.conf
+fi
+
+echo "wireguard $network configured"

@@ -47,19 +47,14 @@ config-unbound: $(UNBOUND_CONFIG)
 WG_CONFIGS := $(wildcard ./etc/wireguard/*.conf)
 WG_NETWORKS := $(patsubst ./etc/wireguard/%.conf,%,$(WG_CONFIGS))
 WG_SERVICES := $(addprefix /etc/systemd/system/multi-user.target.wants/wg-quick@, $(addsuffix .service, $(WG_NETWORKS)))
-WG_NETWORK_ENABLED = $(addprefix /proc/self/net/dev_snmp6/, $(WG_NETWORKS))
+WG_NETWORKS := $(addprefix wg-,$(WG_NETWORKS))
 
-.PHONY: wireguard wg-update wg-down
+.PHONY: wireguard wg-update wg-down wg-conf
 
-wireguard: $(call bin,qrencode iptables wg) $(WG_NETWORK_ENABLED) $(WG_SERVICES) /etc/sysctl.conf $(shell find ./etc/systemd | sed 's|\.||')
+wireguard: $(call bin,qrencode iptables wg) $(WG_NETWORKS) $(WG_SERVICES) /etc/sysctl.conf $(shell find ./etc/systemd | sed 's|\.||')
 
-# wg-up-%:
-/proc/self/net/dev_snmp6/%: wg-%.conf
-	@printf "$(GREEN)   UP$(RESET) Bringing up interface $*\n"
-	sudo wg-quick up /etc/wireguard/$*.conf
-
-wg-update-%: wg-down-%
-	make /proc/self/net/dev_snmp6/$*
+wg-%:
+	@sudo ./scripts/makefile-entrypoint.sh "$*"
 
 wg-down-%:
 	@printf "$(RED) DOWN$(RESET) Taking down interface $*\n"
