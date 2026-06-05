@@ -2,12 +2,14 @@
   alias: Welcome home
   description: ''
   triggers:
-  - device_id: 63e3d64a1a19eff86f97a51317750168
-    domain: device_tracker
-    entity_id: 436c9eb2cc16d3c98b8af6324030d4ce
-    type: enters
-    trigger: device
+  - trigger: zone
+    entity_id: person.andreia
     zone: zone.home
+    event: enter
+  - trigger: zone
+    entity_id: person.mendess
+    zone: zone.home
+    event: enter
   conditions:
   - condition: not
     conditions:
@@ -28,12 +30,10 @@
   alias: Leave home
   description: ''
   triggers:
-  - device_id: 63e3d64a1a19eff86f97a51317750168
-    domain: device_tracker
-    entity_id: 436c9eb2cc16d3c98b8af6324030d4ce
-    type: leaves
-    trigger: device
+  - trigger: zone
+    entity_id: person.mendess
     zone: zone.home
+    event: leave
   conditions: []
   actions:
   - action: switch.turn_off
