@@ -334,6 +334,8 @@
       hours: 0
       minutes: 1
       seconds: 0
+    from:
+    - Jellyfin
   conditions:
   - condition: state
     entity_id: binary_sensor.night_time
