@@ -227,6 +227,12 @@
   triggers:
   - trigger: time
     at: 08:00:00
+  - trigger: state
+    entity_id:
+    - event.sleep_as_android_alarm_clock
+    attribute: event_type
+    to:
+    - alert_dismiss
   conditions: []
   actions:
   - action: cover.set_cover_position
@@ -420,6 +426,10 @@
       hours: 0
       minutes: 30
       seconds: 0
+  - trigger: time
+    at:
+      entity_id: sensor.sleep_as_android_next_alarm
+      offset: -00:05:00
   conditions:
   - condition: zone
     entity_id: person.mendess
@@ -479,6 +489,10 @@
   - trigger: state
     entity_id:
     - event.sleep_as_android_sleep_tracking
+    attribute: event_type
+    to:
+    - started
+    - resumed
   conditions: []
   actions:
   - action: switch.turn_off
