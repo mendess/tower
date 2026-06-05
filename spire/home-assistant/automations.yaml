@@ -102,14 +102,25 @@
       metadata: {}
       data:
         source: PC
-    - action: shell_command.host_run
+    - action: notify.lg_webos_tv_oled65b46la_deuqljp
       metadata: {}
       data:
-        command: /usr/bin/shyprctl l flatpak run com.valvesoftware.SteamLink
-      alias: start steam link
+        message: waiting for tolaria to boot up
     - alias: wait for tolaria to come online
       wait_template: '{{ is_state("switch.tolaria", "on") }}'
       continue_on_timeout: true
+    - action: notify.lg_webos_tv_oled65b46la_deuqljp
+      metadata: {}
+      data:
+        message: waiting for steam to boot up
+    - action: shell_command.tolaria_wait_for_steam
+      metadata: {}
+      data: {}
+    - alias: start steam link
+      action: shell_command.host_run
+      metadata: {}
+      data:
+        command: /usr/bin/shyprctl l flatpak run com.valvesoftware.SteamLink --autoconnect
     - parallel:
       - repeat:
           while:
@@ -154,6 +165,10 @@
             milliseconds: 0
       alias: bring tv volume up to 25
     else:
+    - action: shell_command.host_run
+      metadata: {}
+      data:
+        command: /usr/bin/pkill fade-out-music
     - action: media_player.volume_set
       metadata: {}
       target:

@@ -21,7 +21,7 @@ curl -q -X POST \
       -d '{"entity_id": "input_boolean.gaming_mode"}' \
       http://localhost:8123/api/services/input_boolean/turn_on
 
-for _ in {0..30}; do
+for _ in {0..120}; do
     if pid=$(pgrep steamlink); then
         break
     fi
