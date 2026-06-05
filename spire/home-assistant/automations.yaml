@@ -539,7 +539,7 @@
     target:
       device_id: b5098e373bea279a182da7c91e908c4f
     data:
-      volume_level: 0.1
+      volume_level: 0.16
   - action: webostv.button
     metadata: {}
     data:
