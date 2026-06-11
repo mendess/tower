@@ -103,3 +103,19 @@ boot_to_source:
           max: 1
           step: 0.01
   mode: restart
+privacy:
+  sequence:
+  - action: cover.set_cover_position
+    metadata: {}
+    target:
+      entity_id: cover.estores_varanda_direira
+    data:
+      position: 30
+  - action: cover.set_cover_position
+    metadata: {}
+    data:
+      position: 30
+    target:
+      entity_id: cover.estores_varanda_esquerda
+  alias: Privacy
+  description: ''
