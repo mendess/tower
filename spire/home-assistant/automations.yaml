@@ -725,3 +725,58 @@
       entity_id: cover.estores_todos
     data: {}
   mode: single
+- id: '1781087126490'
+  alias: Pilula alert
+  description: ''
+  triggers:
+  - trigger: time
+    at: '23:00:00'
+  conditions: []
+  actions:
+  - action: input_boolean.turn_on
+    metadata: {}
+    target:
+      entity_id: input_boolean.antibabipillen
+    data: {}
+  - variables:
+      message: 'Antibabypillen: Vai tomar isso'
+  - repeat:
+      while:
+      - condition: state
+        entity_id: input_boolean.antibabipillen
+        state:
+        - 'on'
+      sequence:
+      - if:
+        - condition: state
+          entity_id: switch.aramathinewall_power_button
+          state:
+          - 'on'
+        - condition: zone.in_zone
+          target:
+            entity_id: person.andreia
+          options:
+            for: 00:00:00
+            zone: zone.home
+          enabled: true
+        then:
+        - action: notify.lg_webos_tv_oled65b46la_deuqljp
+          metadata: {}
+          data:
+            message: '{{ message }}'
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 7
+            milliseconds: 0
+        else:
+        - action: notify.mobile_app_pixel_9a
+          metadata: {}
+          data:
+            message: '{{ message }}'
+        - delay:
+            hours: 0
+            minutes: 30
+            seconds: 0
+            milliseconds: 0
+  mode: single
