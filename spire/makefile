@@ -1,12 +1,6 @@
 .DEFAULT_GOAL = install
 
 include .env
-DIRS = $(DB_DIR)/spire/homer/ \
-	   $(DB_DIR)/spire/nextcloud/backups \
-	   $(DB_DIR)/spire/actual/data \
-	   $(DB_DIR)/spire/mosquitto/config \
-	   $(DB_DIR)/spire/mosquitto/data \
-	   $(DB_DIR)/spire/mosquitto/log
 include ../foundations.mk
 
 CONFIG = ~/vault/spire/homer/config.yml

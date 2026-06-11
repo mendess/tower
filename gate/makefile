@@ -4,7 +4,6 @@ include .env
 ROOT_DIRS = /etc/nginx/sites-enabled /etc/nginx/sites-available
 include ../foundations.mk
 
-
 .PHONY: install
 install: ssh unbound wireguard nginx dnsmasq nft
 

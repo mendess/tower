@@ -8,6 +8,7 @@
 //! indexmap = { version = "2", features = ["serde"] }
 //! regex = "1"
 //! serde = { version = "1", features = ["derive"] }
+//! yaml_serde = { version = "0.10" }
 //! toml = "0.9"
 //! ```
 
@@ -21,7 +22,7 @@ use std::collections::{HashMap, HashSet};
 use std::fs::{self, File};
 use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use std::net::Ipv4Addr;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::{Command as System, Stdio};
 use std::sync::LazyLock;
 
@@ -38,6 +39,7 @@ enum Command {
     GenEnv,
     WgUsers { ip: Option<Ipv4Addr> },
     DnsStats,
+    GetVolumes,
 }
 
 #[derive(Deserialize)]
@@ -72,6 +74,7 @@ struct ServicePort {
 }
 
 fn main() -> anyhow::Result<()> {
+    let cwd = std::env::current_dir()?;
     std::env::set_current_dir(std::env::home_dir().unwrap().join("tower"))?;
     let args = Args::parse();
 
@@ -81,8 +84,101 @@ fn main() -> anyhow::Result<()> {
         Some(Command::GenEnv) => gen_env()?,
         Some(Command::WgUsers { ip }) => show_wg_users(ip)?,
         Some(Command::DnsStats) => show_dns_stats()?,
+        Some(Command::GetVolumes) => get_volumes(cwd)?,
         None => print_table(None)?,
     }
+    Ok(())
+}
+
+fn replace_all<E>(
+    re: &Regex,
+    haystack: &str,
+    replacement: impl Fn(&regex::Captures) -> Result<String, E>,
+) -> Result<String, E> {
+    let mut new = String::with_capacity(haystack.len());
+    let mut last_match = 0;
+    for caps in re.captures_iter(haystack) {
+        let m = caps.get(0).unwrap();
+        new.push_str(&haystack[last_match..m.start()]);
+        new.push_str(&replacement(&caps)?);
+        last_match = m.end();
+    }
+    new.push_str(&haystack[last_match..]);
+    Ok(new)
+}
+
+fn get_volumes(dir: PathBuf) -> anyhow::Result<()> {
+    let compose = dir.join("docker-compose.yaml");
+    #[derive(Deserialize)]
+    struct Compose {
+        services: HashMap<String, Service>,
+    }
+
+    #[derive(Deserialize)]
+    struct Service {
+        #[serde(default)]
+        volumes: Vec<Volume>,
+    }
+
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum Volume {
+        Simple(String),
+        Complex { source: String },
+    }
+
+    let var_regex = Regex::new(r"\$\{[A-Z_]+\}").unwrap();
+    let mut env = HashMap::new();
+    let resolve_var = |env: &HashMap<String, String>, line: &str| {
+        replace_all(&var_regex, line, |c: &regex::Captures| {
+            let var_name = (&c[0])
+                .trim_start_matches('$')
+                .trim_start_matches('{')
+                .trim_end_matches('}');
+            env.get(var_name)
+                .ok_or_else(|| anyhow::anyhow!("'{var_name}' not defined"))
+                .map(ToOwned::to_owned)
+        })
+    };
+
+    {
+        let reader = BufReader::new(File::open(".env")?);
+        let regex = Regex::new(r"export ([A-Z_]+_(DIR|LOCATION)=[~/${}A-Z_a-z\-]+)+").unwrap();
+        for line in reader.lines() {
+            let line = line?;
+            let var = regex.captures(&line);
+            if let Some((key, value)) = var.and_then(|v| v.get(1)?.as_str().split_once("=")) {
+                let value = resolve_var(&env, value)?;
+                env.insert(key.to_owned(), value);
+            };
+        }
+    }
+
+    let file = std::fs::File::open(compose)?;
+    let mut volumes = yaml_serde::from_reader::<_, Compose>(file)?
+        .services
+        .into_iter()
+        .flat_map(|(_, s)| s.volumes)
+        .filter_map(|v| {
+            let source = match &v {
+                Volume::Simple(s) => {
+                    let Some((source, _)) = s.split_once(":") else {
+                        return None;
+                    };
+                    source
+                }
+                Volume::Complex { source } => source,
+            };
+            source.starts_with('$').then(|| resolve_var(&env, source))
+        })
+        .collect::<anyhow::Result<Vec<_>>>()?;
+
+    volumes.sort();
+    volumes.dedup();
+    for v in volumes {
+        println!("{v}");
+    }
+
     Ok(())
 }
 

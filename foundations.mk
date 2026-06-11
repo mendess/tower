@@ -27,6 +27,8 @@ define bin
 	$(foreach arg,$(1),/usr/bin/$(arg))
 endef
 
+DIRS := $(DIRS) $(shell ../homunculus get-volumes 2>/dev/null)
+
 dirs: $(DIRS)
 
 root_dirs: $(ROOT_DIRS)
