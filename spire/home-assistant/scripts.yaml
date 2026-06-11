@@ -64,6 +64,16 @@ boot_to_source:
       minutes: 1
       seconds: 0
       milliseconds: 0
+  - if:
+    - condition: template
+      value_template: '{{ (volume | default(None)) is not none }}'
+    then:
+    - action: media_player.volume_set
+      metadata: {}
+      target:
+        entity_id: media_player.aramanthinewall
+      data:
+        volume_level: '{{ (volume | default(0)) | float }}'
   - action: media_player.select_source
     metadata: {}
     data:
@@ -86,4 +96,10 @@ boot_to_source:
     source:
       selector:
         text: {}
+    volume:
+      selector:
+        number:
+          min: 0
+          max: 1
+          step: 0.01
   mode: restart

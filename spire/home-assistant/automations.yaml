@@ -25,6 +25,7 @@
     metadata: {}
     data:
       source: PC
+      volume: 0.1
   mode: single
 - id: '1771331270206'
   alias: Leave home
@@ -530,16 +531,24 @@
     - stopped
     attribute: event_type
   actions:
-  - action: script.boot_to_source
-    metadata: {}
-    data:
-      source: Live TV
-  - action: media_player.volume_set
-    metadata: {}
-    target:
-      device_id: b5098e373bea279a182da7c91e908c4f
-    data:
-      volume_level: 0.16
+  - if:
+    - condition: zone
+      entity_id: person.andreia
+      zone: zone.home
+    then:
+    - action: script.boot_to_source
+      metadata: {}
+      data:
+        source: Live TV
+        volume: 0
+      alias: Boot to Live TV, volume = 0
+    else:
+    - action: script.boot_to_source
+      metadata: {}
+      data:
+        source: Live TV
+        volume: 0.16
+      alias: Boot to Live TV, volume = 16
   - action: webostv.button
     metadata: {}
     data:
