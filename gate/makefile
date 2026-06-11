@@ -77,6 +77,8 @@ DOMAINS_WITH_PORT = mendess.xyz:8042 \
 	memoria.mendess.xyz:8312 \
 	minecraft.mendess.xyz:50002 \
 	immich-share.mendess.xyz:2284 \
+	immich.mendess.xyz:2283 \
+	nextcloud.mendess.xyz:8085 \
 	$(INTERNAL_HOSTNAME):1025 \
 	$(shell cd .. && ./homunculus show web-ui \
 		| tail -n +3 \
@@ -117,12 +119,17 @@ config-nginx: /etc/nginx/nginx.conf
 /etc/nginx/sites-available/%.home: ./domain-template-file.home
 	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep -E "^$*.home:" | cut -d ':' -f 2); \
 	sed "s|DOMAIN|$*|;s|PORT|$$port|" domain-template-file.home | sudo tee $@
+	sudo chmod 644 $@
 	@sudo nginx -t
+
+/etc/nginx/sites-available/%.mendess.xyz: ./etc/nginx/sites-available/%.mendess.xyz
+	sudo cp -v ./etc/nginx/sites-available/$*.mendess.xyz /etc/nginx/sites-available/$*.mendess.xyz
 
 /etc/nginx/sites-available/%: ./domain-template-file
 	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep "^$*:" | cut -d ':' -f 2); \
 	echo $$port; \
 	sed "s|DOMAIN|$*|;s|PORT|$$port|" domain-template-file | sudo tee $@
+	sudo chmod 644 $@
 	@sudo nginx -t
 
 /etc/systemd/system/timers.target.wants/certbot-renew.timer:

@@ -109,4 +109,3 @@ services:
         - TZ={TZ}
     devices:
         - /dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Plus_MG24_e4e582f637a2ef11afaa8c6661ce3355-if00-port0:/dev/ttyACM0
-
