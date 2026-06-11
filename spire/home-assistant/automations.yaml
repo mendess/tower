@@ -455,36 +455,56 @@
     attribute: event_type
     to:
     - alert_start
+  - trigger: state
+    entity_id:
+    - event.sleep_as_android_sleep_tracking
+    attribute: event_type
+    to:
+    - resumed
+    - paused
+    - started
+    id: sleep
   conditions:
   - condition: zone
     entity_id: person.mendess
     zone: zone.home
   actions:
-  - repeat:
-      while:
-      - condition: numeric_state
+  - if:
+    - condition: trigger
+      id:
+      - sleep
+    then:
+    - action: cover.close_cover
+      metadata: {}
+      target:
         entity_id: cover.estores_quarto_wc
-        attribute: current_position
-        below: 50
-      sequence:
-      - action: cover.set_cover_position
-        metadata: {}
-        target:
+      data: {}
+    else:
+    - repeat:
+        while:
+        - condition: numeric_state
           entity_id: cover.estores_quarto_wc
-        data:
-          position: '{{ min(100, (state_attr(''cover.estores_quarto_wc'', ''current_position'')
-            + 10)) }}'
-      - delay:
-          hours: 0
-          minutes: 2
-          seconds: 0
-          milliseconds: 0
-  - action: cover.open_cover
-    metadata: {}
-    target:
-      entity_id: cover.estores_quarto_wc
-    data: {}
-  mode: single
+          attribute: current_position
+          below: 50
+        sequence:
+        - action: cover.set_cover_position
+          metadata: {}
+          target:
+            entity_id: cover.estores_quarto_wc
+          data:
+            position: '{{ min(100, (state_attr(''cover.estores_quarto_wc'', ''current_position'')
+              + 10)) }}'
+        - delay:
+            hours: 0
+            minutes: 2
+            seconds: 0
+            milliseconds: 0
+    - action: cover.open_cover
+      metadata: {}
+      target:
+        entity_id: cover.estores_quarto_wc
+      data: {}
+  mode: restart
 - id: '1776289999583'
   alias: turn off tv when sleeping
   description: ''
@@ -554,6 +574,7 @@
     data:
       entity_id: media_player.aramanthinewall
       button: '6'
+    alias: Mudar para RTP Noticias
   mode: single
 - id: '1777300497238'
   alias: Backup stale alert
