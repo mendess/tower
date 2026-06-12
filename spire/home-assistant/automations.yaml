@@ -691,7 +691,7 @@
   description: ''
   triggers:
   - trigger: time
-    at: '12:00:00'
+    at: '10:00:00'
   conditions:
   - condition: numeric_state
     entity_id: number.forecast_estores_open_percentage

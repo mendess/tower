@@ -34,3 +34,30 @@ logger:
   default: warning
 
 monitor_docker: !include monitor_docker.yaml
+
+template:
+  - trigger:
+    - trigger: time
+      at: "00:00:01"
+    - trigger: homeassistant
+      event: start
+    - trigger: event
+      event_type: event_template_reloaded
+    action:
+      - action: weather.get_forecasts
+        data:
+          type: daily
+        target:
+          entity_id: weather.forecast_home
+        response_variable: weather_data
+    sensor:
+      - name: "Max temperature"
+        unique_id: max_daily_temp
+        state: >-
+          {{ weather_data["weather.forecast_home"].forecast[0].temperature }}
+        unit_of_measurement: "°C"
+      - name: "Min temperature"
+        unique_id: min_daily_temp
+        state: >-
+          {{ weather_data["weather.forecast_home"].forecast[0].templow }}
+        unit_of_measurement: "°C"
