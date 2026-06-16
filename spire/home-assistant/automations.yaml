@@ -99,10 +99,6 @@
         entity_id:
         - switch.tv_screen_switch
       data: {}
-    - action: script.boot_to_source
-      metadata: {}
-      data:
-        source: PC
     - action: notify.lg_webos_tv_oled65b46la_deuqljp
       metadata: {}
       data:
@@ -117,6 +113,10 @@
     - action: shell_command.tolaria_wait_for_steam
       metadata: {}
       data: {}
+    - action: script.boot_to_source
+      metadata: {}
+      data:
+        source: PC
     - alias: start steam link
       action: shell_command.host_run
       metadata: {}
