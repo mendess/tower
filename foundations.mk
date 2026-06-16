@@ -61,16 +61,16 @@ $(call user-timer,%):
 define install_conf
 	@if [ -d "$(1)" ]; then \
 		sudo mkdir -v -p $(2); \
-		sudo chmod -v 755 $(2) ; \
+		sudo chmod -v 755 $(2) | grep -v retained ; \
 	else \
 		sudo cp -v $(1) $(2); \
 		if [ -x $(2) ]; then \
-			sudo chmod -v 644 $(2); \
+			sudo chmod -v 644 $(2) | grep -v retained; \
 		else \
-			sudo chmod -v 755 $(2) ; \
+			sudo chmod -v 755 $(2) | grep -v retained ; \
 		fi; \
 	fi
-	@sudo chown -v root:root $(2)
+	@sudo chown -v root:root $(2) | grep -v retained
 	@sudo touch --reference=$(1) $(2)
 	touch $(call stamp_file,$(2))
 	@case "$(1)" in \
