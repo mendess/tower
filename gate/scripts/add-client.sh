@@ -61,5 +61,5 @@ AllowedIPs = $ip/32
 EOF
     echo -e "\n===============================================\n"
 
-    make wg-update-$network
+    make wg-$network
 fi

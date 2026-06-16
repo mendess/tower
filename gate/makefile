@@ -48,9 +48,9 @@ WG_NETWORKS := $(patsubst ./etc/wireguard/%.conf,%,$(WG_CONFIGS))
 WG_SERVICES := $(addprefix /etc/systemd/system/multi-user.target.wants/wg-quick@, $(addsuffix .service, $(WG_NETWORKS)))
 WG_NETWORKS := $(addprefix wg-,$(WG_NETWORKS))
 
-.PHONY: wireguard wg-update wg-down wg-conf
+.PHONY: wireguard wg-down wg-conf
 
-wireguard: $(call bin,qrencode iptables wg) $(WG_NETWORKS) $(WG_SERVICES) /etc/sysctl.conf $(shell find ./etc/systemd | sed 's|\.||')
+wireguard: $(call bin,qrencode wg) $(WG_NETWORKS) $(WG_SERVICES) /etc/sysctl.conf $(shell find ./etc/systemd | sed 's|\.||')
 
 wg-%:
 	@sudo ./scripts/makefile-entrypoint.sh "$*"
