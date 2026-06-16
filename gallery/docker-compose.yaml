@@ -153,6 +153,17 @@ services:
       - "${DB_DIR}/gallery/navidrome/data:/data"
       - "${DB_DIR}/gallery/navidrome/music:/music:ro"
 
+  audiobookshelf:
+    container_name: audiobookshelf-server
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    ports:
+      - 13378:80
+    volumes:
+      - ${DB_DIR}/gallery/audiobookshelf/data/audiobooks:/audiobooks
+      - ${DB_DIR}/gallery/audiobookshelf/data/podcasts:/podcasts
+      - ${DB_DIR}/gallery/audiobookshelf/data/config:/config
+      - ${DB_DIR}/gallery/audiobookshelf/data/metadata:/metadata
+    restart: unless-stopped
 
 volumes:
   immich-machine-learning-dot-config:

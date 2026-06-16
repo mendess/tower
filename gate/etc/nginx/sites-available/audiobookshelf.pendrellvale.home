@@ -1,0 +1,28 @@
+server {
+   listen 80;
+   server_name audiobookshelf.pendrellvale.home;
+
+   access_log /var/log/nginx/audiobookshelf.access.log;
+   error_log /var/log/nginx/audiobookshelf.error.log;
+
+   allow 192.168.42.0/24;
+   allow 10.0.0.0/24;
+   deny all;
+
+   location / {
+      proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto  $scheme;
+      proxy_set_header Host               $http_host;
+      proxy_set_header Upgrade            $http_upgrade;
+      proxy_set_header Connection         "upgrade";
+
+      proxy_http_version                  1.1;
+
+      proxy_pass                          http://127.0.0.1:13378;
+
+      # Prevent 413 Request Entity Too Large error
+      # by increasing the maximum allowed size of the client request body
+      # For example, set it to 10 GiB
+      client_max_body_size                10240M;
+   }
+}

@@ -50,6 +50,9 @@ web-ui = { port = 2284 }
 [gallery.navidrome]
 web-ui = { port = 4533 }
 
+[gallery.audiobookshelf]
+web-ui = { port = 13378 }
+
 [watch.grafana.web-ui]
 port = 3000
 
