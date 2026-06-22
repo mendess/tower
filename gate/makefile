@@ -67,7 +67,7 @@ wg-%.conf:
 	sudo pacman -S wireguard-tools
 
 # ----------------- NGINX ---------------------
-.PHONY: nginx config-nginx configure-domains configure-certbot
+.PHONY: nginx config-nginx configure-domains configure-certbot nginx-clean
 
 INTERNAL_HOSTNAME = pendrellvale.home
 
@@ -134,6 +134,10 @@ config-nginx: /etc/nginx/nginx.conf
 
 /etc/systemd/system/timers.target.wants/certbot-renew.timer:
 	sudo systemctl enable certbot-renew.timer --now
+
+nginx-clean:
+	sudo rm -v /etc/nginx/sites-enabled/*
+	sudo rm -v /etc/nginx/sites-available/*
 
 $(CERTBOT_NGINX):
 	sudo pacman -S certbot-nginx
