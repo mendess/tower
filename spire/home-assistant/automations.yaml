@@ -663,6 +663,7 @@
     attribute: source
     to:
     - PC
+    - Live TV
   - trigger: state
     entity_id:
     - switch.tv_screen_switch
@@ -686,6 +687,7 @@
     entity_id: media_player.aramanthinewall
     state:
     - PC
+    - Live TV
     attribute: source
     for:
       hours: 0
@@ -723,6 +725,18 @@
     target:
       entity_id: switch.tv_screen_switch
     data: {}
+  - if:
+    - condition: state
+      entity_id: binary_sensor.aramanthinewall_source_is_live_tv
+      state:
+      - 'on'
+    then:
+    - action: switch.turn_off
+      metadata: {}
+      target:
+        entity_id: switch.aramathinewall_power_button
+      data: {}
+    alias: turn off tv if watching the news
   mode: single
 - id: '1779720840090'
   alias: summer time shade
