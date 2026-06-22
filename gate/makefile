@@ -34,7 +34,7 @@ config-unbound: $(UNBOUND_CONFIG)
 	rm -v $${reload[@]}
 	@echo "reloading unbound"
 	sudo unbound-checkconf || exit 1
-	sudo chown unbound:unbound /etc/unbound -Rv
+	sudo chown unbound:unbound /etc/unbound -Rv | grep -v retained
 	sudo systemctl restart unbound
 
 /etc/unbound/trusted-key.key:
@@ -119,7 +119,7 @@ config-nginx: /etc/nginx/nginx.conf
 /etc/nginx/sites-available/%.home: ./domain-template-file.home
 	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep -E "^$*.home:" | cut -d ':' -f 2); \
 	sed "s|DOMAIN|$*|;s|PORT|$$port|" domain-template-file.home | sudo tee $@
-	sudo chmod 644 $@
+	sudo chmod 644 $@ | grep -v retained
 	@sudo nginx -t
 
 /etc/nginx/sites-available/%.mendess.xyz: ./etc/nginx/sites-available/%.mendess.xyz
@@ -129,7 +129,7 @@ config-nginx: /etc/nginx/nginx.conf
 	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep "^$*:" | cut -d ':' -f 2); \
 	echo $$port; \
 	sed "s|DOMAIN|$*|;s|PORT|$$port|" domain-template-file | sudo tee $@
-	sudo chmod 644 $@
+	sudo chmod 644 $@ | grep -v retained
 	@sudo nginx -t
 
 /etc/systemd/system/timers.target.wants/certbot-renew.timer:

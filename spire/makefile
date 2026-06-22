@@ -19,8 +19,8 @@ install: dirs $(CONFIG) $(HOME_ASSISTANT_CONFIG) $(SERVICES)
 
 $(DB_DIR)/spire/nextcloud/backups:
 	mkdir $@
-	chmod 770 $@
-	sudo chown 33:mendess $@
+	chmod 770 $@ | grep -v retained
+	sudo chown 33:mendess $@ | grep -v retained
 
 $(CONFIG): ./homer/config.yml
 	cp ./homer/config.yml $@
@@ -29,4 +29,4 @@ hass-bridge:
 	cargo install --git https://github.com/mendess/hass-bridge.git
 	sudo install --verbose $(CARGO_HOME)/bin/hass-bridge /usr/local/bin
 	curl -s https://raw.githubusercontent.com/mendess/hass-bridge/refs/heads/master/host-run.sh | sudo tee ./home-assistant/host-run.sh
-	sudo chmod 777 ./home-assistant/host-run.sh
+	sudo chmod 777 ./home-assistant/host-run.sh | grep -v retained
