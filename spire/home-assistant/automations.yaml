@@ -127,6 +127,11 @@
     - action: switch.turn_on
       metadata: {}
       target:
+        entity_id: switch.aramathinewall_power_button
+      data: {}
+    - action: switch.turn_on
+      metadata: {}
+      target:
         entity_id:
         - switch.tv_screen_switch
       data: {}
@@ -134,6 +139,7 @@
       metadata: {}
       data:
         message: waiting for tolaria to boot up
+      continue_on_error: true
     - alias: wait for tolaria to come online
       wait_template: '{{ is_state("switch.tolaria", "on") }}'
       continue_on_timeout: true
@@ -141,6 +147,7 @@
       metadata: {}
       data:
         message: waiting for steam to boot up
+      continue_on_error: true
     - action: shell_command.tolaria_wait_for_steam
       metadata: {}
       data: {}

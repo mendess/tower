@@ -61,7 +61,7 @@ boot_to_source:
     continue_on_timeout: false
     timeout:
       hours: 0
-      minutes: 1
+      minutes: 2
       seconds: 0
       milliseconds: 0
   - if:
@@ -74,6 +74,7 @@ boot_to_source:
         entity_id: media_player.aramanthinewall
       data:
         volume_level: '{{ (volume | default(0)) | float }}'
+    alias: if volume was passed
   - action: media_player.select_source
     metadata: {}
     data:
