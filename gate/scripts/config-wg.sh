@@ -23,6 +23,7 @@ genkey() {
 
     chmod -v 400 "$privatekey"
     chmod -v 440 "$publickey"
+    sudo chown mendess:mendess "$publickey"
     sudo mv -v "$privatekey" "$installed_privatekey"
     sudo chown root:root "$installed_privatekey"
 }

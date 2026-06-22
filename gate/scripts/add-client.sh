@@ -8,6 +8,7 @@ case "$network" in
     wg0) read -p "split tunnel? [Y/n] " split_tunnel ;;
     mc1) split_tunnel=y ;;
     ex2) split_tunnel=n ;;
+    fm3) read -p "split tunnel? [Y/n] " split_tunnel ;;
 esac
 
 case "$split_tunnel" in
@@ -37,6 +38,8 @@ client_publickey="$directory/publickey"
 
 wg genkey | tee "$client_privatekey" | wg pubkey > "$client_publickey"
 
+publickey_material=$(cat "$publickey")
+
 cat <<EOF | tee /dev/tty | qrencode -t ansiutf8
 [Interface]
 PrivateKey = $(cat "$client_privatekey")
@@ -44,7 +47,7 @@ Address = $ip/24
 DNS = 10.0.$network_number.1
 
 [Peer]
-PublicKey = $(cat "$publickey")
+PublicKey = ${publickey_material}
 AllowedIPs = $allowed_ips
 Endpoint = mendess.xyz:5182$network_number
 EOF
