@@ -35,13 +35,44 @@
     entity_id: person.mendess
     zone: zone.home
     event: leave
+  - trigger: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: notification::tolaria-is-on
+    id: turn-off-tolaria
   conditions: []
   actions:
-  - action: switch.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.aramathinewall_power_button
+  - if:
+    - condition: trigger
+      id:
+      - turn-off-tolaria
+    then:
+    - action: switch.turn_off
+      metadata: {}
+      target:
+        entity_id: switch.tolaria
+      data: {}
+    else:
+    - action: switch.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.aramathinewall_power_button
+    - if:
+      - condition: state
+        entity_id: switch.tolaria
+        state:
+        - 'on'
+      then:
+      - action: notify.mobile_app_ornithopter
+        metadata: {}
+        data:
+          title: tolaria on
+          message: deixaste o fixo ligado
+          data:
+            actions:
+            - action: notification::tolaria-is-on
+              title: Turn off tolaria
   mode: single
 - id: '1771934637797'
   alias: Avisar a Andreia <3
