@@ -1,11 +1,12 @@
 #!/bin/bash
 
+script_dir=$(dirname "$(realpath "$0")")
+source "$script_dir/common.sh"
 cd "$(dirname "$0")/.." || exit
-source ./scripts/common.sh
 
 if [[ -e "$installed_conf" ]]; then
     before_mtime=$(stat --print '%Y' "$installed_conf")
-    ./scripts/config-wg.sh "$network"
+    $script_dir/config-wg.sh "$network"
     after_mtime=$(stat --print '%Y' "$installed_conf")
 
     if [[ "$before_mtime" != "$after_mtime" ]]; then
@@ -13,7 +14,7 @@ if [[ -e "$installed_conf" ]]; then
         sudo wg-quick down /etc/wireguard/$network.conf
     fi
 else
-    ./scripts/config-wg.sh "$network"
+    $script_dir/config-wg.sh "$network"
 fi
 
 if ! [[ -e "/proc/self/net/dev_snmp6/$network" ]]; then

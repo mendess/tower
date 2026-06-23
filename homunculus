@@ -35,11 +35,26 @@ struct Args {
 #[derive(clap::Subcommand)]
 enum Command {
     Check,
-    Show { filter: String },
+    Show {
+        filter: Option<String>,
+        #[arg(short, long)]
+        reachable: Option<ReachableKind>,
+        #[arg(long)]
+        csv: bool,
+    },
     GenEnv,
-    WgUsers { ip: Option<Ipv4Addr> },
+    WgUsers {
+        ip: Option<Ipv4Addr>,
+    },
     DnsStats,
     GetVolumes,
+}
+
+impl std::str::FromStr for ReachableKind {
+    type Err = yaml_serde::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        yaml_serde::from_str(&format!("\"{s}\""))
+    }
 }
 
 #[derive(Deserialize)]
@@ -49,6 +64,10 @@ struct PortDocs {
 }
 
 impl PortDocs {
+    fn into_iter(self) -> impl Iterator<Item = (String, Floor)> {
+        self.table.into_iter()
+    }
+
     fn iter(&self) -> impl Iterator<Item = (&str, &Floor)> {
         self.table.iter().map(|(k, v)| (k.as_str(), v))
     }
@@ -67,10 +86,79 @@ struct Service {
 }
 
 #[derive(Deserialize)]
+#[serde(untagged)]
+enum Reachable {
+    Simple(ReachableKind),
+    Full(Vec<ReachableFull>),
+}
+
+impl Reachable {
+    fn into_full(self) -> Vec<ReachableFull> {
+        match self {
+            Self::Simple(kind) => vec![ReachableFull {
+                kind,
+                hostname: None,
+            }],
+            Self::Full(full) => full,
+        }
+    }
+}
+
+#[derive(serde::Serialize, Deserialize, Default, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+enum ReachableKind {
+    #[default]
+    Private,
+    PrivateProxy,
+    PublicProxy,
+    Forwarded,
+}
+
+impl std::fmt::Display for ReachableKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", yaml_serde::to_string(self).unwrap().trim())?;
+        Ok(())
+    }
+}
+
+#[derive(Deserialize, Default)]
+struct ReachableFull {
+    kind: ReachableKind,
+    #[serde(default)]
+    hostname: Option<String>,
+}
+
+#[derive(Deserialize)]
 struct ServicePort {
     port: u16,
-    #[serde(default)]
-    forwarded: bool,
+    #[serde(default = "reachable_default")]
+    reachable: Reachable,
+}
+
+impl ServicePort {
+    fn only_with(self, kind: ReachableKind) -> Option<Self> {
+        match self.reachable {
+            Reachable::Simple(k) => (k == kind).then_some(self),
+            Reachable::Full(full) => {
+                let reachable = full
+                    .into_iter()
+                    .filter(|r| r.kind == kind)
+                    .collect::<Vec<_>>();
+                if reachable.is_empty() {
+                    None
+                } else {
+                    Some(Self {
+                        reachable: Reachable::Full(reachable),
+                        ..self
+                    })
+                }
+            }
+        }
+    }
+}
+
+fn reachable_default() -> Reachable {
+    Reachable::Simple(ReachableKind::default())
 }
 
 fn main() -> anyhow::Result<()> {
@@ -80,12 +168,21 @@ fn main() -> anyhow::Result<()> {
 
     match args.command {
         Some(Command::Check) => doc_check()?,
-        Some(Command::Show { filter }) => print_table(filter)?,
+        Some(Command::Show {
+            filter,
+            reachable,
+            csv: false,
+        }) => print_table(filter, reachable)?,
+        Some(Command::Show {
+            filter,
+            reachable,
+            csv: true,
+        }) => print_table_csv(filter, reachable)?,
         Some(Command::GenEnv) => gen_env()?,
         Some(Command::WgUsers { ip }) => show_wg_users(ip)?,
         Some(Command::DnsStats) => show_dns_stats()?,
         Some(Command::GetVolumes) => get_volumes(cwd)?,
-        None => print_table(None)?,
+        None => print_table(None, None)?,
     }
     Ok(())
 }
@@ -203,65 +300,130 @@ fn gen_env() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn parse_port_docs(filter: impl Into<Option<String>>) -> anyhow::Result<PortDocs> {
-    let filter = filter.into();
+fn parse_port_docs(
+    filter: Option<String>,
+    reachable: Option<ReachableKind>,
+) -> anyhow::Result<PortDocs> {
     let data = fs::read_to_string("port-docs.toml").context("Failed to read file")?;
     toml::from_str::<PortDocs>(&data)
         .map(|docs| {
-            if let Some(filter) = filter {
-                let filter_ports = |(port_key, _): &(String, ServicePort)| *port_key == filter;
-                let map_services = |(service_key, service): (String, Service)| {
-                    let service = Service {
-                        table: service.table.into_iter().filter(filter_ports).collect(),
-                    };
-                    (service_key, service)
+            let filter_ports: &dyn Fn(&_) -> bool = match &filter {
+                Some(f) => &move |(port_key, _): &(String, ServicePort)| port_key == f,
+                None => &|_| true,
+            };
+            let map_reachable: &dyn Fn(_) -> Option<(String, ServicePort)> = match reachable {
+                Some(r) => &move |(pkey, port): (String, ServicePort)| {
+                    port.only_with(r).map(|port| (pkey, port))
+                },
+                None => &|x| Some(x),
+            };
+            let map_services = |(service_key, service): (String, Service)| {
+                let service = Service {
+                    table: service
+                        .table
+                        .into_iter()
+                        .filter(filter_ports)
+                        .filter_map(map_reachable)
+                        .collect(),
                 };
-                let map_floors = |(floor_key, floor): (String, Floor)| {
-                    let floor = Floor {
-                        table: floor.table.into_iter().map(map_services).collect(),
-                    };
-                    (floor_key, floor)
+                (service_key, service)
+            };
+            let map_floors = |(floor_key, floor): (String, Floor)| {
+                let floor = Floor {
+                    table: floor.table.into_iter().map(map_services).collect(),
                 };
-                PortDocs {
-                    table: docs.table.into_iter().map(map_floors).collect(),
-                }
-            } else {
-                docs
+                (floor_key, floor)
+            };
+            PortDocs {
+                table: docs.table.into_iter().map(map_floors).collect(),
             }
         })
         .context("Failed to parse TOML")
 }
 
-fn print_table(filter: impl Into<Option<String>>) -> anyhow::Result<()> {
-    let port_docs = parse_port_docs(filter)?;
+const TABLE_HEADER: &[&str] = &[
+    "floor",
+    "service",
+    "port",
+    "comment",
+    "reachable",
+    "hostname",
+];
+
+fn print_table_csv(filter: Option<String>, reachable: Option<ReachableKind>) -> anyhow::Result<()> {
+    let port_docs = parse_port_docs(filter, reachable)?;
+    println!("{}", TABLE_HEADER.join(","));
+    for (floor_name, floor) in port_docs.into_iter() {
+        for (service_name, service) in floor.table {
+            for (port_name, port) in service.table {
+                let reachable = port.reachable.into_full();
+                for ReachableFull { kind, hostname } in reachable {
+                    let port = port.port.to_string();
+                    let hostname = hostname
+                        .or_else(|| match kind {
+                            ReachableKind::PrivateProxy => {
+                                Some(format!("{service_name}.pendrellvale.home"))
+                            }
+                            ReachableKind::PublicProxy => {
+                                Some(format!("{service_name}.mendess.xyz"))
+                            }
+                            _ => None,
+                        })
+                        .unwrap_or_default();
+                    println!("{floor_name},{service_name},{port},{port_name},{kind},{hostname}");
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn print_table(filter: Option<String>, reachable: Option<ReachableKind>) -> anyhow::Result<()> {
+    let port_docs = parse_port_docs(filter, reachable)?;
     let mut printed_floor_name;
     let mut table = comfy_table::Table::new();
     table.load_preset(comfy_table::presets::ASCII_MARKDOWN);
-    table.set_header(vec![
-        "floor",
-        "service",
-        "port",
-        "comment",
-        "port forwarded",
-    ]);
-    for (floor_name, floor) in port_docs.iter() {
+    table.set_header(TABLE_HEADER);
+    for (floor_name, floor) in port_docs.into_iter() {
         printed_floor_name = false;
-        for (service_name, service) in &floor.table {
+        for (service_name, service) in floor.table {
             let mut printed_service_name = false;
-            for (port_name, port) in &service.table {
-                table.add_row(vec![
-                    if printed_floor_name { "" } else { floor_name },
-                    if printed_service_name {
-                        ""
-                    } else {
-                        service_name
-                    },
-                    &port.port.to_string(),
-                    port_name,
-                    if port.forwarded { "yes" } else { "" },
-                ]);
-                printed_floor_name = true;
-                printed_service_name = true;
+            for (port_name, port) in service.table {
+                let reachable = port.reachable.into_full();
+                let mut printed_port_number = false;
+                for ReachableFull { kind, hostname } in reachable {
+                    let port = port.port.to_string();
+                    table.add_row(vec![
+                        if printed_floor_name { "" } else { &floor_name },
+                        if printed_service_name {
+                            ""
+                        } else {
+                            &service_name
+                        },
+                        if printed_port_number { "" } else { &port },
+                        &port_name,
+                        match kind {
+                            ReachableKind::Private => "",
+                            ReachableKind::PrivateProxy => "proxied [priv]",
+                            ReachableKind::PublicProxy => "proxied [pub]",
+                            ReachableKind::Forwarded => "port forwarded",
+                        },
+                        &hostname
+                            .or_else(|| match kind {
+                                ReachableKind::PrivateProxy => {
+                                    Some(format!("{service_name}.pendrellvale.home"))
+                                }
+                                ReachableKind::PublicProxy => {
+                                    Some(format!("{service_name}.mendess.xyz"))
+                                }
+                                _ => None,
+                            })
+                            .unwrap_or_default(),
+                    ]);
+                    printed_port_number = true;
+                    printed_floor_name = true;
+                    printed_service_name = true;
+                }
             }
         }
     }
@@ -269,8 +431,8 @@ fn print_table(filter: impl Into<Option<String>>) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn get_documented_ports(filter: impl Into<Option<String>>) -> anyhow::Result<HashSet<u16>> {
-    Ok(parse_port_docs(filter)?
+fn get_documented_ports() -> anyhow::Result<HashSet<u16>> {
+    Ok(parse_port_docs(None, None)?
         .iter()
         .flat_map(|(_, v)| v.table.values())
         .flat_map(|v| v.table.values())
@@ -282,7 +444,7 @@ static PORT_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r":(\d+)$").unwrap
 static PID_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"pid=(\d+)").unwrap());
 
 fn doc_check() -> anyhow::Result<()> {
-    let documented_ports = get_documented_ports(None)?;
+    let documented_ports = get_documented_ports()?;
 
     let mut cmd = System::new("sudo")
         .args(["ss", "-ltnup"])

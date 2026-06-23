@@ -38,6 +38,7 @@ $(DIRS):
 
 $(ROOT_DIRS):
 	sudo mkdir -p $@
+	sudo chmod 755 $@
 
 /usr/bin/%:
 	sudo pacman -S $(@F)
@@ -72,7 +73,7 @@ define install_conf
 	fi
 	@sudo chown -v root:root $(2) | grep -v retained
 	@sudo touch --reference=$(1) $(2)
-	touch $(call stamp_file,$(2))
+	@touch $(call stamp_file,$(2))
 	@case "$(1)" in \
 		*/systemd/user/*.service | */systemd/user/*.timer) systemctl --user daemon-reload && echo "reloaded user daemon";; \
 		*/systemd/system/*.service | */systemd/system/*.timer) sudo systemctl daemon-reload && echo "reloaded system daemon";; \

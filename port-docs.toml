@@ -1,108 +1,135 @@
 [spire.homer.web-ui]
 port = 1025
 
+[[spire.homer.web-ui.reachable]]
+kind = "private-proxy"
+hostname = "pendrellvale.home"
+
 [spire.nextcloud.web-ui]
 port = 8085
 
-[spire.homeassistant.web-ui]
-port = 8123
+[[spire.nextcloud.web-ui.reachable]]
+kind = "private-proxy"
+hostname = "nextcloud.mendess.xyz"
 
-[spire.zigbee2mqtt.web-ui]
-port = 8124
+[spire.homeassistant]
+web-ui = { port = 8123, reachable = "private-proxy" }
+
+[spire.zigbee2mqtt]
+web-ui = { port = 8124, reachable = "private-proxy" }
 
 [alto-marr.qbittorrent]
-web-ui = { port = 8090 }
-torrenting = { port = 50000, forwarded = true }
+web-ui = { port = 8090, reachable = "private-proxy" }
+torrenting = { port = 50000, reachable = "forwarded" }
 
-[alto-marr.flaresolverr.api]
-port = 8191
+[alto-marr.flaresolverr]
+api = { port = 8191 }
 
-[alto-marr.prowlarr.web-ui]
-port = 9696
+[alto-marr.prowlarr]
+web-ui = { port = 9696, reachable = "private-proxy" }
 
-[alto-marr.sonarr.web-ui]
-port = 8989
+[alto-marr.sonarr]
+web-ui = { port = 8989, reachable = "private-proxy" }
 
-[alto-marr.bazarr.web-ui]
-port = 6767
+[alto-marr.bazarr]
+web-ui = { port = 6767, reachable = "private-proxy" }
 
-[alto-marr.radarr.web-ui]
-port = 7878
+[alto-marr.radarr]
+web-ui = { port = 7878, reachable = "private-proxy" }
 
-[alto-marr.lidarr.web-ui]
-port = 8686
+[alto-marr.lidarr]
+web-ui = { port = 8686, reachable = "private-proxy" }
 
-[alto-marr.scraparr.metrics]
-port = 7100
+[alto-marr.scraparr]
+metrics = { port = 7100 }
 
 [gallery.jellyfin]
-web-ui = { port = 8096 }
+web-ui = { port = 8096, reachable = "private-proxy" }
 discovery = { port = 7359 }
 
 [gallery.immich]
-web-ui = { port = 2283 }
 metrics-1 = { port = 8081 }
 metrics-2 = { port = 8082 }
 
+[gallery.immich.web-ui]
+port = 2283
+
+[[gallery.immich.web-ui.reachable]]
+kind = "private-proxy"
+hostname = "immich.mendess.xyz"
+
+[[gallery.immich.web-ui.reachable]]
+kind = "private-proxy"
+hostname = "immich.pendrellvale.home"
+
 [gallery.immich-share]
-web-ui = { port = 2284 }
+web-ui = { port = 2284, reachable = "public-proxy" }
 
 [gallery.navidrome]
-web-ui = { port = 4533 }
+web-ui = { port = 4533, reachable = "private-proxy" }
 
 [gallery.audiobookshelf]
-web-ui = { port = 13378 }
+web-ui = { port = 13378, reachable = "private-proxy" }
 
-[watch.grafana.web-ui]
-port = 3000
+[watch.grafana]
+web-ui = { port = 3000, reachable = "private-proxy" }
 
-[watch.prometheus.api]
-port = 9090
+[watch.prometheus]
+api = { port = 9090 }
 
-[watch.prom-node-exp.metrics]
-port = 9100
+[watch.prom-node-exp]
+metrics = { port = 9100 }
 
-[watch.prom-systemd-exp.metrics]
-port = 9558
+[watch.prom-systemd-exp]
+metrics = { port = 9558 }
 
-[watch.prom-proc-exp.metrics]
-port = 9256
+[watch.prom-proc-exp]
+metrics = { port = 9256 }
 
-[watch.prom-nginx-exp.metrics]
-port = 9113
+[watch.prom-nginx-exp]
+metrics = { port = 9113 }
 
-[watch.prom-wireguard-exp.metrics]
-port = 9586
+[watch.prom-wireguard-exp]
+metrics = { port = 9586 }
 
-[gate.wireguard.wireguard]
-port = 51820
+[gate.wireguard]
+wg0 = { port = 51820, reachable = "forwarded" }
+mc1 = { port = 51821, reachable = "forwarded" }
+ex2 = { port = 51822, reachable = "forwarded" }
+fm3 = { port = 51823, reachable = "forwarded" }
 
 [gate.unbound]
 dns = { port = 53 }
 sdns = { port = 8953 } # I don't actually know what this port is for
 
-[gate.sshd.ssh]
-port = 22
+[gate.sshd]
+ssh = { port = 22, reachable = "forwarded" }
 
 [gate.nginx]
-http = { port = 80, forwarded = true }
-https = { port = 443, forwarded = true }
+http = { port = 80, reachable = "forwarded" }
+https = { port = 443, reachable = "forwarded" }
 stub_status = { port = 8080 }
 
 [basement.blind-eternities]
-api = { port = 1651 }
+api = { port = 1651, reachable = "public-proxy" }
 metrics = { port = 9001 }
 
 [basement.planar-bridge]
-web-ui = { port = 1711 }
+web-ui = { port = 1711, reachable = "public-proxy" }
 metrics = { port = 9002 }
 
 [basement.memnarch]
 api = { port = 8043 }
 
 [basement.mirrodin]
-web-ui = { port = 8042 }
 metrics = { port = 9003 }
+
+[basement.mirrodin.web-ui]
+port = 8042
+
+[[basement.mirrodin.web-ui.reachable]]
+kind = "public-proxy"
+hostname = "mendess.xyz"
 
 [basement.red-fly]
 api = { port = 25500 }
@@ -117,13 +144,24 @@ connect-proxy-8 = { port = 25508 }
 connect-proxy-9 = { port = 25509 }
 connect-proxy-10 = { port = 25510 }
 
-[basement.rtp-memoria-dl]
-web-ui = { port = 8312 }
+[basement.rtp-memoria-dl.web-ui]
+port = 8312
+
+[[basement.rtp-memoria-dl.web-ui.reachable]]
+kind = "public-proxy"
+hostname = "memoria.mendess.xyz"
+
+[basement.mc-frontend.web-ui]
+port = 5001
+
+[[basement.mc-frontend.web-ui.reachable]]
+kind = "public-proxy"
+hostname = "minecraft.mendess.xyz"
 
 [minecraft.server]
-game-connection = { port = 40000 }
-voice-chat = { port = 50002 }
+game-connection = { port = 50001, reachable = "forwarded" }
+voice-chat = { port = 50002, reachable = "forwarded" }
 rcon = { port = 49998 }
 metrics = { port = 19565 }
-gate = { port = 50001, forwarded = true }
-gate-offline = { port = 45000, forwarded = true }
+# gate = { port = 50001, forwarded = true }
+# gate-offline = { port = 45000, forwarded = true }

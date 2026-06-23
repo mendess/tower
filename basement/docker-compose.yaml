@@ -122,7 +122,7 @@ services:
     user: ${PUID}:${PGID}
     restart: unless-stopped
     ports:
-      - 50002:50002
+      - 5001:50002
     volumes:
       - type: bind
         source: ${CONFIG_DIR}/basement/mc-frontend

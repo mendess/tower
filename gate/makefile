@@ -1,7 +1,7 @@
 .DEFAULT_GOAL = install
 
 include .env
-ROOT_DIRS = /etc/nginx/sites-enabled /etc/nginx/sites-available
+ROOT_DIRS = /etc/nginx/sites-enabled/public /etc/nginx/sites-available/public /etc/nginx/sites-enabled/private /etc/nginx/sites-available/private
 include ../foundations.mk
 
 .PHONY: install
@@ -34,7 +34,7 @@ config-unbound: $(UNBOUND_CONFIG)
 	rm -v $${reload[@]}
 	@echo "reloading unbound"
 	sudo unbound-checkconf || exit 1
-	sudo chown unbound:unbound /etc/unbound -Rv | grep -v retained
+	@sudo chown unbound:unbound /etc/unbound -Rv | grep -v retained
 	sudo systemctl restart unbound
 
 /etc/unbound/trusted-key.key:
@@ -53,7 +53,7 @@ WG_NETWORKS := $(addprefix wg-,$(WG_NETWORKS))
 wireguard: $(call bin,qrencode wg) $(WG_NETWORKS) $(WG_SERVICES) /etc/sysctl.conf $(shell find ./etc/systemd | sed 's|\.||')
 
 wg-%:
-	@sudo ./scripts/makefile-entrypoint.sh "$*"
+	@sudo ./wg-scripts/makefile-entrypoint.sh "$*"
 
 wg-down-%:
 	@printf "$(RED) DOWN$(RESET) Taking down interface $*\n"
@@ -61,7 +61,7 @@ wg-down-%:
 
 wg-%.conf:
 	@printf "$(YELLOW)CONFIG$(RESET) Generating WireGuard config for $*\n"
-	@./scripts/config-wg.sh $*
+	@./wg-scripts/config-wg.sh $*
 
 /usr/bin/wg:
 	sudo pacman -S wireguard-tools
@@ -71,24 +71,14 @@ wg-%.conf:
 
 INTERNAL_HOSTNAME = pendrellvale.home
 
-DOMAINS_WITH_PORT = mendess.xyz:8042 \
-	blind-eternities.mendess.xyz:1651 \
-	planar-bridge.mendess.xyz:1711 \
-	memoria.mendess.xyz:8312 \
-	minecraft.mendess.xyz:50002 \
-	immich-share.mendess.xyz:2284 \
-	immich.mendess.xyz:2283 \
-	nextcloud.mendess.xyz:8085 \
-	$(INTERNAL_HOSTNAME):1025 \
-	$(shell cd .. && ./homunculus show web-ui \
-		| tail -n +3 \
-        | cut -d'|' -f3,4 \
-        | tr -d ' \t' \
-        | sed 's/|/.$(INTERNAL_HOSTNAME):/')
+PRIVATE_DOMAINS := \
+	$(shell ../homunculus show --reachable private-proxy --csv | awk -F, 'NR > 1 {print $$6}')
+PUBLIC_DOMAINS := \
+	$(shell ../homunculus show --reachable public-proxy  --csv | awk -F, 'NR > 1 {print $$6}')
 
-DOMAINS = $(shell echo $(DOMAINS_WITH_PORT) | sed 's/:[^ ]*//g')
-
-NGINX_SITE_FILES := $(addprefix /etc/nginx/sites-enabled/,$(DOMAINS))
+NGINX_SITE_FILES := \
+	$(addprefix /etc/nginx/sites-enabled/public/,$(PUBLIC_DOMAINS)) \
+	$(addprefix /etc/nginx/sites-enabled/private/,$(PRIVATE_DOMAINS))
 
 SOFTWARE = $(call bin,nginx certbot certbot)
 
@@ -103,41 +93,29 @@ configure-certbot: /etc/systemd/system/timers.target.wants/certbot-renew.timer
 .ONESHELL: config-nginx
 config-nginx: /etc/nginx/nginx.conf
 	@for f in $(call stamp_file,/etc/nginx/nginx.conf); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
-	rm -v $${reload[@]}
+	@rm $${reload[@]}
 	@echo "reloading nginx"
 	sudo nginx -t || exit 1
 	sudo systemctl restart nginx
 
 /etc/nginx/sites-enabled/%: /etc/nginx/sites-available/%
-	sudo ln -s $< $@
+	@test -e $<
+	@test -e $@ || sudo ln -sv $< $@
 	@sudo nginx -t
 	touch $(call stamp_file,/etc/nginx/nginx.conf)
 
-/etc/nginx/sites-available/%.home: ./etc/nginx/sites-available/%.home
-	sudo cp -v ./etc/nginx/sites-available/$*.home /etc/nginx/sites-available/$*.home
-
-/etc/nginx/sites-available/%.home: ./domain-template-file.home
-	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep -E "^$*.home:" | cut -d ':' -f 2); \
-	sed "s|DOMAIN|$*|;s|PORT|$$port|" domain-template-file.home | sudo tee $@
-	sudo chmod 644 $@ | grep -v retained
-	@sudo nginx -t
-
-/etc/nginx/sites-available/%.mendess.xyz: ./etc/nginx/sites-available/%.mendess.xyz
-	sudo cp -v ./etc/nginx/sites-available/$*.mendess.xyz /etc/nginx/sites-available/$*.mendess.xyz
-
-/etc/nginx/sites-available/%: ./domain-template-file
-	port=$$(printf "%s\n" $(DOMAINS_WITH_PORT) | grep "^$*:" | cut -d ':' -f 2); \
-	echo $$port; \
-	sed "s|DOMAIN|$*|;s|PORT|$$port|" domain-template-file | sudo tee $@
-	sudo chmod 644 $@ | grep -v retained
-	@sudo nginx -t
+.PRECIOUS: /etc/nginx/sites-available/%
+/etc/nginx/sites-available/%: ./nginx-scripts/gen-domain-conf.sh
+	./nginx-scripts/gen-domain-conf.sh $@
 
 /etc/systemd/system/timers.target.wants/certbot-renew.timer:
 	sudo systemctl enable certbot-renew.timer --now
 
 nginx-clean:
-	sudo rm -v /etc/nginx/sites-enabled/*
-	sudo rm -v /etc/nginx/sites-available/*
+	sudo rm -v /etc/nginx/sites-enabled/public/*
+	sudo rm -v /etc/nginx/sites-enabled/private/*
+	sudo rm -v /etc/nginx/sites-available/public/*
+	sudo rm -v /etc/nginx/sites-available/private/*
 
 $(CERTBOT_NGINX):
 	sudo pacman -S certbot-nginx

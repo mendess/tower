@@ -1,7 +1,8 @@
 #!/bin/bash
 
+script_dir=$(dirname "$(realpath "$0")")
+source "$script_dir/common.sh"
 cd "$(dirname "$0")/.." || exit
-source ./scripts/common.sh
 
 read -p "client name? " name
 case "$network" in
