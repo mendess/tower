@@ -66,9 +66,9 @@ define install_conf
 	else \
 		sudo cp -v $(1) $(2); \
 		if [ -x $(1) ]; then \
-			sudo chmod -v 744 $(2) | grep -v retained; \
+			sudo chmod -v 755 $(2) | grep -v retained; \
 		else \
-			sudo chmod -v 655 $(2) | grep -v retained ; \
+			sudo chmod -v 644 $(2) | grep -v retained ; \
 		fi; \
 	fi
 	@sudo chown -v root:root $(2) | grep -v retained
