@@ -28,10 +28,12 @@ for _ in {0..120}; do
     sleep 1
 done
 
-tail --pid="$pid" -f /dev/null
-jobs=$(jobs -p)
-if [[ "$jobs" ]]; then
-    kill "$jobs" || :
+if [[ "$pid" ]]; then
+    tail --pid="$pid" -f /dev/null
+    jobs=$(jobs -p)
+    if [[ "$jobs" ]]; then
+        kill "$jobs" || :
+    fi
 fi
 
 curl -q -X POST \
