@@ -260,142 +260,6 @@
         entity_id: input_boolean.tv_screen
       data: {}
   mode: restart
-- id: '1775378866438'
-  alias: Morning open covers
-  description: ''
-  triggers:
-  - trigger: time
-    at: 08:00:00
-  - trigger: state
-    entity_id:
-    - event.sleep_as_android_alarm_clock
-    attribute: event_type
-    to:
-    - alert_dismiss
-  conditions: []
-  actions:
-  - action: cover.set_cover_position
-    metadata: {}
-    target:
-      entity_id: cover.estores_sala
-    data:
-      position: 100
-  - if:
-    - condition: not
-      conditions:
-      - condition: zone
-        entity_id: person.mendess
-        zone: zone.home
-    then:
-    - action: cover.set_cover_position
-      metadata: {}
-      target:
-        entity_id: cover.estores_quarto_wc
-      data:
-        position: '{{ states(''number.forecast_estores_open_percentage'') }}'
-  mode: single
-- id: '1775379350361'
-  alias: Close shutters when tv turns on
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - input_boolean.gaming_mode
-    to:
-    - 'on'
-  - trigger: state
-    entity_id:
-    - media_player.aramanthinewall
-    attribute: source
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 10
-    to:
-    - Jellyfin
-  conditions: []
-  actions:
-  - action: cover.close_cover
-    metadata: {}
-    data: {}
-    target:
-      label_id: estores_sala
-  mode: single
-- id: '1775381062641'
-  alias: Close estores when night falls
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - binary_sensor.night_time
-    to:
-    - 'off'
-  conditions: []
-  actions:
-  - action: cover.close_cover
-    metadata: {}
-    data: {}
-    target:
-      label_id: estores_all
-    enabled: false
-  - repeat:
-      for_each: '{{ state_attr(''cover.estores_todos'', ''entity_id'') | sort }}'
-      sequence:
-      - action: cover.close_cover
-        metadata: {}
-        target:
-          entity_id: '{{ repeat.item }}'
-        data: {}
-      - wait_template: '{{ state_attr(repeat.item, ''current_position'') == 0 }}'
-        continue_on_timeout: true
-        timeout:
-          hours: 0
-          minutes: 1
-          seconds: 0
-          milliseconds: 0
-  mode: single
-- id: '1775383359573'
-  alias: Stopped watching tv
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - input_boolean.gaming_mode
-    to:
-    - 'off'
-  - trigger: state
-    entity_id:
-    - media_player.aramanthinewall
-    attribute: source
-    to:
-    - PC
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-    from:
-    - Jellyfin
-  conditions:
-  - condition: state
-    entity_id: binary_sensor.night_time
-    state:
-    - 'on'
-  - condition: state
-    entity_id: switch.aramathinewall_power_button
-    state:
-    - 'on'
-  - condition: state
-    entity_id: input_boolean.gaming_mode
-    state:
-    - 'off'
-  actions:
-  - action: cover.set_cover_position
-    metadata: {}
-    target:
-      entity_id: cover.estores_sala
-    data:
-      position: '{{ states(''number.forecast_estores_open_percentage'') }}'
-  mode: single
 - id: '1775574119677'
   alias: Backup Alert Notification
   description: ''
@@ -453,96 +317,6 @@
         target:
           entity_id: input_datetime.latest_backup_flopy
   mode: single
-- id: '1776161237853'
-  alias: Smart Wake up
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - event.sleep_as_android_smart_wake_up
-    attribute: event_type
-    to:
-    - before_smart_period
-    for:
-      hours: 0
-      minutes: 30
-      seconds: 0
-  - trigger: time
-    at:
-      entity_id: sensor.sleep_as_android_next_alarm
-      offset: -00:05:00
-  conditions:
-  - condition: zone
-    entity_id: person.mendess
-    zone: zone.home
-  actions:
-  - action: cover.set_cover_position
-    metadata: {}
-    data:
-      position: 10
-    target:
-      entity_id: cover.estores_quarto_wc
-  mode: single
-- id: '1776261226221'
-  alias: Abrir estores quando o alarme toca
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - event.sleep_as_android_alarm_clock
-    attribute: event_type
-    to:
-    - alert_start
-  - trigger: state
-    entity_id:
-    - event.sleep_as_android_sleep_tracking
-    attribute: event_type
-    to:
-    - resumed
-    - paused
-    - started
-    id: sleep
-  conditions:
-  - condition: zone
-    entity_id: person.mendess
-    zone: zone.home
-  actions:
-  - if:
-    - condition: trigger
-      id:
-      - sleep
-    then:
-    - action: cover.close_cover
-      metadata: {}
-      target:
-        entity_id: cover.estores_quarto_wc
-      data: {}
-    else:
-    - repeat:
-        while:
-        - condition: numeric_state
-          entity_id: cover.estores_quarto_wc
-          attribute: current_position
-          below: 50
-        sequence:
-        - action: cover.set_cover_position
-          metadata: {}
-          target:
-            entity_id: cover.estores_quarto_wc
-          data:
-            position: '{{ min(100, (state_attr(''cover.estores_quarto_wc'', ''current_position'')
-              + 10)) }}'
-        - delay:
-            hours: 0
-            minutes: 2
-            seconds: 0
-            milliseconds: 0
-    - action: cover.open_cover
-      metadata: {}
-      target:
-        entity_id: cover.estores_quarto_wc
-      data: {}
-  mode: restart
 - id: '1776289999583'
   alias: turn off tv when sleeping
   description: ''
@@ -738,45 +512,6 @@
       data: {}
     alias: turn off tv if watching the news
   mode: single
-- id: '1779720840090'
-  alias: summer time shade
-  description: ''
-  triggers:
-  - trigger: time
-    at: '10:00:00'
-  conditions:
-  - condition: numeric_state
-    entity_id: number.forecast_estores_open_percentage
-    below: 100
-  actions:
-  - action: cover.set_cover_position
-    metadata: {}
-    target:
-      entity_id: cover.estores_todos
-    data:
-      position: '{{ states(''number.forecast_estores_open_percentage'') }}'
-  mode: single
-- id: '1779911838483'
-  alias: Open covers in warm days when the sun is setting
-  description: ''
-  triggers:
-  - trigger: numeric_state
-    entity_id:
-    - sun.sun
-    attribute: elevation
-    below: 30
-  conditions:
-  - condition: template
-    value_template: '{{ state_attr("cover.estores_todos", "current_position") == states("number.forecast_estores_open_percentage")
-      }}'
-    alias: All estores are at the sunny day percentage
-  actions:
-  - action: cover.open_cover
-    metadata: {}
-    target:
-      entity_id: cover.estores_todos
-    data: {}
-  mode: single
 - id: '1781087126490'
   alias: Pilula alert
   description: ''
@@ -831,4 +566,137 @@
             minutes: 30
             seconds: 0
             milliseconds: 0
+  mode: single
+- id: '1783362865967'
+  alias: Update estores
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id: input_boolean.sleeping
+  - trigger: state
+    entity_id: input_boolean.gaming_mode
+  - trigger: state
+    entity_id: binary_sensor.daylight
+  - trigger: state
+    entity_id: sensor.sun_solar_azimuth
+  - trigger: state
+    entity_id: binary_sensor.aramanthinewall_source_is_jellyfin
+  - trigger: state
+    entity_id: input_boolean.privacy
+  - trigger: timer.finished
+    target:
+      entity_id: timer.cover_grace_period
+    options:
+      behavior: each
+      for: 00:00:00
+  conditions:
+  - condition: timer.is_idle
+    target:
+      entity_id: timer.cover_grace_period
+    options:
+      for: 00:00:00
+  actions:
+  - variables:
+      azimuth: '{{ int(states(''sensor.sun_solar_azimuth'')) }}'
+      lower_target: '{%- set max_temp = states("sensor.max_temp") %} {%- set temp
+        = 0 if max_temp == "unknown" else float(max_temp) %} {{ 100 if temp < 28 else
+        30 }}'
+      lower_east: '{{ lower_target if azimuth < 130 else 100 }}'
+      lower_south: '{{ lower_target if 100 < azimuth < 200 else 100 }}'
+      lower_west: '{{ lower_target if 150 < azimuth else 100 }}'
+      daytime_target: '{{ 0 if states(''binary_sensor.daylight'') == ''off'' else
+        100 }}'
+      media_target: '{{ 0 if states(''input_boolean.gaming_mode'') == ''true'' or
+        states(''binary_sensor.aramanthinewall_source_is_jellyfin'') == ''true'' else
+        100 }}'
+      sleeping_target: '{{ 0 if states(''input_boolean.sleeping'') == ''on'' else
+        100 }}'
+      privacy: '{{ lower_target if states(''input_boolean.privacy'') == ''on'' else
+        100 }}'
+      _: calculations
+      calculations:
+      - entity: cover.estores_varanda
+        motors:
+        - sensor.estores_varanda_direira_motor_run_status
+        - sensor.estores_varanda_esquerda_motor_run_status
+        position: '{{ min(daytime_target, lower_east, media_target, sleeping_target,
+          privacy) }}'
+      - entity: cover.estores_tv
+        motors:
+        - sensor.estores_tv_motor_run_status
+        position: '{{ min(daytime_target, lower_south, media_target, sleeping_target,
+          privacy) }}'
+      - entity: cover.estores_wc
+        motors:
+        - sensor.estores_wc_motor_run_status
+        position: '{{ min(daytime_target, lower_south, sleeping_target) }}'
+      - entity: cover.estores_quarto
+        motors:
+        - sensor.estores_quarto_motor_run_status
+        position: '{{ min(daytime_target, lower_west, sleeping_target) }}'
+  - repeat:
+      for_each: '{{ calculations }}'
+      sequence:
+      - action: script.set_cover_position_with_grace_interval
+        metadata: {}
+        data:
+          position: '{{ repeat.item.position }}'
+          cover: '{{ repeat.item.entity }}'
+          motor: '{{ repeat.item.motors }}'
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - action: timer.cancel
+    metadata: {}
+    target:
+      entity_id: timer.cover_grace_period
+    data: {}
+  mode: queued
+  max: 10
+- id: '1783363775126'
+  alias: Toggle sleeping
+  description: ''
+  triggers:
+  - trigger: time
+    at: 03:00:00
+    id: 'on'
+  - trigger: time
+    at: '10:00:00'
+    id: 'on'
+  conditions: []
+  actions:
+  - if:
+    - condition: trigger
+      id:
+      - 'on'
+    then:
+    - action: input_boolean.turn_on
+      metadata: {}
+      target:
+        entity_id: input_boolean.sleeping
+      data: {}
+    else:
+    - action: input_boolean.turn_off
+      metadata: {}
+      target:
+        entity_id: input_boolean.sleeping
+      data: {}
+  mode: single
+- id: '1783368297736'
+  alias: Start estores grace period
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - cover.estores_todos
+    attribute: current_position
+  conditions: []
+  actions:
+  - action: timer.start
+    metadata: {}
+    target:
+      entity_id: timer.cover_grace_period
+    data: {}
   mode: single
