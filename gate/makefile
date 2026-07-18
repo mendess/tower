@@ -106,7 +106,10 @@ config-nginx: /etc/nginx/nginx.conf
 	touch $(call stamp_file,/etc/nginx/nginx.conf)
 
 .PRECIOUS: /etc/nginx/sites-available/%
-/etc/nginx/sites-available/%: ./nginx-scripts/gen-domain-conf.sh
+/etc/nginx/sites-available/%: ./etc/nginx/sites-available/%
+	./nginx-scripts/gen-domain-conf.sh $@
+.PRECIOUS: /etc/nginx/sites-available/%
+/etc/nginx/sites-available/%: ../port-docs.toml ./nginx-scripts/gen-domain-conf.sh
 	./nginx-scripts/gen-domain-conf.sh $@
 
 /etc/systemd/system/timers.target.wants/certbot-renew.timer:
