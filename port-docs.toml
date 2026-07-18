@@ -115,21 +115,20 @@ api = { port = 1651, reachable = "public-proxy" }
 metrics = { port = 9001 }
 
 [basement.planar-bridge]
-web-ui = { port = 1711, reachable = "public-proxy" }
 metrics = { port = 9002 }
+
+[basement.planar-bridge.web-ui]
+port = 1711
+
+[[basement.planar-bridge.web-ui.reachable]]
+kind = "public-proxy"
+
+[[basement.planar-bridge.web-ui.reachable]]
+kind = "public-proxy"
+hostname = "mendess.xyz"
 
 [basement.memnarch]
 api = { port = 8043 }
-
-[basement.mirrodin]
-metrics = { port = 9003 }
-
-[basement.mirrodin.web-ui]
-port = 8042
-
-[[basement.mirrodin.web-ui.reachable]]
-kind = "public-proxy"
-hostname = "mendess.xyz"
 
 [basement.red-fly]
 api = { port = 25500 }
@@ -150,13 +149,6 @@ port = 8312
 [[basement.rtp-memoria-dl.web-ui.reachable]]
 kind = "public-proxy"
 hostname = "memoria.mendess.xyz"
-
-[basement.mc-frontend.web-ui]
-port = 5001
-
-[[basement.mc-frontend.web-ui.reachable]]
-kind = "public-proxy"
-hostname = "minecraft.mendess.xyz"
 
 [minecraft.server]
 game-connection = { port = 50001, reachable = "forwarded" }

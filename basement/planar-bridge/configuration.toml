@@ -1,2 +1,6 @@
 port = 1711
 backend_url = "http://blind-eternities:1651"
+
+[games.minecraft]
+backups_dir = "/backups"
+server_dir = "/large-forever"
