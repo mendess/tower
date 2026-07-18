@@ -949,3 +949,62 @@
       metadata: {}
       data: {}
   mode: restart
+- id: '1784217834462'
+  alias: Adjust TV Volume when cooking
+  description: ''
+  triggers:
+  - trigger: power.crossed_threshold
+    target:
+      entity_id: sensor.extrator_power
+    options:
+      for: 00:00:00
+      threshold:
+        type: above
+        value:
+          active_choice: number
+          number: 100
+          unit_of_measurement: W
+    id: 'on'
+  - trigger: power.crossed_threshold
+    target:
+      entity_id: sensor.extrator_power
+    options:
+      for: 00:00:00
+      threshold:
+        type: below
+        value:
+          active_choice: number
+          number: 50
+          unit_of_measurement: W
+    id: 'off'
+  conditions:
+  - condition: switch.is_off
+    target:
+      entity_id: input_boolean.gaming_mode
+    options:
+      behavior: any
+      for: 00:00:00
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.aramanthinewall_source_is_pc
+      state:
+      - 'on'
+    - condition: state
+      entity_id: binary_sensor.aramanthinewall_source_is_youtube
+      state:
+      - 'on'
+  actions:
+  - action: notify.lg_webos_tv_oled65b46la_deuqljp
+    metadata: {}
+    data:
+      message: '{{ iif(trigger.id == ''on'', "Now we''re cooking!", "Bon apetit")
+        }}'
+  - action: script.adjust_tv_volume
+    metadata: {}
+    data:
+      volume: '{% set volume = iif(states("binary_sensor.aramanthinewall_source_is_pc")
+        == ''on'', [0.1, 0.5], [0.25, 0.75]) %} {{ volume[int(trigger.id == ''on'')]
+        }}'
+      step_delay: '{{ iif(trigger.id == ''on'', 1, 0.4) }}'
+  mode: restart
