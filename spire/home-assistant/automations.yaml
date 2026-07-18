@@ -535,16 +535,87 @@
   description: ''
   triggers:
   - trigger: time
-    at: '23:00:00'
+    at: '22:00:00'
+    id: antibabypillen
+  - trigger: time
+    at: 08:00:00
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    id: heart
+  - trigger: time
+    at: 09:00:00
+    id: heart
+    weekday:
+    - sun
+    - sat
+  - trigger: counter.maximum_reached
+    target:
+      entity_id: counter.antibabypillen_counter
+    options:
+      behavior: each
+      for: 00:00:00
+    id: counter reset
   conditions: []
   actions:
+  - if:
+    - condition: trigger
+      id:
+      - counter reset
+    then:
+    - action: counter.reset
+      metadata: {}
+      target:
+        entity_id: counter.antibabypillen_counter
+      data: {}
+    - stop: done
+    alias: Reset counter
+  - alias: Increment Antibabypillen counter
+    if:
+    - condition: trigger
+      id:
+      - antibabypillen
+    then:
+    - action: counter.increment
+      metadata: {}
+      target:
+        entity_id: counter.antibabypillen_counter
+      data: {}
+    - alias: Stop if doing pill interval
+      condition: counter.is_value
+      options:
+        threshold:
+          type: below
+          value:
+            active_choice: number
+            number: 22
+      target:
+        entity_id: counter.antibabypillen_counter
+  - variables:
+      message: '{%- if trigger.id == "heart" %} Protect your heart {%- elif trigger.id
+        == "antibabypillen" %} Antibabypillen {{ states("counter.antibabypillen_counter")}}:
+        Vai tomar isso {%- else %} You need to take some meds, but I don''t know which
+        {%- endif %}'
   - action: input_boolean.turn_on
     metadata: {}
     target:
       entity_id: input_boolean.antibabipillen
     data: {}
-  - variables:
-      message: 'Antibabypillen: Vai tomar isso'
+  - wait_for_trigger:
+    - trigger: switch.turned_off
+      target:
+        entity_id: input_boolean.antibabipillen
+      options:
+        behavior: each
+        for: 00:00:00
+    timeout:
+      hours: 1
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
   - repeat:
       while:
       - condition: state
