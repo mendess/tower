@@ -2,14 +2,10 @@
   alias: Welcome home
   description: ''
   triggers:
-  - trigger: zone
-    entity_id: person.andreia
-    zone: zone.home
-    event: enter
-  - trigger: zone
-    entity_id: person.mendess
-    zone: zone.home
-    event: enter
+  - trigger: zone.occupancy_detected
+    options:
+      for: 00:00:00
+      zone: zone.home
   conditions:
   - condition: not
     conditions:
@@ -31,10 +27,10 @@
   alias: Leave home
   description: ''
   triggers:
-  - trigger: zone
-    entity_id: person.mendess
-    zone: zone.home
-    event: leave
+  - trigger: zone.occupancy_cleared
+    options:
+      for: 00:00:00
+      zone: zone.home
   - trigger: event
     event_type: mobile_app_notification_action
     event_data:
