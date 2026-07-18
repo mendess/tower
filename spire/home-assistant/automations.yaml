@@ -205,25 +205,10 @@
         data:
           command: /usr/local/bin/fade-out-music
         alias: Fade out music
-      alias: fade out music
-    - repeat:
-        while:
-        - condition: numeric_state
-          entity_id: media_player.aramanthinewall
-          attribute: volume_level
-          below: 0.25
-        sequence:
-        - action: media_player.volume_up
-          metadata: {}
-          target:
-            entity_id: media_player.aramanthinewall
-          data: {}
-        - delay:
-            hours: 0
-            minutes: 0
-            seconds: 1
-            milliseconds: 0
-      alias: bring tv volume up to 25
+    - action: script.adjust_tv_volume
+      metadata: {}
+      data:
+        volume: 0.25
     else:
     - action: shell_command.host_run
       metadata: {}

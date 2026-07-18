@@ -64,6 +64,11 @@ boot_to_source:
       minutes: 2
       seconds: 0
       milliseconds: 0
+  - action: switch.turn_on
+    metadata: {}
+    target:
+      entity_id: switch.tv_screen_switch
+    data: {}
   - parallel:
     - action: media_player.select_source
       metadata: {}
@@ -152,4 +157,56 @@ set_cover_position_with_grace_interval:
         entity:
           multiple: true
   alias: Set cover position with grace interval
+  description: ''
+adjust_tv_volume:
+  sequence:
+  - repeat:
+      while:
+      - condition: template
+        value_template: '{{ state_attr("media_player.aramanthinewall", "volume_level")
+          > volume }}'
+      sequence:
+      - action: media_player.volume_down
+        metadata: {}
+        target:
+          entity_id: media_player.aramanthinewall
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: '{{ iif(float(state_attr(''media_player.aramanthinewall'', ''volume_level''))
+            < 0.26, step_delay, step_delay / 2) }}'
+          milliseconds: 0
+  - repeat:
+      while:
+      - condition: template
+        value_template: '{{ state_attr("media_player.aramanthinewall", "volume_level")
+          < volume }}'
+      sequence:
+      - action: media_player.volume_up
+        metadata: {}
+        target:
+          entity_id: media_player.aramanthinewall
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: '{{ iif(float(state_attr(''media_player.aramanthinewall'', ''volume_level''))
+            < 0.26, step_delay, step_delay / 2) }}'
+          milliseconds: 0
+  fields:
+    volume:
+      selector:
+        number:
+          min: 0
+          max: 1
+          step: 0.1
+    step_delay:
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 0.1
+      default: 1
+  alias: Adjust TV Volume
   description: ''
