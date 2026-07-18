@@ -678,6 +678,11 @@
     options:
       behavior: each
       for: 00:00:00
+  - trigger: timer.cancelled
+    target:
+      entity_id: timer.cover_grace_period
+    options:
+      for: 00:00:00
   conditions:
   - condition: timer.is_idle
     target:
@@ -685,24 +690,31 @@
     options:
       for: 00:00:00
   actions:
+  - action: automation.turn_off
+    metadata: {}
+    target:
+      entity_id: automation.start_estores_grace_period
+    data:
+      stop_actions: true
   - variables:
       azimuth: '{{ int(states(''sensor.sun_solar_azimuth'')) }}'
-      lower_target: '{%- set max_temp = states("sensor.max_temp") %} {%- set temp
-        = 0 if max_temp == "unknown" else float(max_temp) %} {{ 100 if temp < 28 else
-        30 }}'
-      lower_east: '{{ lower_target if azimuth < 130 else 100 }}'
+      lower_target: '{%- set max_temp = states("sensor.max_temp") %}
+
+        {%- set temp = 0 if max_temp == "unknown" else float(max_temp) %}
+
+        {{ 100 if temp < 27 else 30 }}'
+      lower_east: '{{ 0 if azimuth < 140 and lower_target < 100 else 100 }}'
       lower_south: '{{ lower_target if 100 < azimuth < 200 else 100 }}'
       lower_west: '{{ lower_target if 150 < azimuth else 100 }}'
       daytime_target: '{{ 0 if states(''binary_sensor.daylight'') == ''off'' else
         100 }}'
-      media_target: '{{ 0 if states(''input_boolean.gaming_mode'') == ''true'' or
-        states(''binary_sensor.aramanthinewall_source_is_jellyfin'') == ''true'' else
-        100 }}'
+      media_target: '{{ 0 if states(''input_boolean.gaming_mode'') == ''on'' or states(''binary_sensor.aramanthinewall_source_is_jellyfin'')
+        == ''true'' else 100 }}'
       sleeping_target: '{{ 0 if states(''input_boolean.sleeping'') == ''on'' else
         100 }}'
-      privacy: '{{ lower_target if states(''input_boolean.privacy'') == ''on'' else
-        100 }}'
-      _: calculations
+      left_door_open: '{{ states(''binary_sensor.varanda_porta_esq_contact'') }}'
+      right_door_open: '{{ states(''binary_sensor.varanda_porta_dir_contact'') }}'
+      privacy: '{{ 30 if states(''input_boolean.privacy'') == ''on'' else 100 }}'
       calculations:
       - entity: cover.estores_varanda
         motors:
@@ -723,6 +735,10 @@
         motors:
         - sensor.estores_quarto_motor_run_status
         position: '{{ min(daytime_target, lower_west, sleeping_target) }}'
+      - entity: cover.estores_escritorio
+        motors:
+        - sensor.estores_escritorio_motor_run_status
+        position: '{{ min(daytime_target, lower_west, sleeping_target) }}'
   - repeat:
       for_each: '{{ calculations }}'
       sequence:
@@ -740,10 +756,9 @@
   - action: timer.cancel
     metadata: {}
     target:
-      entity_id: timer.cover_grace_period
+      entity_id: automation.start_estores_grace_period
     data: {}
-  mode: queued
-  max: 10
+  mode: restart
 - id: '1783363775126'
   alias: Toggle sleeping
   description: ''
