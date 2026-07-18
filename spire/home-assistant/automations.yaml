@@ -136,9 +136,9 @@
       data:
         message: waiting for tolaria to boot up
       continue_on_error: true
-    - alias: wait for tolaria to come online
-      wait_template: '{{ is_state("switch.tolaria", "on") }}'
-      continue_on_timeout: true
+    - action: shell_command.wait_for_tolaria
+      metadata: {}
+      data: {}
     - action: notify.lg_webos_tv_oled65b46la_deuqljp
       metadata: {}
       data:
@@ -151,13 +151,39 @@
       metadata: {}
       data:
         source: PC
+    - alias: wait for tolaria to come online
+      wait_template: '{{ is_state("switch.tolaria", "on") }}'
+      continue_on_timeout: true
+      timeout:
+        hours: 0
+        minutes: 1
+        seconds: 0
+        milliseconds: 0
+    - if:
+      - condition: switch.is_off
+        target:
+          entity_id: switch.tolaria
+        options:
+          behavior: any
+          for: 00:00:00
+      then:
+      - action: notify.lg_webos_tv_oled65b46la_deuqljp
+        metadata: {}
+        data:
+          message: tolaria is still offline
+        continue_on_error: true
+      - stop: tolaria is still offline
+        error: true
+      alias: check if tolaria booted up
     - alias: start steam link
       action: shell_command.host_run
       metadata: {}
       data:
         command: /usr/bin/shyprctl l flatpak run com.valvesoftware.SteamLink --autoconnect
-    - parallel:
-      - repeat:
+    - alias: fade out music
+      parallel:
+      - alias: reduce tv volume to 25
+        repeat:
           while:
           - condition: numeric_state
             entity_id: media_player.aramanthinewall
@@ -172,9 +198,8 @@
           - delay:
               hours: 0
               minutes: 0
-              seconds: 1
+              seconds: 0.5
               milliseconds: 0
-        alias: reduce tv volume to 25
       - action: shell_command.host_run
         metadata: {}
         data:
