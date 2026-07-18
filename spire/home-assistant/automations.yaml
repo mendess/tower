@@ -821,3 +821,100 @@
       entity_id: timer.cover_grace_period
     data: {}
   mode: single
+- id: '1783412024155'
+  alias: Animate Cover according to alarm events
+  description: ''
+  triggers:
+  - trigger: event.received
+    target:
+      entity_id: event.sleep_as_android_alarm_clock
+    options:
+      event_type:
+      - alert_start
+    id: alarm started
+    alias: Alarm Started
+  - trigger: event.received
+    target:
+      entity_id: event.sleep_as_android_alarm_clock
+    options:
+      event_type:
+      - alert_dismiss
+    id: alarm dismissed
+    alias: Alarm Dismissed
+  - trigger: event.received
+    target:
+      entity_id: event.sleep_as_android_sleep_tracking
+    options:
+      event_type:
+      - resumed
+      - started
+      - paused
+    id: sleep
+    alias: Sleep tracking started
+  conditions:
+  - condition: zone
+    entity_id: person.mendess
+    zone: zone.home
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - alarm started
+      sequence:
+      - action: cover.set_cover_position
+        metadata: {}
+        data:
+          position: 10
+        target:
+          entity_id: cover.estores_quarto_wc
+    - conditions:
+      - condition: trigger
+        id:
+        - alarm dismissed
+      sequence:
+      - repeat:
+          while:
+          - condition: numeric_state
+            entity_id: cover.estores_quarto_wc
+            attribute: current_position
+            below: 50
+          sequence:
+          - action: cover.set_cover_position
+            metadata: {}
+            target:
+              entity_id: cover.estores_quarto_wc
+            data:
+              position: '{{ min(100, (state_attr(''cover.estores_quarto_wc'', ''current_position'')
+                + 10)) }}'
+          - delay:
+              hours: 0
+              minutes: 2
+              seconds: 0
+              milliseconds: 0
+      - action: input_boolean.turn_off
+        metadata: {}
+        target:
+          entity_id: input_boolean.sleeping
+        data: {}
+      - action: timer.cancel
+        metadata: {}
+        target:
+          entity_id: timer.cover_grace_period
+        data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - sleep
+      sequence:
+      - action: timer.cancel
+        metadata: {}
+        target:
+          entity_id: timer.cover_grace_period
+        data: {}
+      - action: input_boolean.turn_on
+        metadata: {}
+        target:
+          entity_id: input_boolean.sleeping
+        data: {}
+  mode: restart
