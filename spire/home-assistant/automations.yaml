@@ -442,15 +442,15 @@
     to:
     - 'on'
     for:
-      hours: 1
-      minutes: 0
+      hours: 0
+      minutes: 30
       seconds: 0
   - trigger: state
     entity_id:
     - media_player.aramanthinewall
     for:
-      hours: 1
-      minutes: 0
+      hours: 0
+      minutes: 30
       seconds: 0
     attribute: source
     to:
@@ -462,8 +462,8 @@
     to:
     - 'on'
     for:
-      hours: 1
-      minutes: 0
+      hours: 0
+      minutes: 30
       seconds: 0
   conditions:
   - condition: time
@@ -483,7 +483,7 @@
     attribute: source
     for:
       hours: 0
-      minutes: 59
+      minutes: 29
       seconds: 0
   - condition: state
     entity_id: switch.tv_screen_switch
@@ -491,7 +491,7 @@
     - 'on'
     for:
       hours: 0
-      minutes: 59
+      minutes: 29
       seconds: 0
   - condition: state
     entity_id: binary_sensor.oboro
@@ -499,7 +499,7 @@
     - 'on'
     for:
       hours: 0
-      minutes: 59
+      minutes: 29
       seconds: 0
   actions:
   - action: notify.lg_webos_tv_oled65b46la_deuqljp
