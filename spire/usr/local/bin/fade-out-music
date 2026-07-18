@@ -8,4 +8,8 @@ while [[ "$(m volume)" -gt 20 ]]; do
     m vd 2
     sleep 1
 done
-m vd 20
+
+while [[ "$(m volume)" -gt 0 ]]; do
+    m vd 2
+    sleep 0.5
+done
