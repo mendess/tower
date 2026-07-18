@@ -918,3 +918,34 @@
           entity_id: input_boolean.sleeping
         data: {}
   mode: restart
+- id: '1784142950714'
+  alias: Toggle Remote Gaming
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.remote_gaming
+    id: 'on'
+    to:
+    - 'on'
+  - trigger: state
+    entity_id:
+    - input_boolean.remote_gaming
+    to:
+    - 'off'
+  conditions: []
+  actions:
+  - if:
+    - condition: trigger
+      id:
+      - 'on'
+    then:
+    - action: script.turn_on_tolaria_w_steam_if_tolaria_is_off
+      metadata: {}
+      data: {}
+      enabled: true
+    else:
+    - action: shell_command.tolaria_restore_resolution
+      metadata: {}
+      data: {}
+  mode: restart
