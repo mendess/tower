@@ -334,7 +334,19 @@
     to:
     - started
     - resumed
-  conditions: []
+  - trigger: switch.turned_on
+    target:
+      entity_id: input_boolean.sleeping
+    options:
+      behavior: each
+      for: 00:00:00
+  conditions:
+  - condition: switch.is_off
+    target:
+      entity_id: input_boolean.gaming_mode
+    options:
+      behavior: any
+      for: 00:00:00
   actions:
   - action: switch.turn_off
     metadata: {}
