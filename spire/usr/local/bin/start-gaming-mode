@@ -41,3 +41,5 @@ curl -q -X POST \
       -H "Content-Type: application/json" \
       -d '{"entity_id": "input_boolean.gaming_mode"}' \
       http://localhost:8123/api/services/input_boolean/turn_off
+
+bluetoothctl disconnect AC:36:1B:92:1A:A5
