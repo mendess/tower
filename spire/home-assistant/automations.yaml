@@ -785,7 +785,7 @@
     id: 'on'
   - trigger: time
     at: '10:00:00'
-    id: 'on'
+    id: 'off'
   conditions: []
   actions:
   - if:
