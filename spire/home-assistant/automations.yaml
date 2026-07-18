@@ -742,18 +742,35 @@
   - repeat:
       for_each: '{{ calculations }}'
       sequence:
-      - action: script.set_cover_position_with_grace_interval
-        metadata: {}
-        data:
-          position: '{{ repeat.item.position }}'
-          cover: '{{ repeat.item.entity }}'
-          motor: '{{ repeat.item.motors }}'
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 1
-      milliseconds: 0
-  - action: timer.cancel
+      - if:
+        - condition: template
+          value_template: '{% set current_position = state_attr(repeat.item.entity,
+            ''current_position'') %}
+
+            {{ not (repeat.item.position - 5) < current_position < (repeat.item.position
+            + 5) }}'
+          alias: Not at calculated position
+        then:
+        - action: cover.set_cover_position
+          metadata: {}
+          target:
+            entity_id: '{{ repeat.item.entity }}'
+          data:
+            position: '{{ repeat.item.position }}'
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 1
+            milliseconds: 0
+        - alias: Wait for motors to stop
+          wait_template: '{{ repeat.item.motors|map(''states'')|select("!=", "Stop")|list
+            == [] }}'
+          timeout:
+            hours: 0
+            minutes: 1
+            seconds: 0
+            milliseconds: 0
+  - action: automation.turn_on
     metadata: {}
     target:
       entity_id: automation.start_estores_grace_period
