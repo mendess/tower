@@ -683,6 +683,12 @@
       entity_id: timer.cover_grace_period
     options:
       for: 00:00:00
+  - trigger: door.closed
+    target:
+      entity_id: binary_sensor.varanda_aberta
+    options:
+      behavior: each
+      for: 00:00:00
   conditions:
   - condition: timer.is_idle
     target:
@@ -750,6 +756,17 @@
             {{ not (repeat.item.position - 5) < current_position < (repeat.item.position
             + 5) }}'
           alias: Not at calculated position
+        - condition: or
+          conditions:
+          - condition: template
+            value_template: '{{ repeat.item.entity != ''cover.estores_varanda''}}'
+            alias: not varanda
+          - condition: door.is_closed
+            target:
+              entity_id: binary_sensor.varanda_aberta
+            options:
+              behavior: any
+              for: 00:00:00
         then:
         - action: cover.set_cover_position
           metadata: {}
