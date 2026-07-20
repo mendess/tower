@@ -160,6 +160,8 @@ set_cover_position_with_grace_interval:
   description: ''
 adjust_tv_volume:
   sequence:
+  - variables:
+      delay: '{{ step_delay or 1 }}'
   - repeat:
       while:
       - condition: template
@@ -175,7 +177,7 @@ adjust_tv_volume:
           hours: 0
           minutes: 0
           seconds: '{{ iif(float(state_attr(''media_player.aramanthinewall'', ''volume_level''))
-            < 0.26, step_delay, step_delay / 2) }}'
+            < 0.26, delay, delay / 2) }}'
           milliseconds: 0
   - repeat:
       while:
@@ -192,7 +194,7 @@ adjust_tv_volume:
           hours: 0
           minutes: 0
           seconds: '{{ iif(float(state_attr(''media_player.aramanthinewall'', ''volume_level''))
-            < 0.26, step_delay, step_delay / 2) }}'
+            < 0.26, delay, delay / 2) }}'
           milliseconds: 0
   fields:
     volume:
