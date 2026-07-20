@@ -74,6 +74,10 @@ services:
   - name: "Gallery"
     icon: "fas fa-fire"
     items:
+      - name: "Planar Bridge"
+        icon: "fa-solid fa-bullseye"
+        url: "https://mendess.xyz"
+        target: "_blank"
       - name: "Filmes e Series"
         icon: "fa-solid fa-film"
         url: "http://jellyfin.pendrellvale.home"
@@ -89,10 +93,6 @@ services:
       - name: "Podcasts"
         icon: "fa-solid fa-podcast"
         url: "http://audiobookshelf.pendrellvale.home"
-        target: "_blank"
-      - name: "Mirrodin"
-        icon: "fa-solid fa-robot"
-        url: "https://mendess.xyz"
         target: "_blank"
 
   - name: "Gaming"
