@@ -588,7 +588,7 @@
       condition: counter.is_value
       options:
         threshold:
-          type: below
+          type: above
           value:
             active_choice: number
             number: 22
