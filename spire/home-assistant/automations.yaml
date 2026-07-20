@@ -815,6 +815,11 @@
       target:
         entity_id: input_boolean.sleeping
       data: {}
+    - action: input_boolean.turn_off
+      metadata: {}
+      target:
+        entity_id: input_boolean.privacy
+      data: {}
     else:
     - action: input_boolean.turn_off
       metadata: {}
