@@ -599,6 +599,7 @@
         == "antibabypillen" %} Antibabypillen {{ states("counter.antibabypillen_counter")}}:
         Vai tomar isso {%- else %} You need to take some meds, but I don''t know which
         {%- endif %}'
+    enabled: false
   - action: input_boolean.turn_on
     metadata: {}
     target:
@@ -616,6 +617,7 @@
       minutes: 0
       seconds: 0
       milliseconds: 0
+    enabled: false
   - repeat:
       while:
       - condition: state
@@ -655,7 +657,9 @@
             minutes: 30
             seconds: 0
             milliseconds: 0
-  mode: single
+    enabled: false
+  mode: queued
+  max: 10
 - id: '1783362865967'
   alias: Update estores
   description: ''
@@ -1030,3 +1034,112 @@
         }}'
       step_delay: '{{ iif(trigger.id == ''on'', 1, 0.4) }}'
   mode: restart
+- id: '1784626905405'
+  alias: Start Notification
+  description: ''
+  triggers:
+  - trigger: switch.turned_on
+    target:
+      label_id: task_alert
+    options:
+      behavior: each
+  conditions: []
+  actions:
+  - variables:
+      table:
+        input_boolean.maquina_de_lavar:
+          who:
+          - person.mendess
+          - person.andreia
+          text: A maquina de lavar terminou
+          time_before_spamming:
+            hours: 0
+            minutes: 0
+            seconds: 0
+        input_boolean.antibabipillen:
+          who:
+          - person.andreia
+          text: "{%- if now().hour < 12 %}\n  Protect your heart\n{%- else %}\n  Antibabypillen
+            {{ states(\"counter.antibabypillen_counter\")}}: Vai tomar isso\n{%- endif
+            %}"
+          time_before_spamming:
+            hours: 1
+            minutes: 0
+            seconds: 0
+  - variables:
+      who: '{{ table[trigger.entity_id].who }}'
+      text: '{{ table[trigger.entity_id].text }}'
+      time_before_spamming: '{{ table[trigger.entity_id].time_before_spamming }}'
+  - variables:
+      devices:
+        person.mendess: notify.mobile_app_ornithopter
+        person.andreia: notify.mobile_app_pixel_9a
+  - wait_template: '{{ states(trigger.entity_id) == ''off'' }}'
+    timeout:
+      hours: '{{time_before_spamming.hours }}'
+      minutes: '{{ time_before_spamming.minutes }}'
+      seconds: '{{ time_before_spamming.seconds }}'
+      milliseconds: 0
+  - repeat:
+      while:
+      - condition: template
+        value_template: '{{ states(trigger.entity_id) == ''on'' }}'
+      sequence:
+      - if:
+        - condition: state
+          entity_id: switch.aramathinewall_power_button
+          state:
+          - 'on'
+        - condition: template
+          value_template: '{{ who|map(''states'')|select("==", "home")|first is defined
+            }}'
+        then:
+        - action: notify.lg_webos_tv_oled65b46la_deuqljp
+          metadata: {}
+          data:
+            message: '{{ text }}'
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 7
+            milliseconds: 0
+        else:
+        - repeat:
+            for_each: '{{ who }}'
+            sequence:
+            - action: '{{ devices[repeat.item] }}'
+              metadata: {}
+              data:
+                message: '{{ text }}'
+        - delay:
+            hours: 0
+            minutes: 15
+            seconds: 0
+            milliseconds: 0
+  mode: single
+- id: '1784717483238'
+  alias: Maquina de lavar done
+  description: ''
+  triggers:
+  - trigger: power.crossed_threshold
+    target:
+      entity_id: sensor.maquina_lavar_roupa_power
+    options:
+      for:
+        hours: 0
+        minutes: 10
+        seconds: 0
+      threshold:
+        type: below
+        value:
+          active_choice: number
+          number: 100
+          unit_of_measurement: W
+  conditions: []
+  actions:
+  - action: input_boolean.turn_on
+    metadata: {}
+    target:
+      entity_id: input_boolean.maquina_de_lavar
+    data: {}
+  mode: single
