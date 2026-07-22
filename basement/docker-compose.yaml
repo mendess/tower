@@ -26,6 +26,10 @@ services:
       - type: bind
         source: ${DB_DIR}/basement/blind-eternities
         target: /data
+      - type: bind
+        source: /usr/bin/neofetch
+        target: /usr/bin/neofetch
+        read_only: true
     depends_on:
       - db
     command:
