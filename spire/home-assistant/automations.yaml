@@ -693,6 +693,8 @@
     options:
       behavior: each
       for: 00:00:00
+  - trigger: state
+    entity_id: binary_sensor.oboro
   conditions:
   - condition: timer.is_idle
     target:
@@ -720,10 +722,10 @@
         100 }}'
       media_target: '{{ 0 if states(''input_boolean.gaming_mode'') == ''on'' or states(''binary_sensor.aramanthinewall_source_is_jellyfin'')
         == ''true'' else 100 }}'
+      working_target: '{{ 30 if states(''binary_sensor.oboro'') == ''on'' else 100
+        }}'
       sleeping_target: '{{ 0 if states(''input_boolean.sleeping'') == ''on'' else
         100 }}'
-      left_door_open: '{{ states(''binary_sensor.varanda_porta_esq_contact'') }}'
-      right_door_open: '{{ states(''binary_sensor.varanda_porta_dir_contact'') }}'
       privacy: '{{ 30 if states(''input_boolean.privacy'') == ''on'' else 100 }}'
       calculations:
       - entity: cover.estores_varanda
@@ -748,7 +750,8 @@
       - entity: cover.estores_escritorio
         motors:
         - sensor.estores_escritorio_motor_run_status
-        position: '{{ min(daytime_target, lower_west, sleeping_target) }}'
+        position: '{{ min(working_target, daytime_target, lower_west, sleeping_target)
+          }}'
   - repeat:
       for_each: '{{ calculations }}'
       sequence:

@@ -110,54 +110,6 @@ boot_to_source:
           max: 1
           step: 0.01
   mode: restart
-set_cover_position_with_grace_interval:
-  sequence:
-  - if:
-    - condition: template
-      value_template: '{% set current_position = state_attr(cover, ''current_position'')
-        %}
-
-        {{ (position - 5) < current_position < (position + 5) }}'
-    then:
-    - stop: too close to current position
-    else:
-    - action: cover.set_cover_position
-      metadata: {}
-      target:
-        entity_id: '{{ cover }}'
-      data:
-        position: '{{ position }}'
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 1
-        milliseconds: 0
-    - repeat:
-        for_each: '{{ motor }}'
-        sequence:
-        - wait_template: '{{ states(repeat.item) == "Stop" }}'
-          timeout:
-            hours: 0
-            minutes: 1
-            seconds: 0
-            milliseconds: 0
-  fields:
-    position:
-      selector:
-        number:
-          min: 1
-          max: 100
-    cover:
-      selector:
-        entity: {}
-      name: cover
-      required: true
-    motor:
-      selector:
-        entity:
-          multiple: true
-  alias: Set cover position with grace interval
-  description: ''
 adjust_tv_volume:
   sequence:
   - variables:
