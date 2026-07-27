@@ -501,6 +501,12 @@
       hours: 0
       minutes: 29
       seconds: 0
+  - condition: switch.is_off
+    target:
+      entity_id: input_boolean.gaming_mode
+    options:
+      behavior: any
+      for: 00:00:00
   actions:
   - action: notify.lg_webos_tv_oled65b46la_deuqljp
     metadata: {}
@@ -1097,6 +1103,19 @@
           value_template: '{{ who|map(''states'')|select("==", "home")|first is defined
             }}'
         then:
+        - if:
+          - condition: switch.is_off
+            target:
+              entity_id: switch.tv_screen_switch
+            options:
+              behavior: any
+              for: 00:00:00
+          then:
+          - action: switch.turn_on
+            metadata: {}
+            target:
+              entity_id: switch.tv_screen_switch
+            data: {}
         - action: notify.lg_webos_tv_oled65b46la_deuqljp
           metadata: {}
           data:
@@ -1119,7 +1138,8 @@
             minutes: 15
             seconds: 0
             milliseconds: 0
-  mode: single
+  mode: parallel
+  max: 10
 - id: '1784717483238'
   alias: Maquina de lavar done
   description: ''
