@@ -68,8 +68,12 @@ web-ui = { port = 2284, reachable = "public-proxy" }
 [gallery.navidrome]
 web-ui = { port = 4533, reachable = "private-proxy" }
 
-[gallery.audiobookshelf]
-web-ui = { port = 13378, reachable = "private-proxy" }
+[gallery.audiobookshelf.web-ui]
+port = 13378
+
+[[gallery.audiobookshelf.web-ui.reachable]]
+kind = "private-proxy"
+hostname = "audiobookshelf.mendess.xyz"
 
 [watch.grafana]
 web-ui = { port = 3000, reachable = "private-proxy" }

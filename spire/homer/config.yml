@@ -92,7 +92,7 @@ services:
         target: "_blank"
       - name: "Podcasts"
         icon: "fa-solid fa-podcast"
-        url: "http://audiobookshelf.pendrellvale.home"
+        url: "http://audiobookshelf.mendess.xyz"
         target: "_blank"
 
   - name: "Gaming"
