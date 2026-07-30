@@ -164,3 +164,10 @@ adjust_tv_volume:
       default: 1
   alias: Adjust TV Volume
   description: ''
+zigbee_map_refresh:
+  alias: Zigbee map refresh
+  sequence:
+  - action: mqtt.publish
+    data:
+      topic: zigbee2mqtt/bridge/request/networkmap
+      payload: '{"type":"raw","routes":false}'

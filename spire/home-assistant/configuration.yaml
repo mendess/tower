@@ -62,3 +62,18 @@ template:
         state: >-
           {{ weather_data["weather.braga"].forecast[0].templow }}
         unit_of_measurement: "°C"
+
+mqtt:
+  sensor:
+    - name: Zigbee2MQTT Network Map
+      state_topic: zigbee2mqtt/bridge/response/networkmap
+      unique_id: zigbee2mqtt_networkmap
+      value_template: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      json_attributes_topic: zigbee2mqtt/bridge/response/networkmap
+      json_attributes_template: "{{ value_json.data.value | tojson }}"
+
+recorder:
+  exclude:
+    entities:
+      - sensor.zigbee2mqtt_networkmap
+      - sensor.ornithopter_active_notification_count
