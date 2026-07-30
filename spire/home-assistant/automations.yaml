@@ -246,24 +246,72 @@
     to:
     - 'off'
     id: 'off'
-  conditions: []
-  actions:
-  - if:
+  - trigger: time_pattern
+    minutes: '10'
+    id: poll
+  conditions:
+  - condition: or
+    conditions:
     - condition: trigger
       id:
+      - 'off'
       - 'on'
-    then:
-    - action: input_boolean.turn_on
-      metadata: {}
+    - condition: switch.is_on
       target:
-        entity_id: input_boolean.tv_screen
-      data: {}
-    else:
-    - action: input_boolean.turn_off
-      metadata: {}
-      target:
-        entity_id: input_boolean.tv_screen
-      data: {}
+        entity_id: switch.aramathinewall_power_button
+      options:
+        behavior: any
+        for: 00:00:00
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - 'on'
+      sequence:
+      - action: input_boolean.turn_on
+        metadata: {}
+        target:
+          entity_id: input_boolean.tv_screen
+        data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - 'off'
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        target:
+          entity_id: input_boolean.tv_screen
+        data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - poll
+      sequence:
+      - action: webostv.command
+        metadata: {}
+        data:
+          command: com.webos.service.tvpower/power/getPowerState
+          entity_id: media_player.aramanthinewall
+        response_variable: response
+      - if:
+        - condition: template
+          value_template: '{{ response[''media_player.aramanthinewall''].state ==
+            ''Screen Off'' }}'
+          alias: screen is off
+        then:
+        - action: input_boolean.turn_off
+          metadata: {}
+          target:
+            entity_id: input_boolean.tv_screen
+          data: {}
+        else:
+        - action: input_boolean.turn_on
+          metadata: {}
+          target:
+            entity_id: input_boolean.tv_screen
+          data: {}
   mode: restart
 - id: '1775574119677'
   alias: Backup Alert Notification
