@@ -25,9 +25,9 @@ switch:
 
 shell_command:
   turn_off_tolaria: ./ssh-tolaria.sh sudo shutdown now
-  tolaria_turn_on_steam: ./ssh-tolaria.sh shyprctl l /home/mendess/.local/bin/setup-remote-steam
-  tolaria_restore_resolution: ./ssh-tolaria.sh shyprctl l /home/mendess/.local/bin/toggle-resolution 21:9
-  tolaria_wait_for_steam: ./ssh-tolaria.sh ./wait-for-steam.sh
+  tolaria_turn_on_steam: ./ssh-tolaria.sh shyprctl l .local/bin/steamgr setup-remote-steam
+  tolaria_restore_resolution: ./ssh-tolaria.sh shyprctl l .local/bin/steamgr teardown-remote-steam
+  tolaria_wait_for_steam: ./ssh-tolaria.sh .local/bin/steamgr wait-for-steam
   host_run: ./host-run.sh {{ command }}
   wait_for_tolaria: until ping -c 1 tolaria; do sleep 0.5; done
 
