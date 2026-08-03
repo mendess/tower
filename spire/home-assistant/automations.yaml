@@ -777,7 +777,7 @@
         100 }}'
       media_target: '{%- set gaming = is_state(''input_boolean.gaming_mode'', ''on'')
         %} {%- set watching = is_state(''binary_sensor.aramanthinewall_source_is_jellyfin'',
-        ''true'') %} {{ 0 if gaming or watching else 100 }}'
+        ''on'') %} {{ 0 if gaming or watching else 100 }}'
       working_target: '{{ 30 if is_state(''binary_sensor.oboro'', ''on'') else 100
         }}'
       sleeping_target: '{{ 0 if is_state(''input_boolean.sleeping'', ''on'') else
