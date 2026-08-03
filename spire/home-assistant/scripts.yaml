@@ -5,6 +5,11 @@ tv_sleep_timer:
     target:
       entity_id: switch.tv_screen_switch
     data: {}
+  - action: light.turn_off
+    metadata: {}
+    target:
+      area_id: bedroom
+    data: {}
   - action: timer.start
     metadata: {}
     target:

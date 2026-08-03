@@ -13,15 +13,27 @@
       entity_id: binary_sensor.ornithopter_connected_to_xm5
       state:
       - 'on'
-  - condition: time
-    after: 08:00:00
-    before: '23:40:00'
   actions:
-  - action: script.boot_to_source
-    metadata: {}
-    data:
-      source: PC
-      volume: 0.1
+  - if:
+    - condition: time
+      after: 08:00:00
+      before: '23:59:00'
+    then:
+    - action: script.boot_to_source
+      metadata: {}
+      data:
+        source: PC
+        volume: 0.1
+  - if:
+    - condition: time
+      after: '23:00:00'
+      before: 05:00:00
+    then:
+    - action: light.toggle
+      metadata: {}
+      target:
+        entity_id: light.bedroom_lamp
+      data: {}
   mode: single
 - id: '1771331270206'
   alias: Leave home
