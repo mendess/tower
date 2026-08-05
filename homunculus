@@ -6,10 +6,11 @@
 //! colored = "3"
 //! comfy-table = "7"
 //! indexmap = { version = "2", features = ["serde"] }
+//! rand = "0.10"
 //! regex = "1"
 //! serde = { version = "1", features = ["derive"] }
-//! yaml_serde = { version = "0.10" }
 //! toml = "0.9"
+//! yaml_serde = { version = "0.10" }
 //! ```
 
 use anyhow::Context as _;
@@ -48,6 +49,7 @@ enum Command {
     },
     DnsStats,
     GetVolumes,
+    NewPort,
 }
 
 impl std::str::FromStr for ReachableKind {
@@ -182,6 +184,7 @@ fn main() -> anyhow::Result<()> {
         Some(Command::WgUsers { ip }) => show_wg_users(ip)?,
         Some(Command::DnsStats) => show_dns_stats()?,
         Some(Command::GetVolumes) => get_volumes(cwd)?,
+        Some(Command::NewPort) => random_port()?,
         None => print_table(None, None)?,
     }
     Ok(())
@@ -202,6 +205,17 @@ fn replace_all<E>(
     }
     new.push_str(&haystack[last_match..]);
     Ok(new)
+}
+
+fn random_port() -> anyhow::Result<()> {
+    let ports = get_documented_ports()?;
+    loop {
+        let port = rand::random_range(1025..9999);
+        if !ports.contains(&port) {
+            println!("{port}");
+            return Ok(());
+        }
+    }
 }
 
 fn get_volumes(dir: PathBuf) -> anyhow::Result<()> {
