@@ -122,6 +122,9 @@ services:
         icon: "fa-solid fa-cloud"
         url: "https://nextcloud.mendess.xyz"
         target: "_blank"
+      - name: "Recipes"
+        icon: "fa-solid fa-kitchen-set"
+        url: "https://recipes.mendess.xyz"
 
   - name: "Alto Mar"
     icon: "fas fa-ship"

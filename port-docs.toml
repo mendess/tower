@@ -18,6 +18,13 @@ web-ui = { port = 8123, reachable = "private-proxy" }
 [spire.zigbee2mqtt]
 web-ui = { port = 8124, reachable = "private-proxy" }
 
+[spire.tandoor.web-ui]
+port = 5453
+
+[[spire.tandoor.web-ui.reachable]]
+kind = "private-proxy"
+hostname = "recipes.mendess.xyz"
+
 [alto-marr.qbittorrent]
 web-ui = { port = 8090, reachable = "private-proxy" }
 torrenting = { port = 50000, reachable = "forwarded" }

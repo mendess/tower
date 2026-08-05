@@ -109,3 +109,34 @@ services:
         - TZ={TZ}
     devices:
         - /dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Plus_MG24_e4e582f637a2ef11afaa8c6661ce3355-if00-port0:/dev/ttyACM0
+  tandoor_db:
+    restart: unless-stopped
+    image: postgres:16-alpine
+    container_name: tandoor_db
+    user: ${PUID}:${PGID}
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${TANDOOR_POSTGRES_PASSWORD}
+      - POSTGRES_DB=tandoor
+    volumes:
+      - ${DB_DIR}/spire/tandoor_db/postgresql:/var/lib/postgresql/data
+  tandoor:
+    restart: unless-stopped
+    image: vabene1111/recipes
+    container_name: tandoor
+    user: ${PUID}:${PGID}
+    ports:
+      - 5453:80
+    environment:
+      - SECRET_KEY=${TANDOOR_SECRET_KEY}
+      - ALLOWED_HOSTS=${TANDOOR_ALLOWED_HOSTS}
+      - POSTGRES_PASSWORD=${TANDOOR_POSTGRES_PASSWORD}
+      - POSTGRES_HOST=tandoor_db
+      - POSTGRES_DB=tandoor
+      - POSTGRES_USER=postgres
+      - DB_ENGINE=django.db.backends.postgresql
+    volumes:
+      - ${DB_DIR}/spire/tandoor/staticfiles:/opt/recipes/staticfiles
+      - ${DB_DIR}/spire/tandoor/mediafiles:/opt/recipes/mediafiles
+    depends_on:
+      - tandoor_db
