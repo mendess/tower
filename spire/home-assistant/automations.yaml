@@ -1109,7 +1109,8 @@
         {% set other_volumes = [0.25, 0.60] %}
 
         {{ [other_volumes, pc_volumes][source_is_pc][target_volume] }}'
-      step_delay: '{{ iif(trigger.id == ''on'', 1, 0.4) }}'
+      step_delay: '{{ iif(trigger.id == ''on'', 1, 5) }}'
+      short_step_delay: '{{ iif(trigger.id == ''on'', 0.5, 0.2) }}'
   mode: restart
 - id: '1784626905405'
   alias: Start Notification

@@ -119,6 +119,7 @@ adjust_tv_volume:
   sequence:
   - variables:
       delay: '{{ step_delay or 1 }}'
+      short_delay: '{{ short_step_delay or (delay / 2) }}'
   - repeat:
       while:
       - condition: template
@@ -134,7 +135,7 @@ adjust_tv_volume:
           hours: 0
           minutes: 0
           seconds: '{{ iif(float(state_attr(''media_player.aramanthinewall'', ''volume_level''))
-            < 0.26, delay, delay / 2) }}'
+            < 0.26, delay, short_delay) }}'
           milliseconds: 0
   - repeat:
       while:
@@ -151,7 +152,7 @@ adjust_tv_volume:
           hours: 0
           minutes: 0
           seconds: '{{ iif(float(state_attr(''media_player.aramanthinewall'', ''volume_level''))
-            < 0.26, delay, delay / 2) }}'
+            < 0.26, delay, short_delay) }}'
           milliseconds: 0
   fields:
     volume:
@@ -166,6 +167,12 @@ adjust_tv_volume:
           min: 0
           max: 100
           step: 0.1
+      default: 1
+    short_step_delay:
+      selector:
+        number:
+          min: 1
+          max: 100
       default: 1
   alias: Adjust TV Volume
   description: ''
