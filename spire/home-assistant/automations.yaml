@@ -782,9 +782,9 @@
       azimuth: '{{ int(states(''sensor.sun_solar_azimuth''), 0) }}'
       lower_target: '{{ 100 if float(states(''sensor.max_temp''), 0) < 27 else 30
         }}'
-      lower_east: '{{ 0 if azimuth < 180 and lower_target < 100 else 100 }}'
-      lower_south: '{{ lower_target if 100 < azimuth < 220 else 100 }}'
-      lower_west: '{{ lower_target if 170 < azimuth else 100 }}'
+      lower_east: '{{ 0 if azimuth < 220 and lower_target < 100 else 100 }}'
+      lower_south: '{{ lower_target if 100 < azimuth < 260 else 100 }}'
+      lower_west: '{{ lower_target if 200 < azimuth else 100 }}'
       daytime_target: '{{ 0 if is_state(''binary_sensor.daylight'', ''off'') else
         100 }}'
       media_target: '{%- set gaming = is_state(''input_boolean.gaming_mode'', ''on'')
