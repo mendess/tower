@@ -15,6 +15,10 @@ define socket
 	/etc/systemd/system/sockets.target.wants/$(1).socket
 endef
 
+define timer
+	/etc/systemd/system/timers.target.wants/$(1).timer
+endef
+
 define user-sctl
 	$(HOME)/.config/systemd/user/default.target.wants/$(1).service
 endef
@@ -50,6 +54,10 @@ $(call sctl,%):
 $(call socket,%):
 	sudo systemctl daemon-reload
 	sudo systemctl enable $(basename $*).socket --now
+
+$(call timer,%):
+	sudo systemctl daemon-reload
+	sudo systemctl enable $(basename $*).timer --now
 
 $(call user-sctl,%):
 	systemctl --user daemon-reload
