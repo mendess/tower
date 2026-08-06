@@ -25,6 +25,13 @@ port = 5453
 kind = "private-proxy"
 hostname = "recipes.mendess.xyz"
 
+[spire.vaultwarden.web-ui]
+port = 6056
+
+[[spire.vaultwarden.web-ui.reachable]]
+kind = "private-proxy"
+hostname = "pass.mendess.xyz"
+
 [alto-marr.qbittorrent]
 web-ui = { port = 8090, reachable = "private-proxy" }
 torrenting = { port = 50000, reachable = "forwarded" }

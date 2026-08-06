@@ -140,3 +140,15 @@ services:
       - ${DB_DIR}/spire/tandoor/mediafiles:/opt/recipes/mediafiles
     depends_on:
       - tandoor_db
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    environment:
+      ADMIN_TOKEN: ${VAULTWARDEN_ADMIN_TOKEN}
+      DOMAIN: "https://pass.mendess.xyz"
+    volumes:
+      - ${DB_DIR}/spire/vaultwarden:/data
+    ports:
+      - 127.0.0.1:6056:80

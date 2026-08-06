@@ -113,6 +113,9 @@ services:
       - name: "Recipes"
         icon: "fa-solid fa-kitchen-set"
         url: "https://recipes.mendess.xyz"
+      - name: "Password Manager"
+        icon: "fa-solid fa-shield-halved"
+        url: "https://pass.mendess.xyz"
 
   - name: "Alto Mar"
     icon: "fas fa-ship"
