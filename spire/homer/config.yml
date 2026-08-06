@@ -95,18 +95,6 @@ services:
         url: "http://audiobookshelf.mendess.xyz"
         target: "_blank"
 
-  - name: "Gaming"
-    icon: "fas fa-gamepad"
-    items:
-      - name: "Minecraft"
-        icon: "fa-solid fa-cube"
-        url: "https://mendess.xyz/games/minecraft"
-        target: "_blank"
-      - name: "Baldur's Gate 3"
-        icon: "fa-solid fa-brands fa-octopus-deploy"
-        url: "https://mendess.xyz/games/bg3"
-        target: "_blank"
-
   - name: "Tools"
     icon: "fas fa-wrench"
     items:
