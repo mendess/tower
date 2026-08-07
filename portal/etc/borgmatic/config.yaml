@@ -13,12 +13,21 @@ repositories:
       encryption: repokey-blake2
 
 patterns:
-    - '- /home/mendess/vault/basement/rtp-memoria-dl'
-    - '- /home/mendess/vault/alto-marr/torrents'
-    - '- /home/mendess/vault/spire/homer'
+    - '! /home/mendess/vault/basement/rtp-memoria-dl'
+    - '! /home/mendess/vault/alto-marr/torrents'
+    - '! /home/mendess/vault/spire/homer'
     - '! /home/mendess/vault/spire/nextcloud/data'
+    - '! /home/mendess/vault/spire/nextcloud/pw'
+    # mariadb databases
     - '! /home/mendess/vault/spire/nextcloud/mariadb'
-    - '- /home/mendess/vault/spire/nextcloud/pw'
+    # psql databases
+    - '! /home/mendess/vault/basement/db'
+    - '! /home/mendess/vault/gallery/immich/db'
+    - '! /home/mendess/vault/spire/tandoor_db'
+
+ssh_command: ssh -F /home/mendess/.ssh/config
+
+user_runtime_directory: /tmp/borgmatic
 
 compression: zstd,6
 keep_daily: 8
@@ -35,11 +44,11 @@ statistics: true
 commands:
   - before: configuration
     run:
-      - /home/mendess/tower/portal/setup-mariadb-credentials.sh
+      - bash /home/mendess/tower/portal/setup-mariadb-credentials.sh init
   - after: action
     when: [create]
     run:
-      - /usr/local/bin/notify-hass latest-backup-update repository={repository_label}
+      - /usr/local/bin/monitor-backups {repository_label}
   - after: error
     when: [create, prune]
     run:
@@ -47,10 +56,15 @@ commands:
 
 postgresql_databases:
   - name: blind_eternities
-    hostname: 127.0.0.1
-    pg_dump_command: timeout 1h docker exec --user 1000 db pg_dump -U postgres
+    pg_dump_command: docker exec --user 1000 db pg_dump -U postgres
+  - name: immich
+    pg_dump_command: docker exec --user 1000 immich_postgres pg_dump -U postgres
+  - name: tandoor
+    pg_dump_command: docker exec --user 1000 tandoor_db pg_dump -U postgres
 
 mariadb_databases:
   - name: nextcloud
-    hostname: 127.0.0.1
-    mariadb_dump_command: docker exec --user 1000 nextcloud-mariadb mariadb-dump --defaults-extra-file=/tmp/credentials.cnf --single-transaction --default-character-set=utf8mb4
+    mariadb_dump_command: docker exec nextcloud-mariadb mariadb-dump
+    options: --defaults-extra-file=/tmp/credentials.cnf --default-character-set=utf8mb4
+
+encryption_passphrase: "{credential systemd borgmatic.pw}"

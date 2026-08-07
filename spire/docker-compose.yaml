@@ -16,8 +16,7 @@ services:
     restart: unless-stopped
     volumes:
       - ${DB_DIR}/spire/nextcloud/mariadb:/var/lib/mysql:Z
-      - /run/user/${PUID}:/run/user/${PUID} # mount the runtime dir so that brogmatic can export the database correctly
-    # user: ${PUID}:${PGID}
+      - /tmp/borgmatic:/tmp/borgmatic # mount the runtime dir so that brogmatic can export the database correctly
     environment:
       MYSQL_ROOT_PASSWORD: ${NEXTCLOUD_MARIADB_ROOT_PASSWORD}
       MYSQL_PASSWORD: ${NEXTCLOUD_MARIADB_DB_PASSWORD}
@@ -76,6 +75,7 @@ services:
       - /run/dbus:/run/dbus:ro
       - /var/lib/hass-bridge:/hass-bridge
       - /var/run/docker.sock:/var/run/docker.sock
+      - /var/cache/borgmatic-monitor:/var/cache/borgmatic-monitor:ro
     restart: unless-stopped
     privileged: true
     cap_add:

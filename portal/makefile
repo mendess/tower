@@ -7,7 +7,10 @@ include ../foundations.mk
 
 CONFIG = $(shell find ./etc | sed 's|\.||') $(shell find ./usr | sed 's|\.||')
 
-SERVICES = $(call user-timer,nextcloud-backup) $(call user-timer,borgmatic)
+SERVICES = $(call user-timer,nextcloud-backup) $(call timer,borgmatic)
+
+## To generate the encrypted borgmatic.pw file this command was used
+# systemd-ask-password -n | sudo systemd-creds encrypt - /etc/credstore.encrypted/borgmatic.pw
 
 install: /usr/bin/borgmatic $(CONFIG) ~/.local/share/borgmatic $(SERVICES)
 test: /usr/bin/borgmatic $(CONFIG) ~/.local/share/borgmatic $(SERVICES)
@@ -18,10 +21,8 @@ test: /usr/bin/borgmatic $(CONFIG) ~/.local/share/borgmatic $(SERVICES)
 
 .ONESHELL: repo-create
 repo-create: install
-	export BORG_PASSCOMMAND="cat ./borg-passphrase"
-	borgmatic repo-create --encryption repokey
+	sudo borgmatic repo-create --encryption repokey
 
 .ONESHELL: run-backup
 run-backup: install
-	export BORG_PASSCOMMAND="cat ./borg-passphrase"
-	borgmatic create --verbosity 2
+	sudo borgmatic create --verbosity 2

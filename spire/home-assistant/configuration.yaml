@@ -1,3 +1,16 @@
+homeassistant:
+  name: Home
+  latitude: 41.526353
+  longitude: -8.413435
+  elevation: 190
+  radius: 90
+  unit_system: metric
+  currency: EUR
+  country: PT
+  time_zone: "Europe/Lisbon"
+  allowlist_external_dirs:
+    - "/var/cache/borgmatic-monitor"
+  debug: false
 
 # Loads default set of integrations. Do not remove.
 default_config:

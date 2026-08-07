@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ "$1" ]]; then
+    repo=(--repository "$1")
+else
+    repo=()
+fi
+
+mkdir -p /var/cache/borgmatic-monitor/
+chmod -v 755 /var/cache/borgmatic-monitor
+borgmatic info --archive latest "${repo[@]}" --json |
+    jq -c '.[]|{repo: .repository.label, archive: {start: .archives[0].start, end: .archives[0].end}}' |
+    while read -r jsonline; do
+        repo=$(jq -r .repo <<<"$jsonline")
+        archive=$(jq -c .archive <<<"$jsonline")
+        file="/var/cache/borgmatic-monitor/$repo.latest.json"
+
+        printf "%s" "$archive" > "$file"
+        chmod -v 644 "$file"
+    done
