@@ -348,40 +348,6 @@
       message: '{{ trigger.json.message }}'
       title: Backup Alert for {{ trigger.json.repository }}
   mode: single
-- id: '1775574197183'
-  alias: latest-backup-update
-  description: ''
-  triggers:
-  - trigger: webhook
-    allowed_methods:
-    - POST
-    - PUT
-    local_only: true
-    webhook_id: latest-backup-update
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{ "local" in trigger.json.repository }}'
-      sequence:
-      - action: input_datetime.set_datetime
-        metadata: {}
-        target:
-          entity_id: input_datetime.latest_backup_local
-        data:
-          datetime: '{{ now() }}'
-    - conditions:
-      - condition: template
-        value_template: '{{ "flopy" in trigger.json.repository }}'
-      sequence:
-      - action: input_datetime.set_datetime
-        metadata: {}
-        data:
-          datetime: '{{ now() }}'
-        target:
-          entity_id: input_datetime.latest_backup_flopy
-  mode: single
 - id: '1776289999583'
   alias: turn off tv when sleeping
   description: ''
@@ -469,14 +435,14 @@
   alias: Backup stale alert
   description: ''
   triggers:
-  - trigger: time
-    at:
-      entity_id: input_datetime.latest_backup_flopy
-      offset: '168:00:00'
-  - trigger: time
-    at:
-      entity_id: input_datetime.latest_backup_local
-      offset: '168:00:00'
+  - trigger: template
+    value_template: '{% set sensors = [''sensor.borgmatic_flopy_latest_backup_start'',
+      ''sensor.borgmatic_local_latest_backup_start''] %}
+
+      {% set last_week = (utcnow() - timedelta(days=7)) | as_timestamp %}
+
+      {{ sensors|map(''states'')|map(''as_timestamp'')|select("<", last_week)|list|length
+      > 0 }}'
   conditions: []
   actions:
   - action: persistent_notification.create
