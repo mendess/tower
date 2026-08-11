@@ -95,13 +95,36 @@ enum Reachable {
 }
 
 impl Reachable {
-    fn into_full(self) -> Vec<ReachableFull> {
+    fn into_full(self, service_name: &str) -> Vec<ReachableFull> {
+        let mendess = |kind| ReachableFull {
+            kind,
+            hostname: Some(format!("{service_name}.mendess.xyz")),
+        };
+        let pendrellvale = |kind| ReachableFull {
+            kind,
+            hostname: Some(format!("{service_name}.pendrellvale.home")),
+        };
         match self {
-            Self::Simple(kind) => vec![ReachableFull {
-                kind,
-                hostname: None,
-            }],
-            Self::Full(full) => full,
+            Self::Simple(kind @ ReachableKind::PrivateProxy) => {
+                vec![pendrellvale(kind), mendess(kind)]
+            }
+            Self::Simple(kind @ ReachableKind::PublicProxy) => vec![mendess(kind)],
+            Self::Simple(kind @ (ReachableKind::Forwarded | ReachableKind::Private)) => {
+                vec![ReachableFull {
+                    kind,
+                    hostname: None,
+                }]
+            }
+            Self::Full(full) => full
+                .into_iter()
+                .flat_map(|r| match r {
+                    ReachableFull {
+                        hostname: None,
+                        kind,
+                    } => Reachable::Simple(kind).into_full(service_name),
+                    r => vec![r],
+                })
+                .collect(),
         }
     }
 }
@@ -370,21 +393,12 @@ fn print_table_csv(filter: Option<String>, reachable: Option<ReachableKind>) -> 
     for (floor_name, floor) in port_docs.into_iter() {
         for (service_name, service) in floor.table {
             for (port_name, port) in service.table {
-                let reachable = port.reachable.into_full();
-                for ReachableFull { kind, hostname } in reachable {
+                for ReachableFull { kind, hostname } in port.reachable.into_full(&service_name) {
                     let port = port.port.to_string();
-                    let hostname = hostname
-                        .or_else(|| match kind {
-                            ReachableKind::PrivateProxy => {
-                                Some(format!("{service_name}.pendrellvale.home"))
-                            }
-                            ReachableKind::PublicProxy => {
-                                Some(format!("{service_name}.mendess.xyz"))
-                            }
-                            _ => None,
-                        })
-                        .unwrap_or_default();
-                    println!("{floor_name},{service_name},{port},{port_name},{kind},{hostname}");
+                    println!(
+                        "{floor_name},{service_name},{port},{port_name},{kind},{}",
+                        hostname.unwrap_or_default()
+                    );
                 }
             }
         }
@@ -403,9 +417,8 @@ fn print_table(filter: Option<String>, reachable: Option<ReachableKind>) -> anyh
         for (service_name, service) in floor.table {
             let mut printed_service_name = false;
             for (port_name, port) in service.table {
-                let reachable = port.reachable.into_full();
                 let mut printed_port_number = false;
-                for ReachableFull { kind, hostname } in reachable {
+                for ReachableFull { kind, hostname } in port.reachable.into_full(&service_name) {
                     let port = port.port.to_string();
                     table.add_row(vec![
                         if printed_floor_name { "" } else { &floor_name },
@@ -422,17 +435,7 @@ fn print_table(filter: Option<String>, reachable: Option<ReachableKind>) -> anyh
                             ReachableKind::PublicProxy => "proxied [pub]",
                             ReachableKind::Forwarded => "port forwarded",
                         },
-                        &hostname
-                            .or_else(|| match kind {
-                                ReachableKind::PrivateProxy => {
-                                    Some(format!("{service_name}.pendrellvale.home"))
-                                }
-                                ReachableKind::PublicProxy => {
-                                    Some(format!("{service_name}.mendess.xyz"))
-                                }
-                                _ => None,
-                            })
-                            .unwrap_or_default(),
+                        &hostname.unwrap_or_default(),
                     ]);
                     printed_port_number = true;
                     printed_floor_name = true;

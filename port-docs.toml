@@ -5,6 +5,10 @@ port = 1025
 kind = "private-proxy"
 hostname = "pendrellvale.home"
 
+[[spire.homer.web-ui.reachable]]
+kind = "private-proxy"
+hostname = "home.mendess.xyz"
+
 [spire.nextcloud.web-ui]
 port = 8085
 

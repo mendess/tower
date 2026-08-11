@@ -28,6 +28,9 @@ UNBOUND_CONFIG = $(shell find ./etc/unbound | sed 's|\.||')
 
 unbound: /usr/bin/unbound /etc/unbound/trusted-key.key $(call sctl,unbound) config-unbound
 
+./etc/unbound/unbound.conf.d/local.conf: ./unbound-scripts/gen-local-dns.sh ../port-docs.toml
+	./unbound-scripts/gen-local-dns.sh > $@
+
 .ONESHELL: config-unbound
 config-unbound: $(UNBOUND_CONFIG)
 	@for f in $(call stamp_file,$(UNBOUND_CONFIG)); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
