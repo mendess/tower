@@ -1201,3 +1201,24 @@
       entity_id: input_boolean.maquina_de_lavar
     data: {}
   mode: single
+- id: '1786217879576'
+  alias: Check mail
+  description: ''
+  triggers:
+  - trigger: time
+    at: '18:00:00'
+  conditions:
+  - condition: zone.in_zone
+    target:
+      entity_id: person.mendess
+    options:
+      behavior: any
+      for: 00:00:00
+      zone: zone.home
+  actions:
+  - action: input_boolean.turn_on
+    metadata: {}
+    target:
+      entity_id: input_boolean.check_mail
+    data: {}
+  mode: single
