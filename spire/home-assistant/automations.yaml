@@ -622,7 +622,7 @@
           type: above
           value:
             active_choice: number
-            number: 22
+            number: 21
       target:
         entity_id: counter.antibabypillen_counter
   - variables:
@@ -1103,9 +1103,13 @@
         input_boolean.antibabipillen:
           who:
           - person.andreia
-          text: "{%- if now().hour < 12 %}\n  Protect your heart\n{%- else %}\n  Antibabypillen
-            {{ states(\"counter.antibabypillen_counter\")}}: Vai tomar isso\n{%- endif
-            %}"
+          text: "{% set msg = [\n   \"Vai tomar isso\",\n   \"Toma a puta da pilula\",\n
+            \  \"Toma a pilulazinha amorsinho fofinha linda \U0001F970\U0001F970\",\n
+            \  \"Oh mor, ja tomaste o repelente de bebes?\",\n   \"Eish... ainda nao
+            tomaste a pilula?.. yikes\",\n   \"É pequena, é redonda, é cor de rosa
+            e tens de a tomar\",\n] %}\n{%- if now().hour < 12 %}\n  Protect your
+            heart\n{%- else %}\n  Antibabypillen {{ states(\"counter.antibabypillen_counter\")}}:
+            {{ msg | shuffle | first }}\n{%- endif %}"
           time_before_spamming:
             hours: 1
             minutes: 0
