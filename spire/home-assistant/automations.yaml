@@ -10,7 +10,7 @@
   - condition: not
     conditions:
     - condition: state
-      entity_id: binary_sensor.ornithopter_connected_to_xm5
+      entity_id: binary_sensor.whispersilk_connected_to_xm5
       state:
       - 'on'
   actions:
@@ -72,7 +72,7 @@
         state:
         - 'on'
       then:
-      - action: notify.mobile_app_ornithopter
+      - action: notify.mobile_app_whispersilk
         metadata: {}
         data:
           title: tolaria on
@@ -342,7 +342,7 @@
     data:
       title: Backup Alert for {{ trigger.json.repository }}
       message: '{{ trigger.json.message }}'
-  - action: notify.mobile_app_ornithopter
+  - action: notify.mobile_app_whispersilk
     metadata: {}
     data:
       message: '{{ trigger.json.message }}'
@@ -450,7 +450,7 @@
     data:
       message: There is a backup that has gone very stale
       title: Backup stale alert
-  - action: notify.mobile_app_ornithopter
+  - action: notify.mobile_app_whispersilk
     metadata: {}
     data:
       message: There is a backup that has gone very stale
@@ -1116,7 +1116,7 @@
       time_before_spamming: '{{ table[trigger.entity_id].time_before_spamming }}'
   - variables:
       devices:
-        person.mendess: notify.mobile_app_ornithopter
+        person.mendess: notify.mobile_app_whispersilk
         person.andreia: notify.mobile_app_pixel_9a
   - wait_template: '{{ states(trigger.entity_id) == ''off'' }}'
     timeout:
