@@ -625,69 +625,11 @@
             number: 21
       target:
         entity_id: counter.antibabypillen_counter
-  - variables:
-      message: '{%- if trigger.id == "heart" %} Protect your heart {%- elif trigger.id
-        == "antibabypillen" %} Antibabypillen {{ states("counter.antibabypillen_counter")}}:
-        Vai tomar isso {%- else %} You need to take some meds, but I don''t know which
-        {%- endif %}'
-    enabled: false
   - action: input_boolean.turn_on
     metadata: {}
     target:
       entity_id: input_boolean.antibabipillen
     data: {}
-  - wait_for_trigger:
-    - trigger: switch.turned_off
-      target:
-        entity_id: input_boolean.antibabipillen
-      options:
-        behavior: each
-        for: 00:00:00
-    timeout:
-      hours: 1
-      minutes: 0
-      seconds: 0
-      milliseconds: 0
-    enabled: false
-  - repeat:
-      while:
-      - condition: state
-        entity_id: input_boolean.antibabipillen
-        state:
-        - 'on'
-      sequence:
-      - if:
-        - condition: state
-          entity_id: switch.aramathinewall_power_button
-          state:
-          - 'on'
-        - condition: zone.in_zone
-          target:
-            entity_id: person.andreia
-          options:
-            for: 00:00:00
-            zone: zone.home
-        then:
-        - action: notify.lg_webos_tv_oled65b46la_deuqljp
-          metadata: {}
-          data:
-            message: '{{ message }}'
-        - delay:
-            hours: 0
-            minutes: 0
-            seconds: 7
-            milliseconds: 0
-        else:
-        - action: notify.mobile_app_pixel_9a
-          metadata: {}
-          data:
-            message: '{{ message }}'
-        - delay:
-            hours: 0
-            minutes: 30
-            seconds: 0
-            milliseconds: 0
-    enabled: false
   mode: queued
   max: 10
 - id: '1783362865967'
