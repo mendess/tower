@@ -1134,3 +1134,29 @@
       entity_id: input_boolean.check_mail
     data: {}
   mode: single
+- id: '1786489693058'
+  alias: Turn on bedroom light when we stop gaming at night
+  description: ''
+  triggers:
+  - trigger: switch.turned_off
+    target:
+      entity_id: input_boolean.gaming_mode
+    options:
+      behavior: each
+      for:
+        hours: 0
+        minutes: 2
+        seconds: 0
+  conditions:
+  - condition: time
+    after: '22:00:00'
+    before: 04:00:00
+  actions:
+  - delay: '{{ ''00:18:00'' if states(''zone.home'') | int(0) > 1 else ''00:00:00''
+      }}'
+  - action: light.turn_on
+    metadata: {}
+    target:
+      entity_id: light.bedroom_lamp
+    data: {}
+  mode: single
