@@ -86,3 +86,9 @@ recorder:
     entities:
       - sensor.zigbee2mqtt_networkmap
       - sensor.ornithopter_active_notification_count
+
+owntracks:
+  max_gps_accuracy: 200
+  waypoints: true
+  mqtt_topic: "owntracks/#"
+  events_only: true
