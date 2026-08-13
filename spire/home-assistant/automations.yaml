@@ -142,22 +142,26 @@
         entity_id:
         - switch.tv_screen_switch
       data: {}
-    - action: notify.lg_webos_tv_oled65b46la_deuqljp
-      metadata: {}
-      data:
-        message: waiting for tolaria to boot up
-      continue_on_error: true
-    - action: shell_command.wait_for_tolaria
-      metadata: {}
-      data: {}
-    - action: notify.lg_webos_tv_oled65b46la_deuqljp
-      metadata: {}
-      data:
-        message: waiting for steam to boot up
-      continue_on_error: true
-    - action: shell_command.tolaria_wait_for_steam
-      metadata: {}
-      data: {}
+    - parallel:
+      - action: script.notify_tv
+        metadata: {}
+        data:
+          message: waiting for tolaria to boot up
+        continue_on_error: true
+      - action: shell_command.wait_for_tolaria
+        metadata: {}
+        data: {}
+      alias: wait for tolaria
+    - parallel:
+      - action: script.notify_tv
+        metadata: {}
+        data:
+          message: waiting for steam to boot up
+        continue_on_error: true
+      - action: shell_command.tolaria_wait_for_steam
+        metadata: {}
+        data: {}
+      alias: Wait for steam
     - action: script.boot_to_source
       metadata: {}
       data:
@@ -170,7 +174,8 @@
         minutes: 1
         seconds: 0
         milliseconds: 0
-    - if:
+    - alias: check if tolaria booted up
+      if:
       - condition: switch.is_off
         target:
           entity_id: switch.tolaria
@@ -178,14 +183,13 @@
           behavior: any
           for: 00:00:00
       then:
-      - action: notify.lg_webos_tv_oled65b46la_deuqljp
+      - action: script.notify_tv
         metadata: {}
         data:
           message: tolaria is still offline
         continue_on_error: true
       - stop: tolaria is still offline
         error: true
-      alias: check if tolaria booted up
     - alias: start steam link
       action: shell_command.host_run
       metadata: {}
@@ -499,11 +503,10 @@
         entity_id: switch.tv_screen_switch
       data: {}
     else:
-    - action: notify.lg_webos_tv_oled65b46la_deuqljp
+    - action: script.notify_tv
       metadata: {}
       data:
         message: Turning off tv screen because you're working
-        title: Turn of tv scree while working
     - delay:
         hours: 0
         minutes: 0
@@ -965,7 +968,7 @@
       state:
       - 'on'
   actions:
-  - action: notify.lg_webos_tv_oled65b46la_deuqljp
+  - action: script.notify_tv
     metadata: {}
     data:
       message: '{{ iif(trigger.id == ''on'', "Now we''re cooking!", "Bon apetit")
@@ -1063,7 +1066,7 @@
             target:
               entity_id: switch.tv_screen_switch
             data: {}
-        - action: notify.lg_webos_tv_oled65b46la_deuqljp
+        - action: script.notify_tv
           metadata: {}
           data:
             message: '{{ text }}'

@@ -183,3 +183,21 @@ zigbee_map_refresh:
     data:
       topic: zigbee2mqtt/bridge/request/networkmap
       payload: '{"type":"raw","routes":false}'
+notify_tv:
+  sequence:
+  - action: switch.turn_on
+    metadata: {}
+    target:
+      entity_id: switch.tv_screen_switch
+    data: {}
+  - action: notify.lg_webos_tv_oled65b46la_deuqljp
+    metadata: {}
+    data:
+      message: '{{ message }}'
+  fields:
+    message:
+      selector:
+        text:
+      name: message
+  alias: Notify TV
+  description: ''
