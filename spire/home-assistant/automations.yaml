@@ -466,100 +466,66 @@
     from:
     to:
     - 'on'
-    for:
-      hours: 0
-      minutes: 30
-      seconds: 0
-  - trigger: state
-    entity_id:
-    - media_player.aramanthinewall
-    for:
-      hours: 0
-      minutes: 30
-      seconds: 0
-    attribute: source
-    to:
-    - PC
-    - Live TV
-  - trigger: state
-    entity_id:
-    - switch.tv_screen_switch
-    to:
-    - 'on'
-    for:
-      hours: 0
-      minutes: 30
-      seconds: 0
+  - trigger: time_pattern
+    hours: '*'
+    minutes: /30
   conditions:
+  - condition: switch.is_on
+    target:
+      entity_id: switch.aramathinewall_power_button
+    options:
+      behavior: any
+      for: 00:00:00
   - condition: time
-    after: 09:00:00
-    before: '18:00:00'
     weekday:
     - mon
     - tue
     - wed
     - thu
     - fri
-  - condition: state
-    entity_id: media_player.aramanthinewall
-    state:
-    - PC
-    - Live TV
-    attribute: source
-    for:
-      hours: 0
-      minutes: 29
-      seconds: 0
-  - condition: state
-    entity_id: switch.tv_screen_switch
-    state:
-    - 'on'
-    for:
-      hours: 0
-      minutes: 29
-      seconds: 0
-  - condition: state
-    entity_id: binary_sensor.oboro
-    state:
-    - 'on'
-    for:
-      hours: 0
-      minutes: 29
-      seconds: 0
-  - condition: switch.is_off
-    target:
-      entity_id: input_boolean.gaming_mode
-    options:
-      behavior: any
-      for: 00:00:00
   actions:
-  - action: notify.lg_webos_tv_oled65b46la_deuqljp
-    metadata: {}
-    data:
-      message: Turning off tv screen because you're working
-      title: Turn of tv scree while working
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 10
-      milliseconds: 0
-  - action: switch.turn_off
-    metadata: {}
-    target:
-      entity_id: switch.tv_screen_switch
-    data: {}
+  - variables:
+      gaming: '{{ is_state(''input_boolean.gaming_mode'', ''on'') }}'
+      lunch_time: '{{ 11 < now().hour < 14 }}'
+      after_work: '{{ now().hour > 17 }}'
+      switch: '{{ gaming or lunch_time or after_work }}'
   - if:
-    - condition: state
-      entity_id: binary_sensor.aramanthinewall_source_is_live_tv
-      state:
-      - 'on'
+    - condition: template
+      value_template: '{{ switch }}'
     then:
+    - action: switch.turn_on
+      metadata: {}
+      target:
+        entity_id: switch.tv_screen_switch
+      data: {}
+    else:
+    - action: notify.lg_webos_tv_oled65b46la_deuqljp
+      metadata: {}
+      data:
+        message: Turning off tv screen because you're working
+        title: Turn of tv scree while working
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
     - action: switch.turn_off
       metadata: {}
       target:
-        entity_id: switch.aramathinewall_power_button
+        entity_id: switch.tv_screen_switch
       data: {}
-    alias: turn off tv if watching the news
+    - if:
+      - condition: state
+        entity_id: binary_sensor.aramanthinewall_source_is_live_tv
+        state:
+        - 'on'
+      then:
+      - action: switch.turn_off
+        metadata: {}
+        target:
+          entity_id: switch.aramathinewall_power_button
+        data: {}
+      alias: turn off tv if watching the news
   mode: single
 - id: '1781087126490'
   alias: Pilula alert
