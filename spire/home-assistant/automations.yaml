@@ -29,10 +29,10 @@
       after: '23:00:00'
       before: 05:00:00
     then:
-    - action: light.toggle
+    - action: switch.turn_on
       metadata: {}
       target:
-        entity_id: light.bedroom_lamp
+        entity_id: switch.bedroom_lamp_switch
       data: {}
   mode: single
 - id: '1771331270206'
