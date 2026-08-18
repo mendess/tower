@@ -1136,6 +1136,13 @@
       behavior: any
       for: 00:00:00
       zone: zone.home
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
   actions:
   - action: input_boolean.turn_on
     metadata: {}
