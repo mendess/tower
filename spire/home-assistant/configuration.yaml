@@ -88,7 +88,7 @@ recorder:
       - sensor.ornithopter_active_notification_count
 
 owntracks:
-  max_gps_accuracy: 200
+  # max_gps_accuracy: 200
   waypoints: true
   mqtt_topic: "owntracks/#"
-  events_only: true
+  # events_only: true
