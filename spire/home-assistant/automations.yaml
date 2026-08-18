@@ -955,12 +955,6 @@
           unit_of_measurement: W
     id: 'off'
   conditions:
-  - condition: switch.is_off
-    target:
-      entity_id: input_boolean.gaming_mode
-    options:
-      behavior: any
-      for: 00:00:00
   - condition: or
     conditions:
     - condition: state
@@ -972,26 +966,34 @@
       state:
       - 'on'
   actions:
+  - wait_template: '{{ is_state(''input_boolean.gaming_mode'', ''off'') }}'
+    timeout:
+      hours: 1
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+    continue_on_timeout: false
+  - variables:
+      id: '{{ trigger.id }}'
   - action: script.notify_tv
     metadata: {}
     data:
-      message: '{{ iif(trigger.id == ''on'', "Now we''re cooking!", "Bon apetit")
-        }}'
+      message: '{{ iif(id == ''on'', "Now we''re cooking!", "Bon apetit") }}'
   - action: script.adjust_tv_volume
     metadata: {}
     data:
       volume: '{% set source_is_pc = int(states("binary_sensor.aramanthinewall_source_is_pc")
         == ''on'') %}
 
-        {% set target_volume = int(trigger.id == ''on'') %}
+        {% set target_volume = int(id == ''on'') %}
 
         {% set pc_volumes = [0.1, 0.35] %}
 
         {% set other_volumes = [0.25, 0.60] %}
 
         {{ [other_volumes, pc_volumes][source_is_pc][target_volume] }}'
-      step_delay: '{{ iif(trigger.id == ''on'', 1, 5) }}'
-      short_step_delay: '{{ iif(trigger.id == ''on'', 0.5, 0.2) }}'
+      step_delay: '{{ iif(id == ''on'', 1, 5) }}'
+      short_step_delay: '{{ iif(id == ''on'', 0.5, 0.2) }}'
   mode: restart
 - id: '1784626905405'
   alias: Start Notification
