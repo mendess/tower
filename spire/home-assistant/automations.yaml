@@ -592,16 +592,12 @@
       target:
         entity_id: counter.antibabypillen_counter
       data: {}
-    - alias: Stop if doing pill interval
-      condition: counter.is_value
-      options:
-        threshold:
-          type: above
-          value:
-            active_choice: number
-            number: 21
-      target:
+    - if:
+      - condition: numeric_state
         entity_id: counter.antibabypillen_counter
+        above: 21
+      then:
+      - stop: pill interval
   - action: input_boolean.turn_on
     metadata: {}
     target:
