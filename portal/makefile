@@ -13,6 +13,7 @@ SERVICES = $(call user-timer,nextcloud-backup) $(call timer,borgmatic)
 # systemd-ask-password -n | sudo systemd-creds encrypt - /etc/credstore.encrypted/borgmatic.pw
 
 install: /usr/bin/borgmatic $(CONFIG) ~/.local/share/borgmatic $(SERVICES)
+	sudo systemctl daemon-reload
 test: /usr/bin/borgmatic $(CONFIG) ~/.local/share/borgmatic $(SERVICES)
 	echo $^
 
