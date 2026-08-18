@@ -163,6 +163,7 @@ services:
       - ${DB_DIR}/gallery/audiobookshelf/data/podcasts:/podcasts
       - ${DB_DIR}/gallery/audiobookshelf/data/config:/config
       - ${DB_DIR}/gallery/audiobookshelf/data/metadata:/metadata
+      - ${DB_DIR}/gallery/audiobookshelf/data/books:/books
     restart: unless-stopped
 
 volumes:
