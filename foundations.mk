@@ -78,13 +78,13 @@ define install_conf
 		else \
 			sudo chmod -v 644 $(2) | grep -v retained ; \
 		fi; \
-	fi
-	@sudo chown -v root:root $(2) | grep -v retained
-	@sudo touch --reference=$(1) $(2)
-	@touch $(call stamp_file,$(2))
-	@case "$(1)" in \
-		*/systemd/user/*.service | */systemd/user/*.timer) systemctl --user daemon-reload && echo "reloaded user daemon";; \
-		*/systemd/system/*.service | */systemd/system/*.timer) sudo systemctl daemon-reload && echo "reloaded system daemon";; \
+	fi ; \
+	sudo chown -v root:root $(2) | grep -v retained ; \
+	sudo touch --reference=$(1) $(2) ; \
+	touch $(call stamp_file,$(2)) ; \
+	case "$(1)" in \
+		*/systemd/user/*.service | */systemd/user/*.timer) systemctl --user daemon-reload && echo "reloaded user daemon: $(1)" ;; \
+		*/systemd/system/*.service | */systemd/system/*.timer) sudo systemctl daemon-reload && echo "reloaded system daemon: $(1)" ;; \
 	esac
 endef
 

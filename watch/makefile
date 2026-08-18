@@ -13,7 +13,12 @@ WG_EXPORTER_SERVICE = /usr/lib/systemd/system/prometheus_wireguard_exporter.serv
 
 .PHONY: install prometheus exporters update-prom
 
+.ONESHELL: install
 install: dirs prometheus
+	@for f in $(call stamp_file,$(WG_EXPORTER_SERVICE)); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
+	rm -v $${reload[@]}
+	@echo "reloading prometheus_wireguard_exporter"
+	sudo systemctl restart prometheus_wireguard_exporter
 
 prometheus: /usr/bin/prometheus /etc/prometheus/prometheus.yml $(OVERRIDE_CONF) exporters $(call sctl,prometheus) $(WG_EXPORTER_SERVICE)
 

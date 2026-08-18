@@ -7,7 +7,7 @@ After=network-online.target
 User=root
 Group=root
 Type=simple
-ExecStart=/usr/local/bin/prometheus_wireguard_exporter -n /etc/wireguard/wg0.conf /etc/wireguard/mc1.conf /etc/wireguard/ex2.conf
+ExecStart=/usr/local/bin/prometheus_wireguard_exporter -n /etc/wireguard/wg0.conf /etc/wireguard/mc1.conf /etc/wireguard/ex2.conf /etc/wireguard/fm3.conf
 
 [Install]
 WantedBy=multi-user.target
