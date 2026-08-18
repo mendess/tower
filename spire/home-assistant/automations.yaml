@@ -487,6 +487,10 @@
     - wed
     - thu
     - fri
+  - condition: state
+    entity_id: binary_sensor.oboro
+    state:
+    - 'on'
   actions:
   - variables:
       gaming: '{{ is_state(''input_boolean.gaming_mode'', ''on'') }}'
@@ -503,6 +507,10 @@
         entity_id: switch.tv_screen_switch
       data: {}
     else:
+    - condition: state
+      state:
+      - 'on'
+      entity_id: switch.tv_screen_switch
     - action: script.notify_tv
       metadata: {}
       data:
