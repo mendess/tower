@@ -1112,7 +1112,7 @@
         type: below
         value:
           active_choice: number
-          number: 100
+          number: 1
           unit_of_measurement: W
   conditions: []
   actions:
