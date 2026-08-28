@@ -111,6 +111,7 @@ services:
         url: "https://homeassistant.mendess.xyz"
         target: "_blank"
       - name: "Nextcloud"
+        type: "Nextcloud"
         icon: "fa-solid fa-cloud"
         url: "https://nextcloud.mendess.xyz"
         target: "_blank"
@@ -120,6 +121,7 @@ services:
         url: "https://recipes.mendess.xyz"
       - name: "Password Manager"
         subtitle: "VaultWarden"
+        type: "Vaultwarden"
         icon: "fa-solid fa-shield-halved"
         url: "https://pass.mendess.xyz"
 
