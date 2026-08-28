@@ -75,8 +75,7 @@ wg-%.conf:
 INTERNAL_HOSTNAME = pendrellvale.home
 
 PRIVATE_DOMAINS := \
-	$(shell ../homunculus show --reachable private-proxy --csv | awk -F, 'NR > 1 {print $$6}') \
-	nextcloud.pendrellvale.home
+	$(shell ../homunculus show --reachable private-proxy --csv | awk -F, 'NR > 1 {print $$6}')
 PUBLIC_DOMAINS := \
 	$(shell ../homunculus show --reachable public-proxy  --csv | awk -F, 'NR > 1 {print $$6}')
 

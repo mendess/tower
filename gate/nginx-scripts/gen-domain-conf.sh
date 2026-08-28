@@ -18,6 +18,7 @@ cd "$(dirname "$0")/.." || exit
 
 hostname=$(basename "$target")
 port=$($homunculus show --csv | awk -F, -v hostname=$hostname '$6 == hostname {print $3}')
+redirect=$($homunculus show --csv | awk -F, -v hostname=$hostname '$6 == hostname {print $7}')
 
 listen() {
     case "$hostname" in
@@ -25,9 +26,9 @@ listen() {
         *mendess.xyz) l="listen 443 ssl;";;
     esac
     cat <<EOF
-	server_name $hostname;
-	client_max_body_size 50M;
-	$l
+    server_name $hostname;
+    client_max_body_size 50M;
+    $l
 EOF
 }
 
@@ -65,6 +66,21 @@ server {
 EOF
 }
 
+pendrellvale_home_redirect() {
+    [[ "$redirect" ]] || return
+    cat <<EOF
+server {
+    if (\$host = $redirect) {
+        return 301 https://$hostname\$request_uri;
+    }
+
+    server_name $redirect;
+    listen 80;
+    return 404;
+}
+EOF
+}
+
 if [[ -e .$target ]]; then
     echo "copying .$target to $target"
     sudo cp .$target $target
@@ -72,11 +88,11 @@ else
     echo "generting $target"
     cat <<EOF | sudo tee $target >/dev/null
 server {
-    $(listen)
+$(listen)
 
-    $(ssl)
+$(ssl)
 
-    $(allow-list)
+$(allow-list)
 
     location / {
         proxy_set_header Host \$host;
@@ -88,6 +104,7 @@ server {
     }
 }
 $(ssl-redirect)
+$(pendrellvale_home_redirect)
 EOF
 fi
 sudo chmod 644 $target | grep -v retained || true

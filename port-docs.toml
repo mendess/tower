@@ -3,10 +3,7 @@ port = 1025
 
 [[spire.homer.web-ui.reachable]]
 kind = "private-proxy"
-hostname = "pendrellvale.home"
-
-[[spire.homer.web-ui.reachable]]
-kind = "private-proxy"
+redirect = "pendrellvale.home"
 hostname = "home.mendess.xyz"
 
 [spire.nextcloud.web-ui]

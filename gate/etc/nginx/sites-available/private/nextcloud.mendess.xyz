@@ -60,3 +60,12 @@ server {
     listen 80;
     return 404;
 }
+server {
+    if ($host = nextcloud.pendrellvale.home) {
+        return 301 https://nextcloud.mendess.xyz$request_uri;
+    }
+
+    server_name nextcloud.pendrellvale.home;
+    listen 80;
+    return 404;
+}

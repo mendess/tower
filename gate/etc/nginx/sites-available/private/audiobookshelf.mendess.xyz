@@ -42,3 +42,13 @@ server {
     listen 80;
     return 404;
 }
+
+server {
+    if ($host = audiobookshelf.pendrellvale.home) {
+        return 301 https://audiobookshelf.mendess.xyz$request_uri;
+    }
+
+    server_name audiobookshelf.pendrellvale.home;
+    listen 80;
+    return 404;
+}

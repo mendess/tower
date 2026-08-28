@@ -41,3 +41,13 @@ server {
     listen 80;
     return 404;
 }
+
+server {
+    if ($host = homeassistant.pendrellvale.home) {
+        return 301 https://homeassistant.mendess.xyz$request_uri;
+    }
+
+    server_name homeassistant.pendrellvale.home;
+    listen 80;
+    return 404;
+}

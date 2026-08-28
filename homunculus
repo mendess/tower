@@ -96,23 +96,21 @@ enum Reachable {
 
 impl Reachable {
     fn into_full(self, service_name: &str) -> Vec<ReachableFull> {
-        let mendess = |kind| ReachableFull {
+        let mendess = |kind, redirect: bool| ReachableFull {
             kind,
+            redirect: redirect.then(|| format!("{service_name}.pendrellvale.home")),
             hostname: Some(format!("{service_name}.mendess.xyz")),
-        };
-        let pendrellvale = |kind| ReachableFull {
-            kind,
-            hostname: Some(format!("{service_name}.pendrellvale.home")),
         };
         match self {
             Self::Simple(kind @ ReachableKind::PrivateProxy) => {
-                vec![pendrellvale(kind), mendess(kind)]
+                vec![mendess(kind, true)]
             }
-            Self::Simple(kind @ ReachableKind::PublicProxy) => vec![mendess(kind)],
+            Self::Simple(kind @ ReachableKind::PublicProxy) => vec![mendess(kind, false)],
             Self::Simple(kind @ (ReachableKind::Forwarded | ReachableKind::Private)) => {
                 vec![ReachableFull {
                     kind,
                     hostname: None,
+                    redirect: None,
                 }]
             }
             Self::Full(full) => full
@@ -120,6 +118,7 @@ impl Reachable {
                 .flat_map(|r| match r {
                     ReachableFull {
                         hostname: None,
+                        redirect: None,
                         kind,
                     } => Reachable::Simple(kind).into_full(service_name),
                     r => vec![r],
@@ -149,6 +148,8 @@ impl std::fmt::Display for ReachableKind {
 #[derive(Deserialize, Default)]
 struct ReachableFull {
     kind: ReachableKind,
+    #[serde(default)]
+    redirect: Option<String>,
     #[serde(default)]
     hostname: Option<String>,
 }
@@ -385,6 +386,7 @@ const TABLE_HEADER: &[&str] = &[
     "comment",
     "reachable",
     "hostname",
+    "redirect",
 ];
 
 fn print_table_csv(filter: Option<String>, reachable: Option<ReachableKind>) -> anyhow::Result<()> {
@@ -393,11 +395,17 @@ fn print_table_csv(filter: Option<String>, reachable: Option<ReachableKind>) -> 
     for (floor_name, floor) in port_docs.into_iter() {
         for (service_name, service) in floor.table {
             for (port_name, port) in service.table {
-                for ReachableFull { kind, hostname } in port.reachable.into_full(&service_name) {
+                for ReachableFull {
+                    kind,
+                    hostname,
+                    redirect,
+                } in port.reachable.into_full(&service_name)
+                {
                     let port = port.port.to_string();
                     println!(
-                        "{floor_name},{service_name},{port},{port_name},{kind},{}",
-                        hostname.unwrap_or_default()
+                        "{floor_name},{service_name},{port},{port_name},{kind},{},{}",
+                        hostname.unwrap_or_default(),
+                        redirect.unwrap_or_default(),
                     );
                 }
             }
@@ -418,7 +426,12 @@ fn print_table(filter: Option<String>, reachable: Option<ReachableKind>) -> anyh
             let mut printed_service_name = false;
             for (port_name, port) in service.table {
                 let mut printed_port_number = false;
-                for ReachableFull { kind, hostname } in port.reachable.into_full(&service_name) {
+                for ReachableFull {
+                    kind,
+                    hostname,
+                    redirect,
+                } in port.reachable.into_full(&service_name)
+                {
                     let port = port.port.to_string();
                     table.add_row(vec![
                         if printed_floor_name { "" } else { &floor_name },
@@ -436,6 +449,7 @@ fn print_table(filter: Option<String>, reachable: Option<ReachableKind>) -> anyh
                             ReachableKind::Forwarded => "port forwarded",
                         },
                         &hostname.unwrap_or_default(),
+                        &redirect.unwrap_or_default(),
                     ]);
                     printed_port_number = true;
                     printed_floor_name = true;
