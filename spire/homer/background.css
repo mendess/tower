@@ -1,0 +1,12 @@
+#main-section {
+  background-color: black;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-image: url(https://mendess.xyz/walls/random-file);
+  object-fit: cover;
+  overflow: hidden;
+  width: 100%;
+  height: calc(100vh - 100px - var(--bulma-navbar-height));
+  box-sizing: border-box;
+}

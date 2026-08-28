@@ -1,0 +1,64 @@
+---
+# Homepage configuration
+# See https://fontawesome.com/search for icons options
+
+title: "Pendrell Vale - Music players"
+logo: "assets/icons/tabernacle.png"
+
+message:
+  content: >-
+    <span style='font-size: 1.5em'>Como usar</span><br>
+    Todos vão pedir o endereço do servidor, usa
+    <code>https://navidrome.mendess.xyz</code>. O username e a password são as
+    mesmas que usas no navidrome.
+    <br><span style='font-size: 1.5em'>Permissões</span><br>
+    Todos vão pedir a seguinte permissão
+    <code>[website] wants to access apps and services on devices connected to your local network</code>.
+    <br>
+    Isto é necessario para conseguir aceder ao navidrome. Podes permitir.
+
+links:
+  - name: "back"
+    icon: "fas fa-arrow-left"
+    url: "#"
+
+defaults:
+  layout: list
+
+# Services
+# First level array represent a group.
+# Leave only a "items" key if not using group (group name, icon & tagstyle are optional, section separation will not be displayed).
+services:
+  - name: "Music Players"
+    icon: "fa-solid fa-music"
+    items:
+      - name: "feishin"
+        logo: "https://github.com/jeffvli/feishin/blob/development/assets/icons/icon.png?raw=true"
+        subtitle: "melhor na minha opinião"
+        url: "https://feishin.vercel.app/"
+        target: "_blank"
+
+      - name: "aonsoku"
+        logo: "https://raw.githubusercontent.com/victoralvesf/aonsoku/refs/heads/main/resources/icons/icon.ico"
+        url: "https://aonsoku.vercel.app"
+        target: "_blank"
+
+      - name: "airsonic-refix"
+        logo: "https://raw.githubusercontent.com/tamland/airsonic-refix/refs/heads/master/public/icon.svg"
+        url: "https://airsonic-refix.netlify.app"
+        target: "_blank"
+
+      - name: "tinysub"
+        logo: "https://mirror-fsn.tangled.network/xrpc/sh.tangled.git.temp.getBlob?path=public%2Ffavicon.ico&ref=main&repo=did%3Aplc%3A364qcomt6pypba3wramcl25o"
+        url: "https://tinysub.devins.page/"
+        target: "_blank"
+
+      - name: "ampcast"
+        logo: "https://github.com/rekkyrosso/ampcast/raw/main/app/www/icon-192.png"
+        url: "https://ampcast.app/"
+        target: "_blank"
+
+      - name: "castafire"
+        logo: "https://github.com/sawyerf/Castafiore/blob/main/assets/icon.png?raw=true"
+        url: "https://sawyerf.github.io/Castafiore"
+        target: "_blank"

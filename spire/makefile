@@ -3,7 +3,7 @@
 include .env
 include ../foundations.mk
 
-CONFIG = ~/vault/spire/homer/config.yml
+CONFIG = $(shell find ./homer -type f | sed 's|\.|~/vault/spire|')
 HOME_ASSISTANT_CONFIG = $(shell find ./etc | sed 's|\.||') $(shell find ./usr | sed 's|\.||')
 SERVICES = $(call socket,hass-bridge) $(call sctl,hass-bridge)
 
@@ -22,8 +22,9 @@ $(DB_DIR)/spire/nextcloud/backups:
 	chmod 770 $@ | grep -v retained
 	sudo chown 33:mendess $@ | grep -v retained
 
-$(CONFIG): ./homer/config.yml
-	cp ./homer/config.yml $@
+~/vault/spire/homer/%: ./homer/%
+	@mkdir -pv $$(dirname $@)
+	@cp -v $^ $@
 
 hass-bridge:
 	cargo install --git https://github.com/mendess/hass-bridge.git
