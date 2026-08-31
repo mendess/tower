@@ -69,11 +69,13 @@ services:
         subtitle: "tandoor"
         icon: "fa-solid fa-kitchen-set"
         url: "https://recipes.mendess.xyz"
+        target: "_blank"
       - name: "Password Manager"
         subtitle: "VaultWarden"
         type: "Vaultwarden"
         icon: "fa-solid fa-shield-halved"
         url: "https://pass.mendess.xyz"
+        target: "_blank"
 
   - name: "Alto Mar"
     icon: "fas fa-ship"
