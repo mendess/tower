@@ -1,16 +1,10 @@
 server {
     server_name pass.mendess.xyz;
-    client_max_body_size 50M;
     listen 443 ssl;
+    client_max_body_size 50M;
 
-    ssl_certificate /etc/letsencrypt/live/mendess.xyz-0001/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/mendess.xyz-0001/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-
-    allow 192.168.42.0/24;
-    allow 10.0.0.0/24;
-    deny all;
+    include /etc/nginx/shared-conf/ssl.conf;
+    include /etc/nginx/shared-conf/private-service.conf;
 
     location / {
         proxy_set_header Host $host;
@@ -25,11 +19,7 @@ server {
     }
 }
 server {
-    if ($host = pass.mendess.xyz) {
-        return 301 https://$host$request_uri;
-    }
-
     server_name pass.mendess.xyz;
     listen 80;
-    return 404;
+    return 301 https://$host$request_uri;
 }

@@ -35,19 +35,14 @@ EOF
 allow-list() {
     [[ "$mode" = public ]] && return
     cat <<EOF
-    allow 192.168.42.0/24;
-    allow 10.0.0.0/24;
-    deny all;
+    include /etc/nginx/shared-conf/private-service.conf;
 EOF
 }
 
 ssl() {
     [[ "$hostname" =~ .*pendrellvale.home ]] && return
     cat <<EOF
-    ssl_certificate /etc/letsencrypt/live/mendess.xyz-0001/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/mendess.xyz-0001/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+    include /etc/nginx/shared-conf/ssl.conf;
 EOF
 }
 
@@ -55,13 +50,9 @@ ssl-redirect() {
     [[ "$hostname" =~ .*pendrellvale.home ]] && return
     cat <<EOF
 server {
-    if (\$host = $hostname) {
-        return 301 https://\$host\$request_uri;
-    }
-
     server_name $hostname;
     listen 80;
-    return 404;
+    return 301 https://\$host\$request_uri;
 }
 EOF
 }
@@ -70,13 +61,9 @@ pendrellvale_home_redirect() {
     [[ "$redirect" ]] || return
     cat <<EOF
 server {
-    if (\$host = $redirect) {
-        return 301 https://$hostname\$request_uri;
-    }
-
     server_name $redirect;
     listen 80;
-    return 404;
+    return 301 https://$hostname\$request_uri;
 }
 EOF
 }

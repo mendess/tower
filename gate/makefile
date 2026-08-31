@@ -87,7 +87,9 @@ SOFTWARE = $(call bin,nginx certbot certbot)
 
 CERTBOT_NGINX = /usr/lib/python3.14/site-packages/certbot_nginx
 
-nginx: $(ROOT_DIRS) $(SOFTWARE) $(CERTBOT_NGINX) configure-domains configure-certbot config-nginx
+SHARED_CONF = $(shell find ./etc/nginx/shared-conf | sed 's|\.||')
+
+nginx: $(ROOT_DIRS) $(SOFTWARE) $(CERTBOT_NGINX) $(SHARED_CONF) configure-domains configure-certbot config-nginx
 
 configure-domains: $(NGINX_SITE_FILES)
 

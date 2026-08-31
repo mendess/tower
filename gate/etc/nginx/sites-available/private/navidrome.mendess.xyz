@@ -1,18 +1,12 @@
 server {
     server_name navidrome.mendess.xyz;
-    client_max_body_size 50M;
     listen 443 ssl;
 
-    ssl_certificate /etc/letsencrypt/live/mendess.xyz-0001/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/mendess.xyz-0001/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-
+    client_max_body_size 50M;
     large_client_header_buffers 4 32k;
 
-    allow 192.168.42.0/24;
-    allow 10.0.0.0/24;
-    deny all;
+    include /etc/nginx/shared-conf/private-service.conf;
+    include /etc/nginx/shared-conf/ssl.conf;
 
     location / {
         proxy_set_header Host $host;
@@ -22,23 +16,13 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 
         proxy_hide_header Access-Control-Allow-Origin;
-        # proxy_hide_header Access-Control-Allow-Methods;
-        # proxy_hide_header Access-Control-Allow-Headers;
-        # proxy_hide_header Access-Control-Allow-Credentials;
-
         add_header Access-Control-Allow-Origin "*" always;
-        # add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
-        # add_header Access-Control-Allow-Headers "Authorization, Content-Type, X-Requested-With" always;
 
         proxy_pass http://127.0.0.1:4533;
     }
 }
 server {
-    if ($host = navidrome.mendess.xyz) {
-        return 301 https://$host$request_uri;
-    }
-
-    server_name navidrome.mendess.xyz;
+    server_name navidrome.mendess.xyz, navidrome.pendrellvale.home;
     listen 80;
-    return 404;
+    return 301 https://navidrome.mendess.xyz$request_uri;
 }
