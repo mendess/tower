@@ -791,7 +791,11 @@
     entity_id:
     - cover.estores_todos
     attribute: current_position
-  conditions: []
+  conditions:
+  - condition: template
+    value_template: '{{ trigger.from_state.state != ''unknown'' }}'
+    alias: The previous entity state was not unknown
+    note: happens when home assistant is rebooted
   actions:
   - action: timer.start
     metadata: {}
