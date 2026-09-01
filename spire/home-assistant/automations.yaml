@@ -86,18 +86,23 @@
   alias: Avisar a Andreia <3
   description: ''
   triggers:
-  - type: battery_level
-    device_id: 2d2c2820b54f2d03eecd136594a62365
-    entity_id: f982c0eb5ef422cd77b9e8a6faa6f966
-    domain: sensor
-    trigger: device
-    below: 20
+  - trigger: battery.level_changed
+    target:
+      entity_id: sensor.pixel_9a_battery_level
+    options:
+      threshold:
+        type: below
+        value:
+          active_choice: number
+          number: 20
   conditions:
-  - condition: device
-    device_id: 2d2c2820b54f2d03eecd136594a62365
-    domain: device_tracker
-    entity_id: dd8d91c3d376dfb09b50e31442f4825e
-    type: is_not_home
+  - condition: zone.not_in_zone
+    target:
+      entity_id: person.andreia
+    options:
+      behavior: any
+      for: 00:00:00
+      zone: zone.home
   actions:
   - action: notify.mobile_app_pixel_9a
     metadata: {}
@@ -1172,11 +1177,36 @@
     after: '22:00:00'
     before: 04:00:00
   actions:
-  - delay: '{{ ''00:18:00'' if states(''zone.home'') | int(0) > 1 else ''00:00:00''
+  - delay: '{{ ''00:08:00'' if states(''zone.home'') | int(0) > 1 else ''00:00:00''
       }}'
   - action: light.turn_on
     metadata: {}
     target:
       entity_id: light.lamp_bedroom
     data: {}
+  mode: single
+- id: '1786980243596'
+  alias: Avisar o Pedro <3
+  description: ''
+  triggers:
+  - type: battery_level
+    device_id: 9f08901dfaaf0b9b684849342ca86d8d
+    entity_id: sensor.whispersilk_battery_level
+    domain: sensor
+    trigger: device
+    below: 20
+  conditions:
+  - condition: zone.not_in_zone
+    target:
+      entity_id: person.andreia
+    options:
+      behavior: any
+      for: 00:00:00
+      zone: zone.home
+  actions:
+  - action: notify.mobile_app_whispersilk
+    metadata: {}
+    data:
+      title: low battery
+      message: "mor, where charger? \U0001F97A"
   mode: single
