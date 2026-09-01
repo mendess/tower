@@ -101,14 +101,14 @@ services:
     image: ghcr.io/koenkk/zigbee2mqtt
     restart: unless-stopped
     volumes:
-        - ${DB_DIR}/spire/zigbee2mqtt/data:/app/data
-        - /run/udev:/run/udev:ro
+      - ${DB_DIR}/spire/zigbee2mqtt/data:/app/data
+      - /run/udev:/run/udev:ro
     ports:
-        - 8124:8080
+      - 8124:8080
     environment:
-        - TZ={TZ}
+      - TZ={TZ}
     devices:
-        - /dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Plus_MG24_e4e582f637a2ef11afaa8c6661ce3355-if00-port0:/dev/ttyACM0
+      - /dev/serial/by-id/${ZIGBEE_DONGLE_ID}:/dev/ttyACM0
   tandoor_db:
     restart: unless-stopped
     image: postgres:16-alpine
