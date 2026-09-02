@@ -43,8 +43,6 @@ shell_command:
 logger:
   default: warning
 
-monitor_docker: !include monitor_docker.yaml
-
 template:
   - trigger:
     - trigger: time
