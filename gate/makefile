@@ -47,13 +47,17 @@ config-unbound: $(UNBOUND_CONFIG)
 # source: https://web.archive.org/web/20250911080027/https://robertlathanh.com/2025/03/setting-up-a-vpn-for-home-intranet-access-with-wireguard/
 
 WG_CONFIGS := $(wildcard ./etc/wireguard/*.conf)
-WG_NETWORKS := $(patsubst ./etc/wireguard/%.conf,%,$(WG_CONFIGS))
+WG_NETWORK_NAMES := $(patsubst ./etc/wireguard/%.conf,%,$(WG_CONFIGS))
 WG_SERVICES := $(addprefix /etc/systemd/system/multi-user.target.wants/wg-quick@, $(addsuffix .service, $(WG_NETWORKS)))
-WG_NETWORKS := $(addprefix wg-,$(WG_NETWORKS))
+WG_NETWORKS := $(addprefix wg-,$(WG_NETWORK_NAMES))
+NETWORK_MANAGER = /etc/NetworkManager/conf.d/99-unmanaged-devices.conf
 
 .PHONY: wireguard wg-down wg-conf
 
-wireguard: $(call bin,qrencode wg) $(WG_NETWORKS) $(WG_SERVICES) /etc/sysctl.conf $(shell find ./etc/systemd | sed 's|\.||')
+wireguard: $(call bin,qrencode wg) $(WG_NETWORKS) $(WG_SERVICES) /etc/sysctl.conf $(shell find ./etc/systemd | sed 's|\.||') $(NETWORK_MANAGER)
+
+$(NETWORK_MANAGER): $(WG_CONFIGS)
+	sudo ./wg-scripts/generate-network-manager-conf.sh $(WG_NETWORK_NAMES) -o $(NETWORK_MANAGER)
 
 wg-%:
 	@sudo ./wg-scripts/makefile-entrypoint.sh "$*"
@@ -71,8 +75,6 @@ wg-%.conf:
 
 # ----------------- NGINX ---------------------
 .PHONY: nginx config-nginx configure-domains configure-certbot nginx-clean
-
-INTERNAL_HOSTNAME = pendrellvale.home
 
 PRIVATE_DOMAINS := \
 	$(shell ../homunculus show --reachable private-proxy --csv | awk -F, 'NR > 1 {print $$6}')
@@ -93,7 +95,8 @@ nginx: $(ROOT_DIRS) $(SOFTWARE) $(CERTBOT_NGINX) $(SHARED_CONF) configure-domain
 
 configure-domains: $(NGINX_SITE_FILES)
 
-configure-certbot: /etc/systemd/system/timers.target.wants/certbot-renew.timer
+configure-certbot: #/etc/systemd/system/timers.target.wants/certbot-renew.timer
+	@true # disabled while I wait to switch from namecheap to somewhere that lets me automate wildcard domains
 
 .ONESHELL: config-nginx
 config-nginx: /etc/nginx/nginx.conf
