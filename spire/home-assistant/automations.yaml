@@ -638,15 +638,22 @@
     entity_id: input_boolean.privacy
   - trigger: timer.finished
     target:
-      entity_id: timer.cover_grace_period
+      entity_id:
+      - timer.cover_grace_period_bedroom
+      - timer.cover_grace_period_study
+      - timer.cover_grace_period_living_room
     options:
       behavior: each
       for: 00:00:00
   - trigger: timer.cancelled
     target:
-      entity_id: timer.cover_grace_period
+      entity_id:
+      - timer.cover_grace_period_bedroom
+      - timer.cover_grace_period_study
+      - timer.cover_grace_period_living_room
     options:
       for: 00:00:00
+      behavior: each
   - trigger: state
     entity_id: binary_sensor.varanda_aberta
   - trigger: state
@@ -655,12 +662,7 @@
     entity_id: weather.braga
   - trigger: state
     entity_id: switch.tolaria
-  conditions:
-  - condition: timer.is_idle
-    target:
-      entity_id: timer.cover_grace_period
-    options:
-      for: 00:00:00
+  conditions: []
   actions:
   - action: automation.turn_off
     metadata: {}
@@ -700,25 +702,30 @@
       eyes_study: '{{ iif(elevation < 25.0, 8, 100) }}'
       calculations:
       - entity: cover.estores_varanda
+        lock: timer.cover_grace_period_living_room
         motors:
         - sensor.estores_varanda_direira_motor_run_status
         - sensor.estores_varanda_esquerda_motor_run_status
         position: '{{ min(doors_open, daytime_target, lower_east, media_target, sleeping_target,
           privacy) | abs }}'
       - entity: cover.estores_tv
+        lock: timer.cover_grace_period_living_room
         motors:
         - sensor.estores_tv_motor_run_status
         position: '{{ min(daytime_target, lower_south, media_target, sleeping_target,
           privacy) | abs }}'
       - entity: cover.estores_wc
+        lock: timer.cover_grace_period_bedroom
         motors:
         - sensor.estores_wc_motor_run_status
         position: '{{ min(daytime_target, lower_south, sleeping_target) | abs }}'
       - entity: cover.estores_quarto
+        lock: timer.cover_grace_period_bedroom
         motors:
         - sensor.estores_quarto_motor_run_status
         position: '{{ min(daytime_target, lower_west, sleeping_target) | abs }}'
       - entity: cover.estores_escritorio
+        lock: timer.cover_grace_period_study
         motors:
         - sensor.estores_escritorio_motor_run_status
         position: '{{ min(eyes_study, desktop_gaming, working_target, daytime_target,
@@ -734,6 +741,9 @@
             {{ not (repeat.item.position - 5) < current_position < (repeat.item.position
             + 5) }}'
           alias: Not at calculated position
+        - alias: grace period for this area not running
+          condition: template
+          value_template: '{{ is_state(repeat.item.lock, "idle") }}'
         then:
         - action: cover.set_cover_position
           metadata: {}
@@ -758,11 +768,6 @@
     metadata: {}
     target:
       entity_id: automation.start_estores_grace_period
-    data: {}
-  - action: timer.cancel
-    metadata: {}
-    target:
-      entity_id: timer.cover_grace_period
     data: {}
   mode: restart
 - id: '1783363775126'
@@ -805,19 +810,56 @@
   triggers:
   - trigger: state
     entity_id:
-    - cover.estores_todos
+    - cover.estores_quarto_wc
     attribute: current_position
+    id: bedroom
+  - trigger: state
+    entity_id:
+    - cover.estores_escritorio
+    attribute: current_position
+    id: study
+  - trigger: state
+    entity_id:
+    - cover.estores_sala
+    attribute: current_position
+    id: living room
   conditions:
-  - condition: template
-    value_template: '{{ (now() + timedelta(seconds=30)) > states(''sensor.uptime'')
+  - alias: home assistant has been running for 30 seconds
+    condition: template
+    value_template: '{{ (now() + timedelta(minutes=5)) > states(''sensor.uptime'')
       | as_datetime }}'
-    alias: home assistant has been running for 30 seconds
   actions:
-  - action: timer.start
-    metadata: {}
-    target:
-      entity_id: timer.cover_grace_period
-    data: {}
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - bedroom
+      sequence:
+      - action: timer.start
+        metadata: {}
+        target:
+          entity_id: timer.cover_grace_period_bedroom
+        data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - study
+      sequence:
+      - action: timer.start
+        metadata: {}
+        target:
+          entity_id: timer.cover_grace_period_study
+        data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - living room
+      sequence:
+      - action: timer.start
+        metadata: {}
+        target:
+          entity_id: timer.cover_grace_period_living_room
+        data: {}
   mode: single
 - id: '1783412024155'
   alias: Animate Cover according to alarm events
