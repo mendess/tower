@@ -759,6 +759,11 @@
     target:
       entity_id: automation.start_estores_grace_period
     data: {}
+  - action: timer.cancel
+    metadata: {}
+    target:
+      entity_id: timer.cover_grace_period
+    data: {}
   mode: restart
 - id: '1783363775126'
   alias: Toggle sleeping
@@ -804,9 +809,9 @@
     attribute: current_position
   conditions:
   - condition: template
-    value_template: '{{ trigger.from_state.state != ''unknown'' }}'
-    alias: The previous entity state was not unknown
-    note: happens when home assistant is rebooted
+    value_template: '{{ (now() + timedelta(seconds=30)) > states(''sensor.uptime'')
+      | as_datetime }}'
+    alias: home assistant has been running for 30 seconds
   actions:
   - action: timer.start
     metadata: {}
