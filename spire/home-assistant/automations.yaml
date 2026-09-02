@@ -628,6 +628,10 @@
     entity_id: binary_sensor.daylight
   - trigger: state
     entity_id: sensor.sun_solar_azimuth
+  - trigger: sun.elevation_changed
+    options:
+      threshold:
+        type: any
   - trigger: state
     entity_id: binary_sensor.aramanthinewall_source_is_jellyfin
   - trigger: state
@@ -666,6 +670,7 @@
       stop_actions: true
   - variables:
       azimuth: '{{ int(states(''sensor.sun_solar_azimuth''), 0) }}'
+      elevation: '{{ float(states("sensor.sun_solar_elevation"), 100.0) }}'
       lower_target: "{%- set temp = float(states(\"sensor.max_temp\"), 0) %} {%- set
         cloudy = \"cloudy\" in states(\"weather.braga\") %} {%- if temp < 27 %}\n
         \ 100\n{%- elif temp < 30 and cloudy %}\n  70\n{%- else %}\n  30\n{%- endif
@@ -673,7 +678,7 @@
       lower_east: '{{ iif(lower_target == 30, 0, lower_target) if azimuth < 220 else
         100 }}'
       lower_south: '{{ lower_target if 100 < azimuth < 260 else 100 }}'
-      lower_west: '{{ lower_target if 200 < azimuth else 100 }}'
+      lower_west: '{{ lower_target if 200 < azimuth and elevation > 0.0 else 100 }}'
       daytime_target: '{{ 0 if is_state(''binary_sensor.daylight'', ''off'') else
         100 }}'
       media_target: '{%- set gaming = is_state(''input_boolean.gaming_mode'', ''on'')
@@ -692,6 +697,7 @@
       privacy: '{{ 30 if is_state(''input_boolean.privacy'', ''on'') else 100 }}'
       doors_open: '{{ iif(is_state("binary_sensor.varanda_aberta", "on"), -100, 100)
         }}'
+      eyes_study: '{{ iif(elevation < 25.0, 8, 100) }}'
       calculations:
       - entity: cover.estores_varanda
         motors:
@@ -715,8 +721,8 @@
       - entity: cover.estores_escritorio
         motors:
         - sensor.estores_escritorio_motor_run_status
-        position: '{{ min(desktop_gaming, working_target, daytime_target, lower_west,
-          sleeping_target) | abs }}'
+        position: '{{ min(eyes_study, desktop_gaming, working_target, daytime_target,
+          lower_west, sleeping_target) | abs }}'
   - repeat:
       for_each: '{{ calculations }}'
       sequence:
