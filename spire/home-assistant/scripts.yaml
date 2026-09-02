@@ -176,6 +176,7 @@ adjust_tv_volume:
       default: 1
   alias: Adjust TV Volume
   description: ''
+  mode: restart
 zigbee_map_refresh:
   alias: Zigbee map refresh
   sequence:
