@@ -16,6 +16,7 @@ server {
     proxy_buffering off;
     proxy_request_buffering off;
 
+    include /etc/nginx/shared-conf/base.conf;
     include /etc/nginx/shared-conf/private-service.conf;
     include /etc/nginx/shared-conf/ssl.conf;
 

@@ -77,6 +77,7 @@ else
 server {
 $(listen)
 
+    include /etc/nginx/shared-conf/base.conf;
 $(ssl)
 
 $(allow-list)

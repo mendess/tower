@@ -3,6 +3,7 @@ server {
     listen 80;
     http2 on;
 
+    include /etc/nginx/shared-conf/base.conf;
     allow 10.0.3.0/24;
     include /etc/nginx/shared-conf/ssl.conf;
 

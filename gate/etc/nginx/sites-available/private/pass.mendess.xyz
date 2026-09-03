@@ -3,6 +3,7 @@ server {
     listen 443 ssl;
     client_max_body_size 50M;
 
+    include /etc/nginx/shared-conf/base.conf;
     include /etc/nginx/shared-conf/ssl.conf;
     include /etc/nginx/shared-conf/private-service.conf;
 

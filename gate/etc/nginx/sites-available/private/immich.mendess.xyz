@@ -3,6 +3,7 @@ server {
     listen 443 ssl;
     http2 on;
 
+    include /etc/nginx/shared-conf/base.conf;
     allow 10.0.3.0/24;
     include /etc/nginx/shared-conf/ssl.conf;
 

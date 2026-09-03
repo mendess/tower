@@ -13,6 +13,7 @@ server {
     proxy_set_header X-Forwarded-Protocol $scheme;
     proxy_set_header X-Forwarded-Host $http_host;
 
+    include /etc/nginx/shared-conf/base.conf;
     include /etc/nginx/shared-conf/private-service.conf;
     include /etc/nginx/shared-conf/ssl.conf;
 

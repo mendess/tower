@@ -5,6 +5,7 @@ server {
     client_max_body_size 50M;
     large_client_header_buffers 4 32k;
 
+    include /etc/nginx/shared-conf/base.conf;
     include /etc/nginx/shared-conf/private-service.conf;
     include /etc/nginx/shared-conf/ssl.conf;
 
