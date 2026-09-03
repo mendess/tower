@@ -1,0 +1,32 @@
+listen:
+  port: 2000
+  #address: "10.1.2.3"
+
+# consul:
+#   enable: true
+#   address: "localhost:8500"
+#   datacenter: dc1
+#   scheme: http
+#   token: ""
+#   service:
+#     id: "nginx-exporter"
+#     name: "nginx-exporter"
+#     tags: ["foo", "bar"]
+
+namespaces:
+  - name: nginx
+    format: "$remote_addr [$time_local] $request_method $host \"$request_uri\" $status \"$http_user_agent\""
+    source_files:
+      - /var/log/nginx/simple.log
+    relabel_configs:
+      - target_label: method
+        from: request_method
+
+      - target_label: remote_addr
+        from: remote_addr
+        matches:
+          - regexp: "^(?:((?:192\\.168\\.42\\.[0-9]{1,3})|(?:10\\.0\\.[0-9]{1,3}\\.[0-9]{1,3}))|.*)$"
+            replacement: "$1"
+
+      - target_label: host
+        from: host

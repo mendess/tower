@@ -17,7 +17,12 @@ scrape_configs:
 
   - job_name: 'nginx'
     static_configs:
-      - targets: ['localhost:9113']
+      - targets: ['localhost:9113', 'localhost:2000']
+    metric_relabel_configs:
+      - source_labels: [remote_addr]
+        regex: '192\.168\.42\.2'
+        target_label: eyeball
+        replacement: pendrellvale
 
   - job_name: 'pendrellvale' # node exporter full
     static_configs:
@@ -30,10 +35,6 @@ scrape_configs:
   - job_name: 'planar-bridge'
     static_configs:
       - targets: ['localhost:9002']
-
-  - job_name: 'mirrodin'
-    static_configs:
-      - targets: ['localhost:9003']
 
   - job_name: 'grafana'
     static_configs:
@@ -49,7 +50,7 @@ scrape_configs:
 
   - job_name: 'jellyfin'
     static_configs:
-      - targets: ['localhost:8096']
+      - targets: ['localhost:8097']
 
   - job_name: immich_api
     static_configs:
@@ -66,17 +67,3 @@ scrape_configs:
   - job_name: cadvisor
     static_configs:
       - targets: ['localhost:1696']
-
-
-# Alertmanager configuration
-# alerting:
-  # alertmanagers:
-    # - static_configs:
-        # - targets:
-          # - alertmanager:9093
-
-# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
-# rule_files:
-  # - "first_rules.yml"
-  # - "second_rules.yml"
-
