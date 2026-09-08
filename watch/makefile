@@ -3,7 +3,7 @@
 include .env
 include ../foundations.mk
 
-EXPORTERS = prometheus-node-exporter prometheus-systemd-exporter process-exporter nginx-prometheus-exporter
+EXPORTERS = prometheus-node-exporter prometheus-systemd-exporter nginx-prometheus-exporter
 
 EXPORTER_SOFTWARE = $(call bin, $(EXPORTERS))
 EXPORTER_SERVICES = $(foreach s,$(EXPORTERS),$(call sctl,$(s))) $(call sctl,prometheus_wireguard_exporter) $(call sctl,prometheus-nginxlog-exporter)

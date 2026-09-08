@@ -58,7 +58,6 @@ declare -A job_names
 job_names=(
     ["prometheus"]='[localhost:9090]'
     ['prometheus-systemd']='[localhost:9558]'
-    ['prometheus-process']='[localhost:9256]'
     ['nginx']='[localhost:9113]'
     ['nginx-logs']='[localhost:2000]'
     ['pendrellvale']='[localhost:9100]'
@@ -67,7 +66,6 @@ job_names=(
     ['grafana']='[localhost:3000]'
     ['minecraft']='[localhost:19565]'
     ['scraparr']='[localhost:7100]'
-    ['jellyfin']='[localhost:8097]'
     ['immich_api']='[localhost:8081]'
     ['immich_microservices']='[localhost:8082]'
     ['wireguard']='[localhost:9586]'
