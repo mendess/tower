@@ -673,16 +673,18 @@
   - variables:
       azimuth: '{{ int(states(''sensor.sun_solar_azimuth''), 0) }}'
       elevation: '{{ float(states("sensor.sun_solar_elevation"), 100.0) }}'
-      lower_target: "{%- set temp = float(states(\"sensor.max_temp\"), 0) %} {%- set
-        cloudy = \"cloudy\" in states(\"weather.braga\") %} {%- if temp < 27 %}\n
-        \ 100\n{%- elif temp < 30 and cloudy %}\n  70\n{%- else %}\n  30\n{%- endif
-        %}"
+      daytime: '{{ is_state("binary_sensor.daylight", "on") }}'
+      sunset_target: '{{ iif(azimuth > 200 and elevation < 2.5 and daytime, -70, 100)
+        }}'
+      lower_target: "{%- set temp = float(states(\"sensor.max_temp\"), 0) %}\n{%-
+        set cloudy = \"cloudy\" in states(\"weather.braga\") %}\n{%- if temp < 27
+        %}\n  100\n{%- elif temp < 30 and cloudy %}\n  70\n{%- else %}\n  30\n{%-
+        endif %}"
       lower_east: '{{ iif(lower_target == 30, 0, lower_target) if azimuth < 220 else
         100 }}'
       lower_south: '{{ lower_target if 100 < azimuth < 260 else 100 }}'
-      lower_west: '{{ lower_target if 200 < azimuth and elevation > 0.0 else 100 }}'
-      daytime_target: '{{ 0 if is_state(''binary_sensor.daylight'', ''off'') else
-        100 }}'
+      lower_west: '{{ lower_target if 200 < azimuth else 100 }}'
+      daytime_target: '{{ 0 if not daytime else 100 }}'
       media_target: '{%- set gaming = is_state(''input_boolean.gaming_mode'', ''on'')
         %}
 
@@ -699,48 +701,49 @@
       privacy: '{{ 30 if is_state(''input_boolean.privacy'', ''on'') else 100 }}'
       doors_open: '{{ iif(is_state("binary_sensor.varanda_aberta", "on"), -100, 100)
         }}'
-      eyes_study: '{{ iif(elevation < 25.0, 8, 100) }}'
+      eyes_study: '{{ iif(azimuth > 200 and elevation < 25.0, 7, 100) }}'
       calculations:
       - entity: cover.estores_varanda
         lock: timer.cover_grace_period_living_room
         motors:
-        - sensor.estores_varanda_direira_motor_run_status
-        - sensor.estores_varanda_esquerda_motor_run_status
+        - sensor.estores_varanda_direira_moving
+        - sensor.estores_varanda_esquerda_moving
         position: '{{ min(doors_open, daytime_target, lower_east, media_target, sleeping_target,
           privacy) | abs }}'
       - entity: cover.estores_tv
         lock: timer.cover_grace_period_living_room
         motors:
-        - sensor.estores_tv_motor_run_status
+        - sensor.estores_tv_moving
         position: '{{ min(daytime_target, lower_south, media_target, sleeping_target,
           privacy) | abs }}'
       - entity: cover.estores_wc
         lock: timer.cover_grace_period_bedroom
         motors:
-        - sensor.estores_wc_motor_run_status
+        - sensor.estores_wc_moving
         position: '{{ min(daytime_target, lower_south, sleeping_target) | abs }}'
       - entity: cover.estores_quarto
         lock: timer.cover_grace_period_bedroom
         motors:
-        - sensor.estores_quarto_motor_run_status
-        position: '{{ min(daytime_target, lower_west, sleeping_target) | abs }}'
+        - sensor.estores_quarto_movinh
+        position: '{{ min(sunset_target, daytime_target, lower_west, sleeping_target)
+          | abs }}'
       - entity: cover.estores_escritorio
         lock: timer.cover_grace_period_study
         motors:
-        - sensor.estores_escritorio_motor_run_status
-        position: '{{ min(eyes_study, desktop_gaming, working_target, daytime_target,
-          lower_west, sleeping_target) | abs }}'
+        - sensor.estores_escritorio_moving
+        position: '{{ min(sunset_target, eyes_study, desktop_gaming, working_target,
+          daytime_target, lower_west, sleeping_target) | abs }}'
   - repeat:
       for_each: '{{ calculations }}'
       sequence:
       - if:
-        - condition: template
+        - alias: Not at calculated position
+          condition: template
           value_template: '{% set current_position = state_attr(repeat.item.entity,
             ''current_position'') %}
 
-            {{ not (repeat.item.position - 5) < current_position < (repeat.item.position
-            + 5) }}'
-          alias: Not at calculated position
+            {{ not (repeat.item.position - 1) < current_position < (repeat.item.position
+            + 1) }}'
         - alias: grace period for this area not running
           condition: template
           value_template: '{{ is_state(repeat.item.lock, "idle") }}'
@@ -757,7 +760,7 @@
             seconds: 1
             milliseconds: 0
         - alias: Wait for motors to stop
-          wait_template: '{{ repeat.item.motors|map(''states'')|select("!=", "Stop")|list
+          wait_template: '{{ repeat.item.motors|map(''states'')|select("!=", "stop")|list
             == [] }}'
           timeout:
             hours: 0
