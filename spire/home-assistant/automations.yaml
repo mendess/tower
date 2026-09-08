@@ -1288,3 +1288,40 @@
       title: low battery
       message: "mor, where charger? \U0001F97A"
   mode: single
+- id: '1787099934513'
+  alias: Baldurs Gate 3 Epic Soundtrack
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.mendess_now_playing
+    to:
+    - Baldur's Gate 3
+  conditions:
+  - condition: time
+    before: '22:00:00'
+    after: 08:00:00
+  - condition: switch.is_on
+    target:
+      entity_id: input_boolean.gaming_mode
+    options:
+      behavior: any
+      for: 00:00:00
+  - condition: switch.is_on
+    target:
+      entity_id: switch.aramathinewall_power_button
+    options:
+      behavior: any
+      for: 00:00:00
+  - condition: switch.is_off
+    target:
+      entity_id: input_boolean.remote_gaming
+    options:
+      behavior: any
+      for: 00:00:00
+  actions:
+  - action: script.adjust_tv_volume
+    metadata: {}
+    data:
+      volume: 0.5
+  mode: single
