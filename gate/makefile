@@ -79,7 +79,7 @@ wg-%.conf:
 PRIVATE_DOMAINS := \
 	$(shell ../homunculus show --reachable private-proxy --csv | awk -F, 'NR > 1 {print $$6}')
 PUBLIC_DOMAINS := \
-	$(shell ../homunculus show --reachable public-proxy  --csv | awk -F, 'NR > 1 {print $$6}')
+	$(shell ../homunculus show --reachable public-proxy  --csv | awk -F, 'NR > 1 {print $$6}') minecraft.mendess.xyz
 
 NGINX_SITE_FILES := \
 	$(addprefix /etc/nginx/sites-enabled/public/,$(PUBLIC_DOMAINS)) \
