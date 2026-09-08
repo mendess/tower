@@ -1224,13 +1224,39 @@
         hours: 0
         minutes: 2
         seconds: 0
+    id: living-room
+  - trigger: switch.turned_off
+    target:
+      entity_id: switch.tolaria
+    options:
+      for: 00:00:00
+    id: tolaria
+  - trigger: state
+    entity_id:
+    - binary_sensor.aramanthinewall_source_is_jellyfin
+    to:
+    - 'off'
+    from:
+    - 'on'
+    id: living-room
   conditions:
   - condition: time
     after: '22:00:00'
     before: 04:00:00
+  - condition: switch.is_off
+    target:
+      entity_id: input_boolean.sleeping
+    options:
+      behavior: any
+      for: 00:00:00
   actions:
-  - delay: '{{ ''00:08:00'' if states(''zone.home'') | int(0) > 1 else ''00:00:00''
-      }}'
+  - if:
+    - condition: trigger
+      id:
+      - living-room
+    then:
+    - delay: '{{ ''00:08:00'' if states(''zone.home'') | int(0) > 1 else ''00:00:00''
+        }}'
   - action: light.turn_on
     metadata: {}
     target:
