@@ -27,7 +27,7 @@ for key in ${!body_map[@]}; do
 done
 body="$body}"
 
-curl -sS http://homeassistant.pendrellvale.home/api/webhook/$path \
+curl -sS http://homeassistant.mendess.xyz/api/webhook/$path \
       -H 'content-type:application/json' \
       -d "$body"
 exit 0
