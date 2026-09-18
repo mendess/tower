@@ -120,34 +120,50 @@ adjust_tv_volume:
   - variables:
       delay: '{{ step_delay or 1 }}'
       short_delay: '{{ short_step_delay or (delay / 2) }}'
+  - variables:
+      last: '{{ state_attr("media_player.aramanthinewall", "volume_level") }}'
   - repeat:
       while:
       - condition: template
         value_template: '{{ state_attr("media_player.aramanthinewall", "volume_level")
           > volume }}'
+      - condition: template
+        value_template: '{{ state_attr("media_player.aramanthinewall", "volume_level")
+          == last }}'
       sequence:
       - action: media_player.volume_down
         metadata: {}
         target:
           entity_id: media_player.aramanthinewall
         data: {}
+      - variables:
+          last: '{{ state_attr("media_player.aramanthinewall", "volume_level") }}'
+        enabled: true
       - delay:
           hours: 0
           minutes: 0
           seconds: '{{ iif(float(state_attr(''media_player.aramanthinewall'', ''volume_level''))
             < 0.26, delay, short_delay) }}'
           milliseconds: 0
+  - variables:
+      last: '{{ state_attr("media_player.aramanthinewall", "volume_level") }}'
   - repeat:
       while:
       - condition: template
         value_template: '{{ state_attr("media_player.aramanthinewall", "volume_level")
           < volume }}'
+      - condition: template
+        value_template: '{{ state_attr("media_player.aramanthinewall", "volume_level")
+          == last }}'
       sequence:
       - action: media_player.volume_up
         metadata: {}
         target:
           entity_id: media_player.aramanthinewall
         data: {}
+      - variables:
+          last: '{{ state_attr("media_player.aramanthinewall", "volume_level") }}'
+        enabled: true
       - delay:
           hours: 0
           minutes: 0

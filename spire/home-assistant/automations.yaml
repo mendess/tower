@@ -1358,10 +1358,21 @@
       behavior: any
       for: 00:00:00
   actions:
+  - wait_template: '{{ state_attr("media_player.aramanthinewall", "volume_level")
+      == 0.25 }}'
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - action: script.notify_tv
+    metadata: {}
+    data:
+      message: banger game
   - action: script.adjust_tv_volume
     metadata: {}
     data:
-      volume: 0.5
+      volume: 0.35
   mode: single
 - id: '1788481515553'
   alias: Set sleeping after bedroom lights turn off
