@@ -15,9 +15,12 @@
       - 'on'
   actions:
   - if:
-    - condition: time
-      after: '23:00:00'
-      before: 05:00:00
+    - condition: illuminance.is_not_detected
+      target:
+        entity_id: binary_sensor.daylight
+      options:
+        behavior: any
+        for: 00:00:00
     then:
     - action: light.turn_on
       metadata: {}
