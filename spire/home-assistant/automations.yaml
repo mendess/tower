@@ -936,6 +936,19 @@
         id:
         - alarm dismissed
       sequence:
+      - if:
+        - condition: illuminance.is_not_detected
+          target:
+            entity_id: binary_sensor.daylight
+          options:
+            behavior: any
+            for: 00:00:00
+        then:
+        - action: light.turn_on
+          metadata: {}
+          target:
+            device_id: 6b5673131ce27d8189cd8670a200bc01
+          data: {}
       - repeat:
           while:
           - condition: numeric_state
@@ -962,9 +975,9 @@
         data: {}
       - action: timer.cancel
         metadata: {}
-        target:
-          entity_id: timer.cover_grace_period
         data: {}
+        target:
+          entity_id: timer.cover_grace_period_bedroom
     - conditions:
       - condition: trigger
         id:
@@ -973,7 +986,7 @@
       - action: timer.cancel
         metadata: {}
         target:
-          entity_id: timer.cover_grace_period
+          entity_id: timer.cover_grace_period_bedroom
         data: {}
       - action: input_boolean.turn_on
         metadata: {}
