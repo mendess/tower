@@ -1,0 +1,13 @@
+[Unit]
+Description=Monitor the current song name
+After=network.target
+
+[Service]
+User=mendess
+Group=mendess
+ExecStart=/usr/local/bin/music-monitor
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

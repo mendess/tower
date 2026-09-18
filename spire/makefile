@@ -5,7 +5,7 @@ include ../foundations.mk
 
 CONFIG = $(shell find ./homer -type f | sed 's|\.|~/vault/spire|')
 HOME_ASSISTANT_CONFIG = $(shell find ./etc | sed 's|\.||') $(shell find ./usr | sed 's|\.||')
-SERVICES = $(call socket,hass-bridge) $(call sctl,hass-bridge)
+SERVICES = $(call socket,hass-bridge) $(call sctl,hass-bridge) $(call sctl,music-monitor)
 
 .PHONY: install hass-bridge
 
