@@ -621,21 +621,31 @@
     - 'on'
     alias: When this script is updated
   - trigger: state
-    entity_id: input_boolean.sleeping
-  - trigger: state
-    entity_id: input_boolean.gaming_mode
-  - trigger: state
-    entity_id: binary_sensor.daylight
-  - trigger: state
     entity_id: sensor.sun_solar_azimuth
   - trigger: sun.elevation_changed
     options:
       threshold:
         type: any
   - trigger: state
+    entity_id: binary_sensor.daylight
+  - trigger: state
+    entity_id: weather.braga
+  - trigger: state
+    entity_id: input_boolean.gaming_mode
+  - trigger: state
     entity_id: binary_sensor.aramanthinewall_source_is_jellyfin
   - trigger: state
+    entity_id: binary_sensor.oboro
+  - trigger: state
+    entity_id: switch.tolaria
+  - trigger: state
+    entity_id: input_boolean.sleeping
+  - trigger: state
+    entity_id: binary_sensor.varanda_aberta
+  - trigger: state
     entity_id: input_boolean.privacy
+  - trigger: state
+    entity_id: input_boolean.desk_raised
   - trigger: timer.finished
     target:
       entity_id:
@@ -654,14 +664,6 @@
     options:
       for: 00:00:00
       behavior: each
-  - trigger: state
-    entity_id: binary_sensor.varanda_aberta
-  - trigger: state
-    entity_id: binary_sensor.oboro
-  - trigger: state
-    entity_id: weather.braga
-  - trigger: state
-    entity_id: switch.tolaria
   conditions: []
   actions:
   - action: automation.turn_off
@@ -671,68 +673,83 @@
     data:
       stop_actions: true
   - variables:
+      _entities: ''
       azimuth: '{{ int(states(''sensor.sun_solar_azimuth''), 0) }}'
       elevation: '{{ float(states("sensor.sun_solar_elevation"), 100.0) }}'
       daytime: '{{ is_state("binary_sensor.daylight", "on") }}'
-      sunset_target: '{{ iif(azimuth > 200 and elevation < 2.5 and daytime, -70, 100)
-        }}'
-      lower_target: "{%- set temp = float(states(\"sensor.max_temp\"), 0) %}\n{%-
-        set cloudy = \"cloudy\" in states(\"weather.braga\") %}\n{%- if temp < 27
-        %}\n  100\n{%- elif temp < 30 and cloudy %}\n  70\n{%- else %}\n  30\n{%-
-        endif %}"
-      lower_east: '{{ iif(lower_target == 30, 0, lower_target) if azimuth < 220 else
-        100 }}'
-      lower_south: '{{ lower_target if 100 < azimuth < 260 else 100 }}'
-      lower_west: '{{ lower_target if 200 < azimuth else 100 }}'
+      max_temp: '{{ float(states("sensor.max_temp"), 0) }}'
+      cloudy: '{{ "cloudy" in states("weather.braga") }}'
+      gaming: '{{ is_state(''input_boolean.gaming_mode'', ''on'') }}'
+      watching: '{{ is_state(''binary_sensor.aramanthinewall_source_is_jellyfin'',
+        ''on'') }}'
+      oboro_on: '{{ is_state(''binary_sensor.oboro'', ''on'') }}'
+      tolaria_on: '{{ is_state("switch.tolaria", "on") }}'
+      tolaria_gaming: '{{ not gaming and tolaria_on }}'
+      sleeping: '{{ is_state("input_boolean.sleeping", "on") }}'
+      privacy: '{{ is_state("input_boolean.privacy", "on") }}'
+      balcony_open: '{{ is_state("binary_sensor.varanda_aberta", "on") }}'
+      desk_raised: '{{ is_state("input_boolean.desk_raised", "on") }}'
+      _calc: ''
+      lower_target: "{%- if max_temp < 27 %}\n  100\n{%- elif max_temp < 30 and cloudy
+        %}\n  70\n{%- else %}\n  30\n{%- endif %}"
+      _targets: ''
       daytime_target: '{{ 0 if not daytime else 100 }}'
-      media_target: '{%- set gaming = is_state(''input_boolean.gaming_mode'', ''on'')
-        %}
-
-        {%- set watching = is_state(''binary_sensor.aramanthinewall_source_is_jellyfin'',
-        ''on'') %}
-
-        {{ 0 if gaming or watching else 100 }}'
-      working_target: '{{ 30 if is_state(''binary_sensor.oboro'', ''on'') else 100
+      sleeping_target: '{{ 0 if sleeping else 100 }}'
+      lower_east_target: '{{ iif(lower_target == 30, 0, lower_target) if azimuth <
+        220 else 100 }}'
+      lower_west_target: '{{ lower_target if 200 < azimuth else 100 }}'
+      lower_south_target: '{{ lower_target if 100 < azimuth < 260 else 100 }}'
+      _living_room: ''
+      media_target: '{{ 0 if gaming or watching else 100 }}'
+      privacy_target: '{{ 30 if privacy else 100 }}'
+      _study: ''
+      sun_blinded_target: '{{ 7 if azimuth > 200 and 5 < elevation < 25.0 else 100
         }}'
-      desktop_gaming: '{{ 30 if is_state("switch.tolaria", "on") and is_state("input_boolean.gaming_mode",
-        "off") else 100 }}'
-      sleeping_target: '{{ 0 if is_state(''input_boolean.sleeping'', ''on'') else
+      desk_raised_target: '{{ 10 if desk_raised and (tolaria_gaming or oboro_on) else
         100 }}'
-      privacy: '{{ 30 if is_state(''input_boolean.privacy'', ''on'') else 100 }}'
-      doors_open: '{{ iif(is_state("binary_sensor.varanda_aberta", "on"), -100, 100)
-        }}'
-      eyes_study: '{{ iif(azimuth > 200 and elevation < 25.0, 7, 100) }}'
+      working_target: '{{ 30 if oboro_on else 100 }}'
+      desktop_gaming_target: '{{ 30 if tolaria_on and gaming else 100 }}'
+      _overrides: ''
+      doors_open_override: '{{ -100 if balcony_open else 100 }}'
+      sunset_override: '{{ -70 if azimuth > 200 and elevation < 1 and daytime else
+        100 }}'
+      _positions: ''
+      pos_varanda: "{{ min(\n  doors_open_override,\n  daytime_target,\n  sleeping_target,\n
+        \ lower_east_target,\n  privacy_target,\n  media_target,\n) | abs }}"
+      pos_tv_covers: '{{ pos_varanda }}'
+      pos_bedroom_wc: "{{ min(\n  daytime_target,\n  sleeping_target,\n  lower_south_target,\n)
+        | abs }}"
+      pos_bedroom: "{{ min(\n  sunset_override,\n  daytime_target,\n  sleeping_target,\n
+        \ lower_west_target,\n) | abs }}"
+      pos_study: "{{ min(\n  pos_bedroom,\n  desk_raised_target, \n  sun_blinded_target,\n
+        \ working_target,\n  desktop_gaming_target,\n) | abs }}"
       calculations:
       - entity: cover.estores_varanda
         lock: timer.cover_grace_period_living_room
         motors:
         - sensor.estores_varanda_direira_moving
         - sensor.estores_varanda_esquerda_moving
-        position: '{{ min(doors_open, daytime_target, lower_east, media_target, sleeping_target,
-          privacy) | abs }}'
+        position: '{{ pos_varanda }}'
       - entity: cover.estores_tv
         lock: timer.cover_grace_period_living_room
         motors:
         - sensor.estores_tv_moving
-        position: '{{ min(daytime_target, lower_south, media_target, sleeping_target,
-          privacy) | abs }}'
+        position: '{{ pos_tv_covers }}'
       - entity: cover.estores_wc
         lock: timer.cover_grace_period_bedroom
         motors:
         - sensor.estores_wc_moving
-        position: '{{ min(daytime_target, lower_south, sleeping_target) | abs }}'
+        position: '{{ pos_bedroom_wc }}'
       - entity: cover.estores_quarto
         lock: timer.cover_grace_period_bedroom
         motors:
-        - sensor.estores_quarto_movinh
-        position: '{{ min(sunset_target, daytime_target, lower_west, sleeping_target)
-          | abs }}'
+        - sensor.estores_quarto_moving
+        position: '{{ pos_bedroom }}'
       - entity: cover.estores_escritorio
         lock: timer.cover_grace_period_study
         motors:
         - sensor.estores_escritorio_moving
-        position: '{{ min(sunset_target, eyes_study, desktop_gaming, working_target,
-          daytime_target, lower_west, sleeping_target) | abs }}'
+        position: '{{ pos_study }}'
   - repeat:
       for_each: '{{ calculations }}'
       sequence:
