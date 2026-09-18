@@ -1398,3 +1398,71 @@
       entity_id: input_boolean.sleeping
     data: {}
   mode: single
+- id: '1788875837716'
+  alias: Mute tv when phone rings
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.whispersilk_phone_state
+    - sensor.pixel_9a_phone_state
+    to:
+    - ringing
+    - offhook
+    from:
+    - idle
+  conditions:
+  - condition: switch.is_on
+    target:
+      entity_id: switch.aramathinewall_power_button
+    options:
+      behavior: any
+      for: 00:00:00
+  - condition: or
+    conditions:
+    - condition: and
+      conditions:
+      - condition: zone.in_zone
+        target:
+          entity_id: person.mendess
+        options:
+          behavior: any
+          for: 00:00:00
+          zone: zone.home
+      - condition: template
+        value_template: '{{ "whispersilk" in trigger.entity_id }}'
+    - condition: and
+      conditions:
+      - condition: zone.in_zone
+        target:
+          entity_id: person.andreia
+        options:
+          behavior: any
+          for: 00:00:00
+          zone: zone.home
+      - condition: template
+        value_template: '{{ "pixel_9a" in trigger.entity_id }}'
+  actions:
+  - variables:
+      phone: '{{ iif("whispersilk" in trigger.entity_id, "whispersilk", "pixel 9a")
+        }}'
+  - action: script.notify_tv
+    metadata: {}
+    data:
+      message: '{{ phone }} is ringing'
+  - action: media_player.volume_mute
+    metadata: {}
+    target:
+      entity_id: media_player.aramanthinewall
+    data:
+      is_volume_muted: true
+  - wait_template: "{% if \"whispersilk\" in trigger.entity_id %}\n  {{ is_state(\"sensor.whispersilk_phone_state\",
+      \"idle\") }}\n{% elif 'pixel9a' in trigger.entity_id %}\n  {{ is_state('sensor.pixel_9a_phone_state',
+      'idle') }}\n{% endif %}"
+  - action: media_player.volume_mute
+    metadata: {}
+    target:
+      entity_id: media_player.aramanthinewall
+    data:
+      is_volume_muted: false
+  mode: single
