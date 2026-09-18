@@ -100,7 +100,7 @@ configure-certbot: #/etc/systemd/system/timers.target.wants/certbot-renew.timer
 
 .ONESHELL: config-nginx
 config-nginx: /etc/nginx/nginx.conf
-	@for f in $(call stamp_file,/etc/nginx/nginx.conf); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
+	@for f in $(call stamp_file,/etc/nginx/nginx.conf $(SHARED_CONF)); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
 	@rm $${reload[@]}
 	@echo "reloading nginx"
 	sudo nginx -t || exit 1
