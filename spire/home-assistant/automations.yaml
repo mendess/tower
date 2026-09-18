@@ -84,6 +84,11 @@
             actions:
             - action: notification::tolaria-is-on
               title: Turn off tolaria
+  - action: light.turn_off
+    metadata: {}
+    target:
+      area_id: bedroom
+    data: {}
   mode: single
 - id: '1771934637797'
   alias: Avisar a Andreia <3
