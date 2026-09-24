@@ -1112,7 +1112,7 @@
 
         {% set pc_volumes = [0.1, 0.35] %}
 
-        {% set other_volumes = [0.25, 0.60] %}
+        {% set other_volumes = [0.2, 0.60] %}
 
         {{ [other_volumes, pc_volumes][source_is_pc][target_volume] }}'
       step_delay: '{{ iif(id == ''on'', 1, 5) }}'
@@ -1126,6 +1126,24 @@
     target:
       label_id: task_alert
     options:
+      behavior: each
+  - trigger: timer.finished
+    target:
+      label_id: task_alert
+    options:
+      for: 00:00:00
+      behavior: each
+  - trigger: timer.paused
+    target:
+      label_id: task_alert
+    options:
+      for: 00:00:00
+      behavior: each
+  - trigger: timer.cancelled
+    target:
+      label_id: task_alert
+    options:
+      for: 00:00:00
       behavior: each
   conditions: []
   actions:
@@ -1152,6 +1170,24 @@
             {{ msg | shuffle | first }}\n{%- endif %}"
           time_before_spamming:
             hours: 1
+            minutes: 0
+            seconds: 0
+        timer.regar_planta:
+          who:
+          - person.mendess
+          - person.andreia
+          text: E preciso regar a planta
+          time_before_spamming:
+            hours: 0
+            minutes: 0
+            seconds: 0
+        timer.clean_dishwasher:
+          who:
+          - person.mendess
+          - person.andreia
+          text: E preciso limpar a maquina de lavar a loica
+          time_before_spamming:
+            hours: 0
             minutes: 0
             seconds: 0
   - variables:
