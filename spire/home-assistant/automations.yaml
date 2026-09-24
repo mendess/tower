@@ -700,6 +700,7 @@
       _calc: ''
       lower_target: "{%- if max_temp < 27 %}\n  100\n{%- elif max_temp < 30 and cloudy
         %}\n  70\n{%- else %}\n  30\n{%- endif %}"
+      at_my_desk: '{{ tolaria_gaming or oboro_on }}'
       _targets: ''
       daytime_target: '{{ 0 if not daytime else 100 }}'
       sleeping_target: '{{ 0 if sleeping else 100 }}'
@@ -711,12 +712,10 @@
       media_target: '{{ 0 if gaming or watching else 100 }}'
       privacy_target: '{{ 30 if privacy else 100 }}'
       _study: ''
-      sun_blinded_target: '{{ 7 if azimuth > 200 and 5 < elevation < 25.0 else 100
-        }}'
-      desk_raised_target: '{{ 10 if desk_raised and (tolaria_gaming or oboro_on) else
-        100 }}'
-      working_target: '{{ 30 if oboro_on else 100 }}'
-      desktop_gaming_target: '{{ 30 if tolaria_on and gaming else 100 }}'
+      desk_base_target: '{{ 30 if at_my_desk else 100 }}'
+      sun_blinded_target: '{{ 7 if at_my_desk and azimuth > 200 and 5 < elevation
+        < 25.0 else 100 }}'
+      desk_raised_target: '{{ 10 if at_my_desk and desk_raised else 100 }}'
       _overrides: ''
       doors_open_override: '{{ -100 if balcony_open else 100 }}'
       sunset_override: '{{ -70 if azimuth > 200 and elevation < 1 and daytime else
@@ -724,13 +723,14 @@
       _positions: ''
       pos_varanda: "{{ min(\n  doors_open_override,\n  daytime_target,\n  sleeping_target,\n
         \ lower_east_target,\n  privacy_target,\n  media_target,\n) | abs }}"
-      pos_tv_covers: '{{ pos_varanda }}'
+      pos_tv_covers: "{{ min(\n  daytime_target,\n  sleeping_target,\n  lower_south_target,\n
+        \ privacy_target,\n  media_target,\n) | abs }}"
       pos_bedroom_wc: "{{ min(\n  daytime_target,\n  sleeping_target,\n  lower_south_target,\n)
         | abs }}"
       pos_bedroom: "{{ min(\n  sunset_override,\n  daytime_target,\n  sleeping_target,\n
         \ lower_west_target,\n) | abs }}"
-      pos_study: "{{ min(\n  pos_bedroom,\n  desk_raised_target, \n  sun_blinded_target,\n
-        \ working_target,\n  desktop_gaming_target,\n) | abs }}"
+      pos_study: "{{ min(\n  pos_bedroom,\n  desk_base_target,\n  desk_raised_target,
+        \n  sun_blinded_target,\n) | abs }}"
       calculations:
       - entity: cover.estores_varanda
         lock: timer.cover_grace_period_living_room
