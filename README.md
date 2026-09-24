@@ -4,11 +4,11 @@ My docker + makefile configured home server
 
 ```
                      /\                                                        .    |       '
-         |          /  \                  o                                        -+-
-       --o--       /    \                                                           |
-         |        /      \                       .            +  .                       .
-                 / spire  \                  .                                          o
-                /          \                                                                    .
+         |          /  \                      o                                    -+-
+       --o--       /    \               o                                           |
+         |        /      \        o  _ /         .            +  .                       .
+                 / spire  \        \/o\      .                                          o
+                /          \      o_\_/-o                                                       .
      .         /            \                        .              +            '
          +    |==============|   /\                                                         +
               |              |  /__\                     *                          .
