@@ -218,3 +218,18 @@ notify_tv:
       name: message
   alias: Notify TV
   description: ''
+m:
+  sequence:
+  - action: shell_command.host_run
+    metadata: {}
+    data:
+      command: /home/mendess/.local/share/cargo/bin/m {{ cmd }}
+  fields:
+    cmd:
+      selector:
+        text:
+      name: cmd
+      required: true
+  alias: m
+  description: ''
+  icon: mdi:music

@@ -5,6 +5,9 @@ After=network.target
 [Service]
 User=mendess
 Group=mendess
+# give root permission to ExecStartPre
+PermissionsStartOnly=true
+ExecStartPre=/usr/local/bin/music-monitor setup
 ExecStart=/usr/local/bin/music-monitor
 Restart=always
 RestartSec=3

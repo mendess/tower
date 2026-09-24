@@ -10,6 +10,7 @@ homeassistant:
   time_zone: "Europe/Lisbon"
   allowlist_external_dirs:
     - "/var/cache/borgmatic-monitor"
+    - "/hass-bridge"
   debug: false
 
 # Loads default set of integrations. Do not remove.

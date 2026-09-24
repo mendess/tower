@@ -2,10 +2,68 @@
 
 set -euo pipefail
 
-m events | while read -r line; do
-    case "$line" in
+status_file=/var/lib/hass-bridge/current-song
+
+m_bin() {
+    local m=~/.local/share/cargo/bin/m
+    until $m daemon-running >/dev/null; do
+        sleep 1
+    done
+    $m "$@"
+}
+
+HASS_TOKEN=$(cat ~/tower/spire/home-assistant-token)
+HASS_URL=https://homeassistant.mendess.xyz
+
+update-song() {
+    title=$(m_bin c -s)
+    curl -s -X POST "$HASS_URL/api/services/input_text/set_value" \
+        -H "Authorization: Bearer $HASS_TOKEN" \
+        -H "Content-Type: application/json" \
+        --data "$(
+            jq -n \
+                --arg entity_id "input_text.m_current_song" \
+                --arg title "$title" \
+                '{entity_id: $entity_id, value: $title}'
+        )"
+}
+
+update-playing() {
+    curl -s -X POST "$HASS_URL/api/services/input_boolean/$1" \
+        -H "Authorization: Bearer $HASS_TOKEN" \
+        -H "Content-Type: application/json" \
+        --data "$(
+            jq -n \
+                --arg entity_id "input_boolean.m_playing" '{entity_id: $entity_id}'
+        )"
+}
+
+monitor() {
+    update-song
+    m_bin events | while read -r line; do
+        case "$line" in
         *'property-change: media-title'*)
-            m c -s > /var/lib/hass-bridge/current-song
+            update-song
             ;;
-    esac
-done
+        *'property-change: pause'*)
+            case "$(echo "$line" | awk '{print $4}')" in
+            true) update-playing turn_off ;;
+            false) update-playing turn_on ;;
+            *)
+                echo "invalid property-change: pause value: '$line'"
+                ;;
+            esac
+            ;;
+        esac
+    done
+}
+
+case ${1:-} in
+setup)
+    touch "$status_file"
+    chmod 777 "$status_file"
+    ;;
+*)
+    monitor
+    ;;
+esac
