@@ -851,6 +851,13 @@
     - cover.estores_sala
     attribute: current_position
     id: living room
+  - trigger: switch.turned_on
+    target:
+      entity_id: input_boolean.sleeping
+    options:
+      behavior: each
+      for: 00:00:00
+    id: sleep
   conditions:
   - alias: home assistant has been running for 30 seconds
     condition: template
@@ -887,6 +894,19 @@
         metadata: {}
         target:
           entity_id: timer.cover_grace_period_living_room
+        data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - sleep
+      sequence:
+      - action: timer.cancel
+        metadata: {}
+        target:
+          entity_id:
+          - timer.cover_grace_period_bedroom
+          - timer.cover_grace_period_living_room
+          - timer.cover_grace_period_study
         data: {}
   mode: single
 - id: '1783412024155'
