@@ -1,6 +1,6 @@
 server {
     server_name pass.mendess.xyz;
-    listen 443 ssl;
+    include /etc/nginx/shared-conf/listen.conf;
     client_max_body_size 50M;
 
     include /etc/nginx/shared-conf/base.conf;

@@ -6,8 +6,7 @@ map $http_upgrade $connection_upgrade {
 server {
     # Update this line to be your domain
     server_name homeassistant.mendess.xyz;
-    listen 443 ssl;
-    http2 on;
+    include /etc/nginx/shared-conf/listen.conf;
 
     include /etc/nginx/shared-conf/base.conf;
     include /etc/nginx/shared-conf/private-service.conf;

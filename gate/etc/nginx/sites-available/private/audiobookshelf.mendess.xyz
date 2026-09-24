@@ -1,7 +1,6 @@
 server {
     server_name audiobookshelf.mendess.xyz;
-    listen 443 ssl;
-    http2 on;
+    include /etc/nginx/shared-conf/listen.conf;
 
     include /etc/nginx/shared-conf/base.conf;
 

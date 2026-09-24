@@ -22,8 +22,8 @@ redirect=$($homunculus show --csv | awk -F, -v hostname=$hostname '$6 == hostnam
 
 listen() {
     case "$hostname" in
-        *pendrellvale.home) l="listen 80;";;
-        *mendess.xyz) l="listen 443 ssl;";;
+        *pendrellvale.home) l="listen 80; listen [::]:80;";;
+        *mendess.xyz) l="listen 443 ssl; listen [::]:443 ssl;";;
     esac
     cat <<EOF
     server_name $hostname;

@@ -1,6 +1,6 @@
 server {
     server_name navidrome.mendess.xyz;
-    listen 443 ssl;
+    include /etc/nginx/shared-conf/listen.conf;
 
     client_max_body_size 50M;
     large_client_header_buffers 4 32k;
