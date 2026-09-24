@@ -1506,19 +1506,55 @@
     metadata: {}
     data:
       message: '{{ phone }} is ringing'
-  - action: media_player.volume_mute
-    metadata: {}
-    target:
-      entity_id: media_player.aramanthinewall
-    data:
-      is_volume_muted: true
+  - if:
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.aramanthinewall_source_is_youtube
+        state:
+        - 'on'
+      - condition: state
+        entity_id: binary_sensor.aramanthinewall_source_is_jellyfin
+        state:
+        - 'on'
+    then:
+    - action: media_player.media_pause
+      metadata: {}
+      target:
+        entity_id: media_player.aramanthinewall
+      data: {}
+    else:
+    - action: media_player.volume_mute
+      metadata: {}
+      target:
+        entity_id: media_player.aramanthinewall
+      data:
+        is_volume_muted: true
   - wait_template: "{% if \"whispersilk\" in trigger.entity_id %}\n  {{ is_state(\"sensor.whispersilk_phone_state\",
       \"idle\") }}\n{% elif 'pixel9a' in trigger.entity_id %}\n  {{ is_state('sensor.pixel_9a_phone_state',
       'idle') }}\n{% endif %}"
-  - action: media_player.volume_mute
-    metadata: {}
-    target:
-      entity_id: media_player.aramanthinewall
-    data:
-      is_volume_muted: false
+  - if:
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.aramanthinewall_source_is_youtube
+        state:
+        - 'on'
+      - condition: state
+        entity_id: binary_sensor.aramanthinewall_source_is_jellyfin
+        state:
+        - 'on'
+    then:
+    - action: media_player.media_play
+      metadata: {}
+      target:
+        entity_id: media_player.aramanthinewall
+      data: {}
+    else:
+    - action: media_player.volume_mute
+      metadata: {}
+      target:
+        entity_id: media_player.aramanthinewall
+      data:
+        is_volume_muted: false
   mode: single
