@@ -686,7 +686,8 @@
       elevation: '{{ float(states("sensor.sun_solar_elevation"), 100.0) }}'
       daytime: '{{ is_state("binary_sensor.daylight", "on") }}'
       max_temp: '{{ float(states("sensor.max_temp"), 0) }}'
-      cloudy: '{{ "cloudy" in states("weather.braga") }}'
+      cloudy: '{{ "cloudy" in states("weather.braga") or "pouring" in states("weather.braga")
+        }}'
       gaming: '{{ is_state(''input_boolean.gaming_mode'', ''on'') }}'
       watching: '{{ is_state(''binary_sensor.aramanthinewall_source_is_jellyfin'',
         ''on'') }}'
@@ -714,7 +715,7 @@
       _study: ''
       desk_base_target: '{{ 30 if at_my_desk else 100 }}'
       sun_blinded_target: '{{ 7 if at_my_desk and azimuth > 200 and 5 < elevation
-        < 25.0 else 100 }}'
+        < 25.0 and not cloudy else 100 }}'
       desk_raised_target: '{{ 10 if at_my_desk and desk_raised else 100 }}'
       _overrides: ''
       doors_open_override: '{{ -100 if balcony_open else 100 }}'
