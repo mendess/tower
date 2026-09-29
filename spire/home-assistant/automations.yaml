@@ -1416,7 +1416,7 @@
       for: 00:00:00
   actions:
   - wait_template: '{{ state_attr("media_player.aramanthinewall", "volume_level")
-      == 0.25 }}'
+      >= 0.25 }}'
   - delay:
       hours: 0
       minutes: 0
