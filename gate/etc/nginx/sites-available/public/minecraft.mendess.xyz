@@ -7,5 +7,5 @@ server {
     include /etc/nginx/shared-conf/base.conf;
     include /etc/nginx/shared-conf/ssl.conf;
 
-    return 301 https://mendess.xyz/games/minecraft;
+    return 308 https://mendess.xyz/games/minecraft;
 }

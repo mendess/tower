@@ -34,10 +34,7 @@ server {
 }
 
 server {
-    server_name jellyfin.pendrellvale.home;
     server_name jellyfin.mendess.xyz;
-    listen 80;
-    http2 on;
-
-    return 301 https://jellyfin.mendess.xyz$request_uri;
+    include /etc/nginx/shared-conf/http-redirect.conf;
+    include /etc/nginx/shared-conf/private-service.conf;
 }

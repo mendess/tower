@@ -28,8 +28,8 @@ server {
 
 server {
     server_name homeassistant.mendess.xyz;
-    listen 80;
-    return 301 https://$host$request_uri;
+    include /etc/nginx/shared-conf/http-redirect.conf;
+    include /etc/nginx/shared-conf/private-service.conf;
 }
 
 server {

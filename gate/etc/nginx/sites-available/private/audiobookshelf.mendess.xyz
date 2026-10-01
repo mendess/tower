@@ -29,21 +29,7 @@ server {
 }
 
 server {
-    if ($host = audiobookshelf.mendess.xyz) {
-        return 301 https://$host$request_uri;
-    }
-
     server_name audiobookshelf.mendess.xyz;
-    listen 80;
-    return 404;
-}
-
-server {
-    if ($host = audiobookshelf.pendrellvale.home) {
-        return 301 https://audiobookshelf.mendess.xyz$request_uri;
-    }
-
-    server_name audiobookshelf.pendrellvale.home;
-    listen 80;
-    return 404;
+    include /etc/nginx/shared-conf/http-redirect.conf;
+    include /etc/nginx/shared-conf/private-service.conf;
 }

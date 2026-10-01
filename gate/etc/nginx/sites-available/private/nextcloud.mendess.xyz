@@ -42,7 +42,7 @@ server {
 }
 
 server {
-    server_name nextcloud.pendrellvale.home, nextcloud.mendess.xyz;
-    listen 80;
-    return 301 https://nextcloud.mendess.xyz$request_uri;
+    server_name nextcloud.mendess.xyz;
+    include /etc/nginx/shared-conf/http-redirect.conf;
+    include /etc/nginx/shared-conf/private-service.conf;
 }

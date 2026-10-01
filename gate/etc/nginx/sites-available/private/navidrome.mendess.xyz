@@ -23,7 +23,7 @@ server {
     }
 }
 server {
-    server_name navidrome.mendess.xyz, navidrome.pendrellvale.home;
-    listen 80;
-    return 301 https://navidrome.mendess.xyz$request_uri;
+    server_name navidrome.mendess.xyz;
+    include /etc/nginx/shared-conf/http-redirect.conf;
+    include /etc/nginx/shared-conf/private-service.conf;
 }

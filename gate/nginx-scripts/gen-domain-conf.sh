@@ -22,8 +22,8 @@ redirect=$($homunculus show --csv | awk -F, -v hostname=$hostname '$6 == hostnam
 
 listen() {
     case "$hostname" in
-        *pendrellvale.home) l="listen 80; listen [::]:80;";;
-        *mendess.xyz) l="listen 443 ssl; listen [::]:443 ssl;";;
+        *pendrellvale.home) l="listen 80; listen [::]:80;" ;;
+        *mendess.xyz) l="listen 443 ssl; listen [::]:443 ssl;" ;;
     esac
     cat <<EOF
     server_name $hostname;
@@ -32,7 +32,7 @@ listen() {
 EOF
 }
 
-allow-list() {
+private-service() {
     [[ "$mode" = public ]] && return
     cat <<EOF
     include /etc/nginx/shared-conf/private-service.conf;
@@ -48,11 +48,12 @@ EOF
 
 ssl-redirect() {
     [[ "$hostname" =~ .*pendrellvale.home ]] && return
+    private=$([[ "$mode" = private ]] && echo "include /etc/nginx/shared-conf/private-service.conf;")
     cat <<EOF
 server {
     server_name $hostname;
-    listen 80;
-    return 301 https://\$host\$request_uri;
+    include /etc/nginx/shared-conf/http-redirect.conf;
+    $private
 }
 EOF
 }
@@ -63,7 +64,7 @@ pendrellvale_home_redirect() {
 server {
     server_name $redirect;
     listen 80;
-    return 301 https://$hostname\$request_uri;
+    return 308 https://$hostname\$request_uri;
 }
 EOF
 }
@@ -80,7 +81,7 @@ $(listen)
     include /etc/nginx/shared-conf/base.conf;
 $(ssl)
 
-$(allow-list)
+$(private-service)
 
     location / {
         proxy_set_header Host \$host;

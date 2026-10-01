@@ -3,8 +3,10 @@
 set -euo pipefail
 
 zones() {
-    ../homunculus show --csv --reachable private-proxy |
-        awk -F, 'NR > 1 { print $6 }' |
+    {
+        ../homunculus show --csv --reachable private-proxy | awk -F, 'NR > 1 { print $6 }'
+        ../homunculus show --csv --reachable public-proxy | awk -F, 'NR > 1 { print $6 }'
+    } |
         grep -v pendrellvale.home |
         grep -vE '^$' |
         while read -r zone; do
