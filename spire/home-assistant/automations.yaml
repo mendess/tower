@@ -686,8 +686,7 @@
       elevation: '{{ float(states("sensor.sun_solar_elevation"), 100.0) }}'
       daytime: '{{ is_state("binary_sensor.daylight", "on") }}'
       max_temp: '{{ float(states("sensor.max_temp"), 0) }}'
-      cloudy: '{{ "cloudy" in states("weather.braga") or "pouring" in states("weather.braga")
-        }}'
+      cloudy: '{{ states("weather.braga") in ["cloudy", "pouring"] }}'
       gaming: '{{ is_state(''input_boolean.gaming_mode'', ''on'') }}'
       watching: '{{ is_state(''binary_sensor.aramanthinewall_source_is_jellyfin'',
         ''on'') }}'
