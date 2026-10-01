@@ -691,8 +691,8 @@
       gaming: '{{ is_state(''input_boolean.gaming_mode'', ''on'') }}'
       watching: '{{ is_state(''binary_sensor.aramanthinewall_source_is_jellyfin'',
         ''on'') }}'
-      oboro_on: '{{ is_state(''binary_sensor.oboro'', ''on'') }}'
-      tolaria_on: '{{ is_state("switch.tolaria", "on") }}'
+      oboro_on: '{{ is_state(''binary_sensor.oboro_debounced'', ''on'') }}'
+      tolaria_on: '{{ is_state("binary_sensor.tolaria_debounced", "on") }}'
       tolaria_gaming: '{{ not gaming and tolaria_on }}'
       sleeping: '{{ is_state("input_boolean.sleeping", "on") }}'
       privacy: '{{ is_state("input_boolean.privacy", "on") }}'

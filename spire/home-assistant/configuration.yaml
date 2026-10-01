@@ -45,6 +45,19 @@ logger:
   default: warning
 
 template:
+  - binary_sensor:
+      - name: tolaria debounced
+        unique_id: tolaria_debounced
+        device_class: running
+        state: '{{ is_state("switch.tolaria", "on") }}'
+        delay_on: "00:01:00"
+        delay_off: "00:01:00"
+      - name: oboro debounced
+        unique_id: oboro_debounced
+        device_class: running
+        state: '{{ is_state("binary_sensor.oboro", "on") }}'
+        delay_on: "00:01:00"
+        delay_off: "00:01:00"
   - trigger:
     - trigger: time
       at: "00:00:01"
