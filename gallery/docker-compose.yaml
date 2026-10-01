@@ -17,9 +17,8 @@ services:
     networks:
       jellyfin:
         ipv4_address: 10.5.0.2
-    # Optional - alternative address used for autodiscovery
-    # environment:
-    #   - JELLYFIN_PublishedServerUrl=http://example.com
+    environment:
+      - JELLYFIN_PublishedServerUrl=https://jellyfin.mendess.xyz
 
   immich-server:
     container_name: immich_server
