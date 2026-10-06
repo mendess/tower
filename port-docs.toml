@@ -111,6 +111,10 @@ metrics = { port = 9113 }
 [watch.prom-wireguard-exp]
 metrics = { port = 9586 }
 
+[watch.ntfy]
+web-ui = { port = 5666, reachable = "private-proxy" }
+metrics = { port = 9300 }
+
 [gate.wireguard]
 wg0 = { port = 51820, reachable = "forwarded" }
 mc1 = { port = 51821, reachable = "forwarded" }

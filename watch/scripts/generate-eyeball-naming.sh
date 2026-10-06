@@ -70,6 +70,7 @@ job_names=(
     ['immich_microservices']='[localhost:8082]'
     ['wireguard']='[localhost:9586]'
     ['cadvisor']='[localhost:1696]'
+    ['ntfy']='[localhost:9300]'
 )
 
 cat <<EOF

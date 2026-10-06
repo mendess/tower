@@ -10,7 +10,7 @@ EXPORTER_SERVICES = $(foreach s,$(EXPORTERS),$(call sctl,$(s))) $(call sctl,prom
 
 CONFIGS = $(shell find ./etc | sed 's|\.||') $(shell find ./usr | sed 's|\.||')
 
-.PHONY: install prometheus exporters update-prom
+.PHONY: install prometheus exporters update-prom update-ntfy-acl
 
 .ONESHELL: install
 install: dirs $(CONFIGS) prometheus
@@ -19,6 +19,9 @@ install: dirs $(CONFIGS) prometheus
 	@echo "reloading prometheus $(EXPORTERS) prometheus_wireguard_exporter"
 	sudo systemctl daemon-reload
 	sudo systemctl restart prometheus $(EXPORTERS) prometheus_wireguard_exporter
+
+update-ntfy-acl:
+	./scripts/ntfy-acl.sh
 
 prometheus: /usr/bin/prometheus /etc/prometheus/prometheus.yml exporters $(call sctl,prometheus)
 

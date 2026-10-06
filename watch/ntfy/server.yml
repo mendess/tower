@@ -1,0 +1,123 @@
+# ntfy server config file
+#
+# Please refer to the documentation at https://ntfy.sh/docs/config/ for details.
+# All options also support underscores (_) instead of dashes (-) to comply with the YAML spec.
+
+# Public facing base URL of the service (e.g. https://ntfy.sh or https://ntfy.example.com)
+#
+# This setting is required for any of the following features:
+# - attachments (to return a download URL)
+# - e-mail sending (for the topic URL in the email footer)
+# - iOS push notifications for self-hosted servers (to calculate the Firebase poll_request topic)
+# - Matrix Push Gateway (to validate that the pushkey is correct)
+#
+base-url: https://ntfy.mendess.xyz
+
+# Check your permissions:
+#   If you are running ntfy with systemd, make sure this user database file is owned by the
+#   ntfy user and group by running: chown ntfy.ntfy <filename>.
+#
+auth-file: /var/cache/ntfy/user.db
+auth-default-access: "write-only"
+# auth-startup-queries:
+# auth-users:
+# auth-access:
+# auth-tokens:
+# auth-access-cache: false
+
+# If set, the X-Forwarded-For header (or whatever is configured in proxy-forwarded-header) is used to determine
+# the visitor IP address instead of the remote address of the connection.
+#
+# WARNING: If you are behind a proxy, you must set this, otherwise all visitors are rate-limited
+#          as if they are one.
+#
+# - behind-proxy makes it so that the real visitor IP address is extracted from the header defined in
+#   proxy-forwarded-header. Without this, the remote address of the incoming connection is used.
+# - proxy-forwarded-header is the header to use to identify visitors. It may be a single IP address (e.g. 1.2.3.4),
+#   a comma-separated list of IP addresses (e.g. "1.2.3.4, 5.6.7.8"), or an RFC 7239-style header (e.g. "for=1.2.3.4;by=proxy.example.com, for=5.6.7.8").
+# - proxy-trusted-hosts is a comma-separated list of IP addresses, hostnames or CIDRs that are removed from the forwarded header
+#   to determine the real IP address. This is only useful if there are multiple proxies involved that add themselves to
+#   the forwarded header.
+#
+behind-proxy: true
+proxy-forwarded-header: "X-Real-Ip"
+# proxy-trusted-hosts:
+
+# If enabled, clients can attach files to notifications as attachments. Minimum settings to enable attachments
+# are "attachment-cache-dir" and "base-url".
+#
+# - attachment-cache-dir is the cache directory for attached files, or an S3 URL for object storage
+#   e.g. /var/cache/ntfy/attachments, or s3://ACCESS_KEY:SECRET_KEY@bucket/prefix?region=us-east-1&endpoint=https://...
+# - attachment-total-size-limit is the limit of the on-disk attachment cache directory (total size)
+# - attachment-file-size-limit is the per-file attachment size limit (e.g. 300k, 2M, 100M)
+# - attachment-expiry-duration is the duration after which uploaded attachments will be deleted (e.g. 3h, 20h)
+#
+attachment-cache-dir: "/var/cache/ntfy/attachments"
+attachment-total-size-limit: "5G"
+attachment-file-size-limit: "15M"
+attachment-expiry-duration: "72h"
+
+# Various feature flags used to control the web app, and API access, mainly around user and
+# account management.
+#
+# - enable-signup allows users to sign up via the web app, or API
+# - enable-login allows users to log in via the web app, or API
+# - require-login redirects users to the login page if they are not logged in (disallows web app access without login)
+# - enable-reservations allows users to reserve topics (if their tier allows it)
+#
+enable-signup: true
+require-login: true
+enable-login: true
+# enable-reservations: false
+
+# Metrics
+#
+# ntfy can expose Prometheus-style metrics via a /metrics endpoint, or on a dedicated listen IP/port.
+# Metrics may be considered sensitive information, so before you enable them, be sure you know what you are
+# doing, and/or secure access to the endpoint in your reverse proxy.
+#
+# - enable-metrics enables the /metrics endpoint for the default ntfy server (i.e. HTTP, HTTPS and/or Unix socket)
+# - metrics-listen-http moves the metrics endpoint to a dedicated [IP]:port, e.g. "10.0.1.1:9090" or ":9090".
+#   It implicitly enables metrics. If set, the metrics are served only on that dedicated port, and the default
+#   ntfy server does not serve /metrics, even if enable-metrics is also set.
+#
+enable-metrics: true
+metrics-listen-http: '0.0.0.0:9300'
+
+# Logging options
+#
+# By default, ntfy logs to the console (stderr), with an "info" log level, and in a human-readable text format.
+# ntfy supports five different log levels, can also write to a file, log as JSON, and even supports granular
+# log level overrides for easier debugging. Some options (log-level and log-level-overrides) can be hot reloaded
+# by calling "kill -HUP $pid" or "systemctl reload ntfy".
+#
+# - log-format defines the output format, can be "text" (default) or "json"
+# - log-file is a filename to write logs to. If this is not set, ntfy logs to stderr.
+# - log-level defines the default log level, can be one of "trace", "debug", "info" (default), "warn" or "error".
+#   Be aware that "debug" (and particularly "trace") can be VERY CHATTY. Only turn them on briefly for debugging purposes.
+# - log-level-overrides lets you override the log level if certain fields match. This is incredibly powerful
+#   for debugging certain parts of the system (e.g. only the account management, or only a certain visitor).
+#   This is an array of strings in the format:
+#      - "field=value -> level" to match a value exactly, e.g. "tag=manager -> trace"
+#      - "field -> level" to match any value, e.g. "time_taken_ms -> debug"
+#   Warning: Using log-level-overrides has a performance penalty. Only use it for temporary debugging.
+#
+# Check your permissions:
+#   If you are running ntfy with systemd, make sure this log file is owned by the
+#   ntfy user and group by running: chown ntfy.ntfy <filename>.
+#
+# Example (good for production):
+#   log-level: info
+#   log-format: json
+#   log-file: /var/log/ntfy.log
+#
+# Example level overrides (for debugging, only use temporarily):
+#   log-level-overrides:
+#      - "tag=manager -> trace"
+#      - "visitor_ip=1.2.3.4 -> debug"
+#      - "time_taken_ms -> debug"
+#
+log-level: debug
+# log-level-overrides:
+# log-format: text
+# log-file:
