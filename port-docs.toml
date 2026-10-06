@@ -94,7 +94,7 @@ hostname = "audiobookshelf.mendess.xyz"
 web-ui = { port = 3000, reachable = "private-proxy" }
 
 [watch.prometheus]
-api = { port = 9090 }
+api = { port = 9090, reachable = "private-proxy" }
 
 [watch.prom-node-exp]
 metrics = { port = 9100 }
