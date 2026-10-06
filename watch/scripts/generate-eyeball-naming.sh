@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-cd $(dirname "$0")
+cd "$(dirname "$0")"
 
 declare -A static_ips
 static_ips=(
@@ -45,7 +45,7 @@ EOF
 EOF
         done
     for addr in "${!static_ips[@]}"; do
-            cat <<EOF
+        cat <<EOF
       - source_labels: [remote_addr]
         regex: '^${addr}$'
         target_label: eyeball
@@ -71,6 +71,7 @@ job_names=(
     ['wireguard']='[localhost:9586]'
     ['cadvisor']='[localhost:1696]'
     ['ntfy']='[localhost:9300]'
+    ['beholder']='[localhost:9900]'
 )
 
 cat <<EOF

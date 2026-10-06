@@ -1,0 +1,4 @@
+socket_gid = 954
+service_log_allow_list = [
+    "unbound",
+]

@@ -6,7 +6,7 @@ include ../foundations.mk
 EXPORTERS = prometheus-node-exporter prometheus-systemd-exporter nginx-prometheus-exporter
 
 EXPORTER_SOFTWARE = $(call bin, $(EXPORTERS))
-EXPORTER_SERVICES = $(foreach s,$(EXPORTERS),$(call sctl,$(s))) $(call sctl,prometheus_wireguard_exporter) $(call sctl,prometheus-nginxlog-exporter)
+EXPORTER_SERVICES = $(foreach s,$(EXPORTERS),$(call sctl,$(s))) $(call sctl,prometheus_wireguard_exporter) $(call sctl,prometheus-nginxlog-exporter) $(call sctl,beholder)
 
 CONFIGS = $(shell find ./etc | sed 's|\.||') $(shell find ./usr | sed 's|\.||')
 
