@@ -238,7 +238,7 @@ fn replace_all<E>(
 fn random_port() -> anyhow::Result<()> {
     let ports = get_documented_ports()?;
     loop {
-        let port = rand::random_range(1025..9999);
+        let port = rand::random_range(1025..8999);
         if !ports.contains(&port) {
             println!("{port}");
             return Ok(());
