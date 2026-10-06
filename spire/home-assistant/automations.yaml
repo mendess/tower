@@ -643,9 +643,11 @@
   - trigger: state
     entity_id: binary_sensor.aramanthinewall_source_is_jellyfin
   - trigger: state
-    entity_id: binary_sensor.oboro
+    entity_id:
+    - binary_sensor.oboro_debounced
   - trigger: state
-    entity_id: switch.tolaria
+    entity_id:
+    - binary_sensor.tolaria_debounced
   - trigger: state
     entity_id: input_boolean.sleeping
   - trigger: state
@@ -686,7 +688,8 @@
       elevation: '{{ float(states("sensor.sun_solar_elevation"), 100.0) }}'
       daytime: '{{ is_state("binary_sensor.daylight", "on") }}'
       max_temp: '{{ float(states("sensor.max_temp"), 0) }}'
-      cloudy: '{{ states("weather.braga") in ["cloudy", "pouring"] }}'
+      rainy: '{{ states("weather.braga") in ["pouring", "rainy"] }}'
+      cloudy: '{{ rainy or states("weather.braga") in ["cloudy"] }}'
       gaming: '{{ is_state(''input_boolean.gaming_mode'', ''on'') }}'
       watching: '{{ is_state(''binary_sensor.aramanthinewall_source_is_jellyfin'',
         ''on'') }}'
@@ -698,39 +701,42 @@
       balcony_open: '{{ is_state("binary_sensor.varanda_aberta", "on") }}'
       desk_raised: '{{ is_state("input_boolean.desk_raised", "on") }}'
       _calc: ''
-      lower_target: "{%- if max_temp < 27 %}\n  100\n{%- elif max_temp < 30 and cloudy
+      target_lower: "{%- if max_temp < 27 %}\n  100\n{%- elif max_temp < 30 and cloudy
         %}\n  70\n{%- else %}\n  30\n{%- endif %}"
       at_my_desk: '{{ tolaria_gaming or oboro_on }}'
+      eod_blinding: '{{ azimuth > 200 and 5 < elevation < 30.0 and not cloudy }}'
+      eod_brightness: '{{ azimuth > 200 and 5 < elevation < 30.0 and cloudy }}'
       _targets: ''
-      daytime_target: '{{ 0 if not daytime else 100 }}'
-      sleeping_target: '{{ 0 if sleeping else 100 }}'
-      lower_east_target: '{{ iif(lower_target == 30, 0, lower_target) if azimuth <
+      target_daytime: '{{ 0 if not daytime else 100 }}'
+      target_sleeping: '{{ 0 if sleeping else 100 }}'
+      target_lower_east: '{{ iif(target_lower == 30, 0, target_lower) if azimuth <
         220 else 100 }}'
-      lower_west_target: '{{ lower_target if 200 < azimuth else 100 }}'
-      lower_south_target: '{{ lower_target if 100 < azimuth < 260 else 100 }}'
+      target_lower_west: '{{ target_lower if 200 < azimuth else 100 }}'
+      target_lower_south: '{{ target_lower if 100 < azimuth < 260 else 100 }}'
       _living_room: ''
-      media_target: '{{ 0 if gaming or watching else 100 }}'
-      privacy_target: '{{ 30 if privacy else 100 }}'
+      target_media: '{{ 0 if gaming or watching else 100 }}'
+      target_privacy: '{{ 30 if privacy else 100 }}'
+      override_doors_open: '{{ -100 if balcony_open else 100 }}'
       _study: ''
-      desk_base_target: '{{ 30 if at_my_desk else 100 }}'
-      sun_blinded_target: '{{ 7 if at_my_desk and azimuth > 200 and 5 < elevation
-        < 25.0 and not cloudy else 100 }}'
-      desk_raised_target: '{{ 10 if at_my_desk and desk_raised else 100 }}'
-      _overrides: ''
-      doors_open_override: '{{ -100 if balcony_open else 100 }}'
-      sunset_override: '{{ -70 if azimuth > 200 and elevation < 1 and daytime else
+      target_desk_sunny: '{{ 30 if at_my_desk and not rainy else 100 }}'
+      target_sun_blinded: '{{ 7 if at_my_desk and eod_blinding else 100 }}'
+      target_sun_bright: '{{ 35 if at_my_desk and eod_brightness else 100 }}'
+      target_desk_raised: '{{ 10 if at_my_desk and desk_raised else 100 }}'
+      override_sunset: '{{ -70 if azimuth > 200 and elevation < 1 and daytime else
         100 }}'
+      target_desk_cloudy: '{{ 60 if at_my_desk and rainy else 100 }}'
       _positions: ''
-      pos_varanda: "{{ min(\n  doors_open_override,\n  daytime_target,\n  sleeping_target,\n
-        \ lower_east_target,\n  privacy_target,\n  media_target,\n) | abs }}"
-      pos_tv_covers: "{{ min(\n  daytime_target,\n  sleeping_target,\n  lower_south_target,\n
-        \ privacy_target,\n  media_target,\n) | abs }}"
-      pos_bedroom_wc: "{{ min(\n  daytime_target,\n  sleeping_target,\n  lower_south_target,\n)
+      pos_varanda: "{{ min(\n  override_doors_open,\n  target_daytime,\n  target_sleeping,\n
+        \ target_lower_east,\n  target_privacy,\n  target_media,\n) | abs }}"
+      pos_tv_covers: "{{ min(\n  target_daytime,\n  target_sleeping,\n  target_lower_south,\n
+        \ target_privacy,\n  target_media,\n) | abs }}"
+      pos_bedroom_wc: "{{ min(\n  target_daytime,\n  target_sleeping,\n  target_lower_south,\n)
         | abs }}"
-      pos_bedroom: "{{ min(\n  sunset_override,\n  daytime_target,\n  sleeping_target,\n
-        \ lower_west_target,\n) | abs }}"
-      pos_study: "{{ min(\n  pos_bedroom,\n  desk_base_target,\n  desk_raised_target,
-        \n  sun_blinded_target,\n) | abs }}"
+      pos_bedroom: "{{ min(\n  override_sunset,\n  target_daytime,\n  target_sleeping,\n
+        \ target_lower_west,\n) | abs }}"
+      pos_study: "{{ min(\n  pos_bedroom,\n  target_desk_sunny,\n  target_desk_cloudy,\n
+        \ target_desk_raised,\n  target_sun_blinded,\n  target_sun_bright,\n) | abs
+        }}"
       calculations:
       - entity: cover.estores_varanda
         lock: timer.cover_grace_period_living_room
