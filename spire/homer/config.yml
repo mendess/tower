@@ -22,7 +22,7 @@ defaults:
 
 services:
   - name: "Gallery"
-    icon: "fas fa-fire"
+    icon: "fas fa-paintbrush"
     items:
       - name: "Planar Bridge"
         icon: "fa-solid fa-bullseye"
@@ -52,12 +52,8 @@ services:
   - name: "Tools"
     icon: "fas fa-wrench"
     items:
-      - name: "Grafana"
-        icon: "fa-solid fa-chart-line"
-        url: "https://grafana.mendess.xyz"
-        target: "_blank"
       - name: "Home Assistant"
-        icon: "fa-solid fa-bell-concierge"
+        icon: "fa-solid fa-house-chimney"
         url: "https://homeassistant.mendess.xyz"
         target: "_blank"
       - name: "Nextcloud"
@@ -75,6 +71,14 @@ services:
         type: "Vaultwarden"
         icon: "fa-solid fa-shield-halved"
         url: "https://pass.mendess.xyz"
+        target: "_blank"
+      - name: "Grafana"
+        icon: "fa-solid fa-chart-line"
+        url: "https://grafana.mendess.xyz"
+        target: "_blank"
+      - name: "Prometheus"
+        icon: "fa-solid fa-fire"
+        url: "https://prometheus.mendess.xyz"
         target: "_blank"
 
   - name: "Alto Mar"
