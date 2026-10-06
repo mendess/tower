@@ -2,14 +2,16 @@ services:
   grafana:
     image: grafana/grafana-oss
     container_name: grafana
-    user: ${PUID}
+    user: ${PUID}:${PGID}
     ports:
       - 3000:3000
     volumes:
+      - ${CONFIG_DIR}/watch/grafana:/etc/grafana/
       - ${DB_DIR}/watch/grafana:/var/lib/grafana
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
+
   cadvisor:
     image: ghcr.io/google/cadvisor:latest
     container_name: cadvisor
