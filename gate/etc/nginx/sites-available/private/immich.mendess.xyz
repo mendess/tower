@@ -2,7 +2,6 @@ server {
     server_name immich.mendess.xyz;
     include /etc/nginx/shared-conf/listen.conf;
 
-    include /etc/nginx/shared-conf/base.conf;
     allow 10.0.3.0/24;
     include /etc/nginx/shared-conf/ssl.conf;
 

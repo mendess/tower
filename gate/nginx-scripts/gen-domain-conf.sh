@@ -4,8 +4,8 @@ set -euo pipefail
 
 target=$1
 case "$target" in
-    *public*) mode=public ;;
-    *private*) mode=private ;;
+    */public*) mode=public ;;
+    */private*) mode=private ;;
     *)
         echo "invalid mode"
         exit 1
@@ -17,8 +17,8 @@ homunculus="$script_dir/../../homunculus"
 cd "$(dirname "$0")/.." || exit
 
 hostname=$(basename "$target")
-port=$($homunculus show --csv | awk -F, -v hostname=$hostname '$6 == hostname {print $3}')
-redirect=$($homunculus show --csv | awk -F, -v hostname=$hostname '$6 == hostname {print $7}')
+port=$($homunculus show --csv | awk -F, -v hostname="$hostname" '$6 == hostname {print $3}')
+redirect=$($homunculus show --csv | awk -F, -v hostname="$hostname" '$6 == hostname {print $7}')
 
 listen() {
     case "$hostname" in
@@ -71,19 +71,19 @@ EOF
 
 if [[ -e .$target ]]; then
     echo "copying .$target to $target"
-    sudo cp .$target $target
+    sudo cp ".$target" "$target"
 else
     echo "generting $target"
-    cat <<EOF | sudo tee $target >/dev/null
+    cat <<EOF | sudo tee "$target" >/dev/null
 server {
 $(listen)
 
-    include /etc/nginx/shared-conf/base.conf;
 $(ssl)
 
 $(private-service)
 
     location / {
+        include /etc/nginx/shared-conf/base.conf;
         proxy_set_header Host \$host;
         proxy_set_header X-Forwarded-Host \$host;
         proxy_set_header X-Forwarded-Proto \$scheme;
@@ -96,4 +96,4 @@ $(ssl-redirect)
 $(pendrellvale_home_redirect)
 EOF
 fi
-sudo chmod 644 $target | grep -v retained || true
+sudo chmod 644 "$target" | grep -v retained || true
