@@ -674,7 +674,11 @@
     options:
       for: 00:00:00
       behavior: each
-  conditions: []
+  conditions:
+  - alias: home assistant has been running for 1 minute
+    condition: template
+    value_template: '{{ utcnow() > (states(''sensor.uptime'') | as_datetime + timedelta(minutes=1))
+      }}'
   actions:
   - action: automation.turn_off
     metadata: {}
@@ -865,10 +869,10 @@
       for: 00:00:00
     id: sleep
   conditions:
-  - alias: home assistant has been running for 30 seconds
+  - alias: home assistant has been running for 1 minute
     condition: template
-    value_template: '{{ (now() + timedelta(minutes=5)) > states(''sensor.uptime'')
-      | as_datetime }}'
+    value_template: '{{ utcnow() > (states(''sensor.uptime'') | as_datetime + timedelta(minutes=1))
+      }}'
   actions:
   - choose:
     - conditions:
