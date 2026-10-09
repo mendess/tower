@@ -1165,6 +1165,7 @@
           - person.mendess
           - person.andreia
           text: A maquina de lavar terminou
+          priority: high
           time_before_spamming:
             hours: 0
             minutes: 0
@@ -1176,9 +1177,10 @@
             \  \"Toma a pilulazinha amorsinho fofinha linda \U0001F970\U0001F970\",\n
             \  \"Oh mor, ja tomaste o repelente de bebes?\",\n   \"Eish... ainda nao
             tomaste a pilula?.. yikes\",\n   \"É pequena, é redonda, é cor de rosa
-            e tens de a tomar\",\n] %}\n{%- if now().hour < 12 %}\n  Protect your
-            heart\n{%- else %}\n  Antibabypillen {{ states(\"counter.antibabypillen_counter\")}}:
-            {{ msg | shuffle | first }}\n{%- endif %}"
+            e tens de a tomar\",\n   \"Nimm das antibabipillen, schnell!!\",\n] %}\n{%-
+            if now().hour < 12 %}\n  Protect your heart\n{%- else %}\n  Antibabypillen
+            {{ states(\"counter.antibabypillen_counter\")}}: {{ msg | shuffle | first
+            }}\n{%- endif %}"
           time_before_spamming:
             hours: 1
             minutes: 0
