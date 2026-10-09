@@ -1209,7 +1209,7 @@
       time_before_spamming: '{{ table[trigger.entity_id].time_before_spamming }}'
   - variables:
       devices:
-        person.mendess: notify.mobile_app_whispersilk
+        person.mendess: script.notify_mendes
         person.andreia: notify.mobile_app_pixel_9a
   - wait_template: '{{ states(trigger.entity_id) == ''off'' }}'
     timeout:
@@ -1217,10 +1217,19 @@
       minutes: '{{ time_before_spamming.minutes }}'
       seconds: '{{ time_before_spamming.seconds }}'
       milliseconds: 0
+  - variables:
+      phone_notif_count: 0
   - repeat:
       while:
       - condition: template
         value_template: '{{ states(trigger.entity_id) == ''on'' }}'
+        alias: triggering entity is still on
+      - condition: template
+        value_template: '{{ phone_notif_count < 10 }}'
+        alias: I have not notified a phone 10 times yet
+      - condition: template
+        value_template: '{{ repeat.index < 100 }}'
+        alias: This loop has not run for at least 100 times
       sequence:
       - if:
         - condition: state
@@ -1260,12 +1269,16 @@
             - action: '{{ devices[repeat.item] }}'
               metadata: {}
               data:
+                title: Home Assistant
                 message: '{{ text }}'
+                priority: '{{ priority | default(''default'') }}'
         - delay:
             hours: 0
             minutes: 15
             seconds: 0
             milliseconds: 0
+        - variables:
+            phone_notif_count: '{{ phone_notif_count + 1 }}'
   mode: parallel
   max: 10
 - id: '1784717483238'

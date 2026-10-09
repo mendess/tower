@@ -41,6 +41,20 @@ shell_command:
   host_run: ./host-run.sh {{ command }}
   wait_for_tolaria: until ping -c 1 tolaria; do sleep 0.5; done
 
+rest_command:
+  notify_mendess:
+    url: https://ntfy.mendess.xyz/mendess_general
+    method: POST
+    headers:
+      title: "{{ title }}"
+      user-agent: "HomeAssistant/rest_command"
+      tag: "house"
+      priority: "{{ priority | default('default') }}"
+      actions: 'view, Open Home Assistant, homeassistant://navigate/dashboard-pendrellvale/0'
+    payload: "{{ message }}"
+    content_type: "text/plain"
+    verify_ssl: true
+
 logger:
   default: warning
 

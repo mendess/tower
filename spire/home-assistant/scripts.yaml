@@ -233,3 +233,28 @@ m:
   alias: m
   description: ''
   icon: mdi:music
+notify_mendes:
+  sequence:
+  - action: rest_command.notify_mendess
+    metadata: {}
+    data:
+      title: '{{ title }}'
+      message: '{{ message }}'
+      priority: '{{ priority }}'
+  alias: Notify Mendes
+  description: ''
+  fields:
+    title:
+      selector:
+        text:
+      name: title
+      required: true
+    message:
+      selector:
+        text:
+      name: message
+      required: true
+    priority:
+      selector:
+        text:
+      default: default
