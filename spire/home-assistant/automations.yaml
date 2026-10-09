@@ -707,9 +707,10 @@
       _calc: ''
       target_lower: "{%- if max_temp < 27 %}\n  100\n{%- elif max_temp < 30 and cloudy
         %}\n  70\n{%- else %}\n  30\n{%- endif %}"
+      morning_blind: '{{ azimuth < 200 and 15 < elevation <20 and not cloudy }}'
       at_my_desk: '{{ tolaria_gaming or oboro_on }}'
-      eod_blinding: '{{ azimuth > 200 and 5 < elevation < 30.0 and not cloudy }}'
-      eod_brightness: '{{ azimuth > 200 and 5 < elevation < 30.0 and cloudy }}'
+      eod_blinding: '{{ azimuth > 200 and 5 < elevation < 28.0 and not cloudy }}'
+      eod_brightness: '{{ azimuth > 200 and 5 < elevation < 28.0 and cloudy }}'
       _targets: ''
       target_daytime: '{{ 0 if not daytime else 100 }}'
       target_sleeping: '{{ 0 if sleeping else 100 }}'
@@ -720,54 +721,54 @@
       _living_room: ''
       target_media: '{{ 0 if gaming or watching else 100 }}'
       target_privacy: '{{ 30 if privacy else 100 }}'
+      target_blind: '{{ 70 if morning_blind else 100 }}'
       override_doors_open: '{{ -100 if balcony_open else 100 }}'
       _study: ''
       target_desk_sunny: '{{ 30 if at_my_desk and not rainy else 100 }}'
       target_sun_blinded: '{{ 7 if at_my_desk and eod_blinding else 100 }}'
       target_sun_bright: '{{ 35 if at_my_desk and eod_brightness else 100 }}'
       target_desk_raised: '{{ 10 if at_my_desk and desk_raised else 100 }}'
-      override_sunset: '{{ -70 if azimuth > 200 and elevation < 1 and daytime else
-        100 }}'
+      override_sunset: '{{ -70 if azimuth > 200 and -10 < elevation < 1 else 100 }}'
       target_desk_cloudy: '{{ 60 if at_my_desk and rainy else 100 }}'
       _positions: ''
       pos_varanda: "{{ min(\n  override_doors_open,\n  target_daytime,\n  target_sleeping,\n
-        \ target_lower_east,\n  target_privacy,\n  target_media,\n) | abs }}"
-      pos_tv_covers: "{{ min(\n  target_daytime,\n  target_sleeping,\n  target_lower_south,\n
-        \ target_privacy,\n  target_media,\n) | abs }}"
-      pos_bedroom_wc: "{{ min(\n  target_daytime,\n  target_sleeping,\n  target_lower_south,\n)
-        | abs }}"
-      pos_bedroom: "{{ min(\n  override_sunset,\n  target_daytime,\n  target_sleeping,\n
-        \ target_lower_west,\n) | abs }}"
-      pos_study: "{{ min(\n  pos_bedroom,\n  target_desk_sunny,\n  target_desk_cloudy,\n
-        \ target_desk_raised,\n  target_sun_blinded,\n  target_sun_bright,\n) | abs
+        \ target_lower_east,\n  target_privacy,\n  target_media,\n  target_blind,\n)
         }}"
+      pos_tv_covers: "{{ min(\n  target_daytime,\n  target_sleeping,\n  target_lower_south,\n
+        \ target_privacy,\n  target_media,\n) }}"
+      pos_bedroom_wc: "{{ min(\n  target_daytime,\n  target_sleeping,\n  target_lower_south,\n)
+        }}"
+      pos_bedroom: "{{ min(\n  override_sunset,\n  target_daytime,\n  target_sleeping,\n
+        \ target_lower_west,\n) }}"
+      pos_study: "{{ min(\n  pos_bedroom,\n  target_desk_sunny,\n  target_desk_cloudy,\n
+        \ target_desk_raised,\n  target_sun_blinded,\n  target_sun_bright,\n) }}"
       calculations:
       - entity: cover.estores_varanda
         lock: timer.cover_grace_period_living_room
         motors:
         - sensor.estores_varanda_direira_moving
         - sensor.estores_varanda_esquerda_moving
-        position: '{{ pos_varanda }}'
+        position: '{{ pos_varanda | abs }}'
       - entity: cover.estores_tv
         lock: timer.cover_grace_period_living_room
         motors:
         - sensor.estores_tv_moving
-        position: '{{ pos_tv_covers }}'
+        position: '{{ pos_tv_covers | abs }}'
       - entity: cover.estores_wc
         lock: timer.cover_grace_period_bedroom
         motors:
         - sensor.estores_wc_moving
-        position: '{{ pos_bedroom_wc }}'
+        position: '{{ pos_bedroom_wc | abs }}'
       - entity: cover.estores_quarto
         lock: timer.cover_grace_period_bedroom
         motors:
         - sensor.estores_quarto_moving
-        position: '{{ pos_bedroom }}'
+        position: '{{ pos_bedroom | abs }}'
       - entity: cover.estores_escritorio
         lock: timer.cover_grace_period_study
         motors:
         - sensor.estores_escritorio_moving
-        position: '{{ pos_study }}'
+        position: '{{ pos_study | abs }}'
   - repeat:
       for_each: '{{ calculations }}'
       sequence:
