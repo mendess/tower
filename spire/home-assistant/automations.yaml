@@ -628,6 +628,12 @@
     to:
     - 'on'
     alias: When this script is updated
+  - trigger: event.received
+    target:
+      device_id: 96f8373757a77065acd79a65a39272b4
+    options:
+      event_type:
+      - closed
   - trigger: state
     entity_id: sensor.sun_solar_azimuth
   - trigger: sun.elevation_changed
@@ -687,13 +693,76 @@
     data:
       stop_actions: true
   - variables:
+      entities:
+        azimuth: '{{ int(states(''sensor.sun_solar_azimuth''), 0) }}'
+        elevation: '{{ float(states("sensor.sun_solar_elevation"), 100.0) }}'
+        daytime: '{{ is_state("binary_sensor.daylight", "on") }}'
+        max_temp: '{{ float(states("sensor.max_temp"), 0) }}'
+        weather: '{{ states("weather.braga") }}'
+        gaming: '{{ is_state(''input_boolean.gaming_mode'', ''on'') }}'
+        jellyfin: '{{ is_state(''binary_sensor.aramanthinewall_source_is_jellyfin'',
+          ''on'') }}'
+        youtube: '{{ is_state("binary_sensor.aramanthinewall_source_is_youtube", "on")
+          }}'
+        oboro_on: '{{ is_state(''binary_sensor.oboro_debounced'', ''on'') }}'
+        tolaria_on: '{{ is_state("binary_sensor.tolaria_debounced", "on") }}'
+        sleeping: '{{ is_state("input_boolean.sleeping", "on") }}'
+        privacy: '{{ is_state("input_boolean.privacy", "on") }}'
+        balcony_open: '{{ is_state("binary_sensor.varanda_aberta", "on") }}'
+        desk_raised: '{{ is_state("input_boolean.desk_raised", "on") }}'
+  - action: shell_command.calculate_estores
+    metadata: {}
+    data:
+      entities: '{{ entities }}'
+    response_variable: positions
+  - if:
+    - condition: template
+      value_template: '{{ positions.returncode != 0 }}'
+    then:
+    - action: script.notify_mendes
+      metadata: {}
+      data:
+        priority: default
+        title: Update estores failed
+        message: '{{ positions.stderr }}'
+    - stop: Position calculator crashed
+  - variables:
+      pos: '{{ positions.stdout | from_json }}'
+      calculations:
+      - entity: cover.estores_varanda
+        lock: timer.cover_grace_period_living_room
+        motors:
+        - sensor.estores_varanda_direira_moving
+        - sensor.estores_varanda_esquerda_moving
+        position: '{{ pos.varanda }}'
+      - entity: cover.estores_tv
+        lock: timer.cover_grace_period_living_room
+        motors:
+        - sensor.estores_tv_moving
+        position: '{{ pos.tv_covers }}'
+      - entity: cover.estores_wc
+        lock: timer.cover_grace_period_bedroom
+        motors:
+        - sensor.estores_wc_moving
+        position: '{{ pos.bedroom_wc }}'
+      - entity: cover.estores_quarto
+        lock: timer.cover_grace_period_bedroom
+        motors:
+        - sensor.estores_quarto_moving
+        position: '{{ pos.bedroom }}'
+      - entity: cover.estores_escritorio
+        lock: timer.cover_grace_period_study
+        motors:
+        - sensor.estores_escritorio_moving
+        position: '{{ pos.study }}'
+  - variables:
       _entities: ''
       azimuth: '{{ int(states(''sensor.sun_solar_azimuth''), 0) }}'
       elevation: '{{ float(states("sensor.sun_solar_elevation"), 100.0) }}'
       daytime: '{{ is_state("binary_sensor.daylight", "on") }}'
       max_temp: '{{ float(states("sensor.max_temp"), 0) }}'
       rainy: '{{ states("weather.braga") in ["pouring", "rainy"] }}'
-      cloudy: '{{ rainy or states("weather.braga") in ["cloudy"] }}'
+      cloudy: '{{ rainy or states("weather.braga") in ["fog", "cloudy"] }}'
       gaming: '{{ is_state(''input_boolean.gaming_mode'', ''on'') }}'
       watching: '{{ is_state(''binary_sensor.aramanthinewall_source_is_jellyfin'',
         ''on'') }}'
@@ -707,7 +776,7 @@
       _calc: ''
       target_lower: "{%- if max_temp < 27 %}\n  100\n{%- elif max_temp < 30 and cloudy
         %}\n  70\n{%- else %}\n  30\n{%- endif %}"
-      morning_blind: '{{ azimuth < 200 and 15 < elevation <20 and not cloudy }}'
+      morning_blind: '{{ azimuth < 200 and 15 < elevation < 20 and not cloudy }}'
       at_my_desk: '{{ tolaria_gaming or oboro_on }}'
       eod_blinding: '{{ azimuth > 200 and 5 < elevation < 28.0 and not cloudy }}'
       eod_brightness: '{{ azimuth > 200 and 5 < elevation < 28.0 and cloudy }}'
@@ -722,53 +791,63 @@
       target_media: '{{ 0 if gaming or watching else 100 }}'
       target_privacy: '{{ 30 if privacy else 100 }}'
       target_blind: '{{ 70 if morning_blind else 100 }}'
-      override_doors_open: '{{ -100 if balcony_open else 100 }}'
+      override_doors_open: '{{ 70 if balcony_open else 0 }}'
       _study: ''
-      target_desk_sunny: '{{ 30 if at_my_desk and not rainy else 100 }}'
-      target_sun_blinded: '{{ 7 if at_my_desk and eod_blinding else 100 }}'
+      target_desk_sunny: '{{ iif(desk_raised, 10, 30) if at_my_desk and not rainy
+        else 100 }}'
+      target_sun_blinded: '{{ iif(desk_raised, 5, 7) if at_my_desk and eod_blinding
+        else 100 }}'
       target_sun_bright: '{{ 35 if at_my_desk and eod_brightness else 100 }}'
-      target_desk_raised: '{{ 10 if at_my_desk and desk_raised else 100 }}'
-      override_sunset: '{{ -70 if azimuth > 200 and -10 < elevation < 1 else 100 }}'
+      override_sunset: '{{ 70 if azimuth > 200 and -7 < elevation < 1 else 0 }}'
       target_desk_cloudy: '{{ 60 if at_my_desk and rainy else 100 }}'
       _positions: ''
-      pos_varanda: "{{ min(\n  override_doors_open,\n  target_daytime,\n  target_sleeping,\n
-        \ target_lower_east,\n  target_privacy,\n  target_media,\n  target_blind,\n)
-        }}"
-      pos_tv_covers: "{{ min(\n  target_daytime,\n  target_sleeping,\n  target_lower_south,\n
-        \ target_privacy,\n  target_media,\n) }}"
-      pos_bedroom_wc: "{{ min(\n  target_daytime,\n  target_sleeping,\n  target_lower_south,\n)
-        }}"
-      pos_bedroom: "{{ min(\n  override_sunset,\n  target_daytime,\n  target_sleeping,\n
-        \ target_lower_west,\n) }}"
-      pos_study: "{{ min(\n  pos_bedroom,\n  target_desk_sunny,\n  target_desk_cloudy,\n
-        \ target_desk_raised,\n  target_sun_blinded,\n  target_sun_bright,\n) }}"
+      pos_all: '{{ min(target_daytime, target_sleeping) }}'
+      pos_tv_covers:
+        override: 0
+        base: "{{ min(\n  pos_all,\n  target_lower_south,\n  target_privacy,\n  target_media,\n)
+          }}"
+      pos_varanda:
+        override: '{{ override_doors_open }}'
+        base: "{{ min(\n  pos_all,\n  target_privacy,\n  target_media,\n  target_lower_east,\n
+          \ target_blind,\n) }}"
+      pos_bedroom_wc:
+        override: 0
+        base: "{{ min(\n  pos_all,\n  target_lower_south,\n) }}"
+      pos_bedroom:
+        override: '{{ override_sunset }}'
+        base: "{{ min(\n  pos_all,\n  target_lower_west,\n) }}"
+      pos_study:
+        override: '{{ pos_bedroom.override }}'
+        base: "{{ min(\n  pos_bedroom.base,\n  target_desk_sunny,\n  target_desk_cloudy,\n
+          \ target_sun_blinded,\n  target_sun_bright,\n) }}"
       calculations:
       - entity: cover.estores_varanda
         lock: timer.cover_grace_period_living_room
         motors:
         - sensor.estores_varanda_direira_moving
         - sensor.estores_varanda_esquerda_moving
-        position: '{{ pos_varanda | abs }}'
+        position: '{{ max(pos_varanda.base, pos_varanda.override) }}'
       - entity: cover.estores_tv
         lock: timer.cover_grace_period_living_room
         motors:
         - sensor.estores_tv_moving
-        position: '{{ pos_tv_covers | abs }}'
+        position: '{{ max(pos_tv_covers.base, pos_tv_covers.override) }}'
       - entity: cover.estores_wc
         lock: timer.cover_grace_period_bedroom
         motors:
         - sensor.estores_wc_moving
-        position: '{{ pos_bedroom_wc | abs }}'
+        position: '{{ max(pos_bedroom_wc.base, pos_bedroom_wc.override) }}'
       - entity: cover.estores_quarto
         lock: timer.cover_grace_period_bedroom
         motors:
         - sensor.estores_quarto_moving
-        position: '{{ pos_bedroom | abs }}'
+        position: '{{ max(pos_bedroom.base, pos_bedroom.override) }}'
       - entity: cover.estores_escritorio
         lock: timer.cover_grace_period_study
         motors:
         - sensor.estores_escritorio_moving
-        position: '{{ pos_study | abs }}'
+        position: '{{ max(pos_study.base, pos_study.override) }}'
+    enabled: false
   - repeat:
       for_each: '{{ calculations }}'
       sequence:
