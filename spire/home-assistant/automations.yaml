@@ -568,42 +568,69 @@
       behavior: each
       for: 00:00:00
     id: counter reset
+  - trigger: numeric_state
+    entity_id:
+    - counter.antibabypillen_tablets_counter
+    below: 2
+    id: running out
   conditions: []
   actions:
-  - if:
-    - condition: trigger
-      id:
-      - counter reset
-    then:
-    - action: counter.reset
-      metadata: {}
-      target:
-        entity_id: counter.antibabypillen_counter
-      data: {}
-    - stop: done
-    alias: Reset counter
-  - alias: Increment Antibabypillen counter
-    if:
-    - condition: trigger
-      id:
-      - antibabypillen
-    then:
-    - action: counter.increment
-      metadata: {}
-      target:
-        entity_id: counter.antibabypillen_counter
-      data: {}
-    - if:
-      - condition: numeric_state
-        entity_id: counter.antibabypillen_counter
-        above: 21
-      then:
-      - stop: pill interval
-  - action: input_boolean.turn_on
-    metadata: {}
-    target:
-      entity_id: input_boolean.antibabipillen
-    data: {}
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - antibabypillen
+      sequence:
+      - action: counter.increment
+        metadata: {}
+        target:
+          entity_id: counter.antibabypillen_counter
+        data: {}
+      - if:
+        - condition: numeric_state
+          entity_id: counter.antibabypillen_counter
+          below: 22
+        then:
+        - action: input_boolean.turn_on
+          metadata: {}
+          target:
+            entity_id: input_boolean.antibabipillen
+          data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - counter reset
+      sequence:
+      - action: counter.reset
+        metadata: {}
+        target:
+          entity_id: counter.antibabypillen_counter
+        data: {}
+      - action: counter.decrement
+        metadata: {}
+        target:
+          entity_id: counter.antibabypillen_tablets_counter
+        data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - heart
+      sequence:
+      - action: input_boolean.turn_on
+        metadata: {}
+        target:
+          entity_id: input_boolean.antibabipillen
+        data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - running out
+      sequence:
+      - action: notify.mobile_app_pixel_9a
+        metadata: {}
+        data:
+          message: Ja so tens uma tablete de pílula
+          title: It's the final countdown!!!
   mode: queued
   max: 10
 - id: '1783362865967'
