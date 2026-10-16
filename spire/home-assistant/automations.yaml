@@ -496,8 +496,8 @@
   - variables:
       gaming: '{{ is_state(''input_boolean.gaming_mode'', ''on'') }}'
       lunch_time: '{{ 11 < now().hour < 14 }}'
-      outside_work: '{{ 9 > now().hour > 17 }}'
-      switch: '{{ gaming or lunch_time or outside_work }}'
+      work_hours: '{{ 9 <= now().hour <= 18 }}'
+      switch: '{{ gaming or lunch_time or not work_hours }}'
   - if:
     - condition: template
       value_template: '{{ switch }}'
