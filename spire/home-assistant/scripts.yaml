@@ -74,24 +74,23 @@ boot_to_source:
     target:
       entity_id: switch.tv_screen_switch
     data: {}
-  - parallel:
-    - action: media_player.select_source
+  - if:
+    - condition: template
+      value_template: '{{ (volume | default(None)) is not none and volume < state_attr(''media_player.aramanthinewall'',
+        ''volume_level'') }}'
+    then:
+    - action: media_player.volume_set
       metadata: {}
-      data:
-        source: '{{ source }}'
       target:
-        device_id: b5098e373bea279a182da7c91e908c4f
-    - if:
-      - condition: template
-        value_template: '{{ (volume | default(None)) is not none }}'
-      then:
-      - action: media_player.volume_set
-        metadata: {}
-        target:
-          entity_id: media_player.aramanthinewall
-        data:
-          volume_level: '{{ (volume | default(0)) | float }}'
-      alias: adjust volume
+        entity_id: media_player.aramanthinewall
+      data:
+        volume_level: '{{ (volume | default(0)) | float }}'
+  - action: media_player.select_source
+    metadata: {}
+    data:
+      source: '{{ source }}'
+    target:
+      device_id: b5098e373bea279a182da7c91e908c4f
   - wait_template: '{{ is_state_attr("media_player.aramanthinewall", "source", source)
       }}'
     continue_on_timeout: false
@@ -101,6 +100,17 @@ boot_to_source:
       seconds: 30
       milliseconds: 0
     alias: wait for source to change to {{ source }}
+  - if:
+    - condition: template
+      value_template: '{{ (volume | default(None)) is not none and volume > state_attr(''media_player.aramanthinewall'',
+        ''volume_level'') }}'
+    then:
+    - action: media_player.volume_set
+      metadata: {}
+      target:
+        entity_id: media_player.aramanthinewall
+      data:
+        volume_level: '{{ (volume | default(0)) | float }}'
   alias: Boot to source
   description: ''
   icon: mdi:import
