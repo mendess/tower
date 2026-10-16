@@ -1671,20 +1671,38 @@
         state:
         - 'on'
     then:
+    - if:
+      - condition: media_player.is_paused
+        target:
+          entity_id: media_player.aramanthinewall
+        options:
+          behavior: any
+          for: 00:00:00
+      then:
+      - stop: already paused
     - action: media_player.media_pause
       metadata: {}
       target:
         entity_id: media_player.aramanthinewall
       data: {}
     else:
+    - if:
+      - condition: media_player.is_muted
+        target:
+          device_id: b5098e373bea279a182da7c91e908c4f
+        options:
+          behavior: any
+          for: 00:00:00
+      then:
+      - stop: already muted
     - action: media_player.volume_mute
       metadata: {}
       target:
         entity_id: media_player.aramanthinewall
       data:
         is_volume_muted: true
-  - wait_template: "{% if \"whispersilk\" in trigger.entity_id %}\n  {{ is_state(\"sensor.whispersilk_phone_state\",
-      \"idle\") }}\n{% elif 'pixel9a' in trigger.entity_id %}\n  {{ is_state('sensor.pixel_9a_phone_state',
+  - wait_template: "{% if 'whispersilk' in trigger.entity_id %}\n  {{ is_state('sensor.whispersilk_phone_state',
+      'idle') }}\n{% elif 'pixel_9a' in trigger.entity_id %}\n  {{ is_state('sensor.pixel_9a_phone_state',
       'idle') }}\n{% endif %}"
   - if:
     - condition: or
