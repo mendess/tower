@@ -42,28 +42,28 @@ monitor() {
     update-song
     m_bin events | while read -r line; do
         case "$line" in
-        *'property-change: media-title'*)
-            update-song
-            ;;
-        *'property-change: pause'*)
-            case "$(echo "$line" | awk '{print $4}')" in
-            true) update-playing turn_off ;;
-            false) update-playing turn_on ;;
-            *)
-                echo "invalid property-change: pause value: '$line'"
+            *'property-change: media-title'*)
+                update-song
                 ;;
-            esac
-            ;;
+            *'property-change: pause'*)
+                case "$(echo "$line" | awk '{print $4}')" in
+                    true) update-playing turn_off ;;
+                    false) update-playing turn_on ;;
+                    *)
+                        echo "invalid property-change: pause value: '$line'"
+                        ;;
+                esac
+                ;;
         esac
     done
 }
 
 case ${1:-} in
-setup)
-    touch "$status_file"
-    chmod 777 "$status_file"
-    ;;
-*)
-    monitor
-    ;;
+    setup)
+        touch "$status_file"
+        chmod -v 777 "$status_file"
+        ;;
+    *)
+        monitor
+        ;;
 esac
