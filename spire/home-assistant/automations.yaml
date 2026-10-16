@@ -53,37 +53,23 @@
     id: turn-off-tolaria
   conditions: []
   actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.aramathinewall_power_button
   - if:
-    - condition: trigger
-      id:
-      - turn-off-tolaria
+    - condition: state
+      entity_id: switch.tolaria
+      state:
+      - 'on'
     then:
-    - action: switch.turn_off
+    - action: script.notify_mendes
       metadata: {}
-      target:
-        entity_id: switch.tolaria
-      data: {}
-    else:
-    - action: switch.turn_off
-      metadata: {}
-      data: {}
-      target:
-        entity_id: switch.aramathinewall_power_button
-    - if:
-      - condition: state
-        entity_id: switch.tolaria
-        state:
-        - 'on'
-      then:
-      - action: notify.mobile_app_whispersilk
-        metadata: {}
-        data:
-          title: tolaria on
-          message: deixaste o fixo ligado
-          data:
-            actions:
-            - action: notification::tolaria-is-on
-              title: Turn off tolaria
+      data:
+        priority: default
+        title: Home Assistant
+        message: tolaria was left on
   - action: light.turn_off
     metadata: {}
     target:
@@ -359,11 +345,12 @@
     data:
       title: Backup Alert for {{ trigger.json.repository }}
       message: '{{ trigger.json.message }}'
-  - action: notify.mobile_app_whispersilk
+  - action: script.notify_mendes
     metadata: {}
     data:
-      message: '{{ trigger.json.message }}'
-      title: Backup Alert for {{ trigger.json.repository }}
+      title: '{{ trigger.json.message }}'
+      message: Backup Alert for {{ trigger.json.repository }}
+      priority: high
   mode: single
 - id: '1776289999583'
   alias: turn off tv when sleeping
@@ -467,11 +454,12 @@
     data:
       message: There is a backup that has gone very stale
       title: Backup stale alert
-  - action: notify.mobile_app_whispersilk
+  - action: script.notify_mendes
     metadata: {}
     data:
-      message: There is a backup that has gone very stale
       title: Backup stale alert
+      message: There is a backup that has gone very stale
+      priority: urgent
   mode: single
 - id: '1779702947947'
   alias: Turn off tv screen while working
@@ -1339,18 +1327,29 @@
         - delay:
             hours: 0
             minutes: 0
-            seconds: 7
+            seconds: 10
             milliseconds: 0
         else:
         - repeat:
             for_each: '{{ who }}'
             sequence:
-            - action: '{{ devices[repeat.item] }}'
-              metadata: {}
-              data:
-                title: Home Assistant
-                message: '{{ text }}'
-                priority: '{{ priority | default(''default'') }}'
+            - if:
+              - condition: template
+                value_template: '{{ ''mobile'' in devices[repeat.item] }}'
+                alias: notifying a mobile phone
+              then:
+              - action: '{{ devices[repeat.item] }}'
+                metadata: {}
+                data:
+                  title: Home Assistant
+                  message: '{{ text }}'
+              else:
+              - action: '{{ devices[repeat.item] }}'
+                metadata: {}
+                data:
+                  title: Home Assistant
+                  message: '{{ text }}'
+                  priority: '{{ priority | default(''default'') }}'
         - delay:
             hours: 0
             minutes: 15
