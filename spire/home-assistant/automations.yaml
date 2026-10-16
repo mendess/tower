@@ -1319,10 +1319,10 @@
         value_template: '{{ states(trigger.entity_id) == ''on'' }}'
         alias: triggering entity is still on
       - condition: template
-        value_template: '{{ phone_notif_count < 10 }}'
-        alias: I have not notified a phone 10 times yet
+        value_template: '{{ phone_notif_count < 1 }}'
+        alias: I have not notified a phone yet
       - condition: template
-        value_template: '{{ repeat.index < 100 }}'
+        value_template: '{{ repeat.index < 6 }}'
         alias: This loop has not run for at least 100 times
       sequence:
       - if:
