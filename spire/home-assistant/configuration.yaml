@@ -68,10 +68,10 @@ template:
         state: '{{ is_state("switch.tolaria", "on") }}'
         delay_on: "00:01:00"
         delay_off: "00:01:00"
-      - name: oboro debounced
-        unique_id: oboro_debounced
+      - name: oboro eth debounced
+        unique_id: oboro_eth_debounced
         device_class: connectivity
-        state: '{{ is_state("binary_sensor.oboro", "on") }}'
+        state: '{{ is_state("binary_sensor.oboro_eth", "on") }}'
         delay_on: "00:00:30"
         delay_off: "00:10:00"
   - trigger:

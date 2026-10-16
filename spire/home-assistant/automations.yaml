@@ -719,7 +719,7 @@
           ''on'') }}'
         youtube: '{{ is_state("binary_sensor.aramanthinewall_source_is_youtube", "on")
           }}'
-        oboro_on: '{{ is_state(''binary_sensor.oboro_debounced'', ''on'') }}'
+        oboro_on: '{{ is_state(''binary_sensor.oboro_eth_debounced'', ''on'') }}'
         tolaria_on: '{{ is_state("binary_sensor.tolaria_debounced", "on") }}'
         sleeping: '{{ is_state("input_boolean.sleeping", "on") }}'
         privacy: '{{ is_state("input_boolean.privacy", "on") }}'
