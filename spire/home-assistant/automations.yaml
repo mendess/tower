@@ -1567,17 +1567,39 @@
   triggers:
   - trigger: light.turned_off
     target:
-      area_id: bedroom
+      entity_id: light.lamp_bedroom
     options:
-      behavior: all
-      for:
-        hours: 1
-        minutes: 0
-        seconds: 0
+      behavior: each
+      for: 00:00:00
   conditions:
   - condition: time
     after: '23:00:00'
     before: 05:00:00
+  - condition: or
+    conditions:
+    - condition: switch.is_off
+      target:
+        entity_id: switch.aramathinewall_power_button
+      options:
+        behavior: any
+        for: 00:00:00
+    - condition: state
+      entity_id: binary_sensor.aramanthinewall_source_is_pc
+      state:
+      - 'on'
+      - unavailable
+  - condition: switch.is_off
+    target:
+      entity_id: input_boolean.gaming_mode
+    options:
+      behavior: any
+      for: 00:00:00
+  - condition: switch.is_off
+    target:
+      entity_id: input_boolean.sleeping
+    options:
+      behavior: any
+      for: 00:00:00
   actions:
   - action: input_boolean.turn_on
     metadata: {}
@@ -1688,4 +1710,28 @@
         entity_id: media_player.aramanthinewall
       data:
         is_volume_muted: false
+  mode: single
+- id: '1792048410425'
+  alias: Ensure I sleep with the lights off
+  description: ''
+  triggers:
+  - trigger: switch.turned_on
+    target:
+      entity_id: input_boolean.sleeping
+    options:
+      behavior: each
+      for: 00:00:00
+  conditions:
+  - condition: light.is_on
+    target:
+      area_id: bedroom
+    options:
+      behavior: any
+      for: 00:00:00
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    target:
+      area_id: bedroom
+    data: {}
   mode: single
