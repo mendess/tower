@@ -17,7 +17,7 @@ case "$split_tunnel" in
         allowed_ips="0.0.0.0/0, ::/0"
         ;;
     *)
-        allowed_ips="10.0.$network_number.1, 192.168.42.2"
+        allowed_ips="10.0.$network_number.0/24, 192.168.42.0/24"
         ;;
 esac
 
@@ -37,7 +37,7 @@ echo "dir: $directory"
 client_privatekey="$directory/privatekey"
 client_publickey="$directory/publickey"
 
-wg genkey | tee "$client_privatekey" | wg pubkey > "$client_publickey"
+wg genkey | tee "$client_privatekey" | wg pubkey >"$client_publickey"
 
 publickey_material=$(cat "$publickey")
 

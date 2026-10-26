@@ -16,6 +16,9 @@ links:
   - name: "music players"
     icon: "fas fa-headphones"
     url: "#music-players"
+  - name: "uptime monitor"
+    icon: "fas fa-heart"
+    url: "https://argentum.mendess.xyz/status/main"
 
 defaults:
   layout: list

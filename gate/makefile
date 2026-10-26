@@ -146,7 +146,7 @@ config-dnsmasq: $(DNSMASQ_CONFIG)
 	@for f in $(call stamp_file,$(DNSMASQ_CONFIG)); do [ -e $$f ] && reload+=($$f); done; [ "$${reload[*]}" ] || exit 0
 	rm -v $${reload[@]}
 	@echo "reloading dnsmasq"
-	sudo systemctl restart unbound
+	sudo systemctl restart dnsmasq
 
 
 # ----------------- NFT ---------------------
