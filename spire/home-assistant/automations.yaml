@@ -75,6 +75,11 @@
     target:
       area_id: bedroom
     data: {}
+  - action: input_boolean.turn_off
+    metadata: {}
+    target:
+      entity_id: input_boolean.privacy
+    data: {}
   mode: single
 - id: '1771934637797'
   alias: Avisar a Andreia <3
