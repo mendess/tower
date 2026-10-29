@@ -135,6 +135,8 @@ services:
       - POSTGRES_DB=tandoor
       - POSTGRES_USER=postgres
       - DB_ENGINE=django.db.backends.postgresql
+      - GUNICORN_WORKERS=1
+      - GUNICORN_THREADS=1
     volumes:
       - ${DB_DIR}/spire/tandoor/staticfiles:/opt/recipes/staticfiles
       - ${DB_DIR}/spire/tandoor/mediafiles:/opt/recipes/mediafiles
