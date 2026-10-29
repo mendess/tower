@@ -1413,6 +1413,13 @@
     from:
     - 'on'
     id: living-room
+  - trigger: state
+    entity_id:
+    - binary_sensor.aramanthinewall_source_is_youtube
+    from:
+    - 'on'
+    to:
+    - 'off'
   conditions:
   - condition: time
     after: '22:00:00'
