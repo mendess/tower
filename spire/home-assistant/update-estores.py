@@ -5,6 +5,7 @@ import json
 from json.encoder import INFINITY
 import sys
 from itertools import chain
+import time
 
 if len(sys.argv) < 2:
     print("missing required argument, entity state")
@@ -40,28 +41,28 @@ def sun_bounding_box(
 
 
 sun = {
-    "east": {
+    "east": {  # varanda
         "base": sun_bounding_box(
             elevation_limits=(0, INFINITY), azimuth_limits=(0, 220)
         ),
         "blinding": sun_bounding_box(
-            elevation_limits=(15, 20), azimuth_limits=(0, 200)
+            elevation_limits=(15, 25), azimuth_limits=(0, 130)
         ),
     },
-    "south": {
+    "south": {  # small side windows
         "base": sun_bounding_box(
             elevation_limits=(0, INFINITY), azimuth_limits=(100, 260)
         ),
         "tv": sun_bounding_box(
-            elevation_limits=(31.17, INFINITY), azimuth_limits=(138.44, 178)
+            elevation_limits=(23, 40), azimuth_limits=(130, 178)
         ),  # TODO
     },
-    "west": {
+    "west": {  # quartos
         "base": sun_bounding_box(
             elevation_limits=(0, INFINITY), azimuth_limits=(200, INFINITY)
         ),
         "blinding": sun_bounding_box(
-            elevation_limits=(5, 28), azimuth_limits=(200, INFINITY)
+            elevation_limits=(5, 26), azimuth_limits=(200, INFINITY)
         ),
         "sunset": sun_bounding_box(
             elevation_limits=(-7, 1), azimuth_limits=(200, INFINITY)
@@ -72,14 +73,17 @@ sun = {
 tolaria_gaming = not gaming and tolaria_on
 at_my_desk = tolaria_gaming or oboro_on
 
-if max_temp < 27.5:
+now = time.localtime()
+if now.tm_mon < 4 or now.tm_mon > 9:
+    target_lower = 100
+elif max_temp < 27.5:
     target_lower = 100
 elif max_temp < 30 and cloudy:
     target_lower = 70
 else:
     target_lower = 30
 
-morning_blind = sun["east"]["blinding"] and not cloudy
+morning_blind = sun["east"]["blinding"] and not rainy
 eod_blinding = sun["west"]["blinding"] and not cloudy
 eod_brightness = sun["west"]["blinding"] and cloudy
 
@@ -94,13 +98,13 @@ target = {
     "lower_south": target_lower if sun["south"]["base"] else 100,
     "lower_west": target_lower if sun["west"]["base"] else 100,
     # living room
-    "tv_sun_shine": 30 if (jellyfin or youtube) and sun["south"]["tv"] else 100,
+    "tv_sun_shine": (30 if sun["south"]["tv"] and not rainy else 100),
     "media": 0 if gaming or jellyfin else 100,
     "privacy": 30 if privacy else 100,
-    "blind": 70 if morning_blind else 100,
+    "blind": 65 if morning_blind else 100,
     # study/bedroom
     "desk_sunny": (10 if desk_raised else 30) if at_my_desk and not rainy else 100,
-    "sun_blinded": (5 if desk_raised else 7) if at_my_desk and eod_blinding else 100,
+    "sun_blinded": (3 if desk_raised else 5) if at_my_desk and eod_blinding else 100,
     "sun_bright": 35 if at_my_desk and eod_brightness else 100,
     "desk_cloudy": 60 if at_my_desk and rainy else 100,
 }
