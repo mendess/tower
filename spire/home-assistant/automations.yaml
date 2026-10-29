@@ -773,6 +773,16 @@
   - variables:
       pos: '{{ positions.stdout | from_json }}'
       calculations:
+      - entity: cover.estores_wc
+        lock: timer.cover_grace_period_bedroom
+        motors:
+        - sensor.estores_wc_moving
+        position: '{{ pos.bedroom_wc }}'
+      - entity: cover.estores_quarto
+        lock: timer.cover_grace_period_bedroom
+        motors:
+        - sensor.estores_quarto_moving
+        position: '{{ pos.bedroom }}'
       - entity: cover.estores_varanda
         lock: timer.cover_grace_period_living_room
         motors:
@@ -784,16 +794,6 @@
         motors:
         - sensor.estores_tv_moving
         position: '{{ pos.tv_covers }}'
-      - entity: cover.estores_wc
-        lock: timer.cover_grace_period_bedroom
-        motors:
-        - sensor.estores_wc_moving
-        position: '{{ pos.bedroom_wc }}'
-      - entity: cover.estores_quarto
-        lock: timer.cover_grace_period_bedroom
-        motors:
-        - sensor.estores_quarto_moving
-        position: '{{ pos.bedroom }}'
       - entity: cover.estores_escritorio
         lock: timer.cover_grace_period_study
         motors:
