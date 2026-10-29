@@ -502,6 +502,9 @@
     entity_id: binary_sensor.oboro
     state:
     - 'on'
+  - condition: numeric_state
+    entity_id: zone.home
+    below: 2
   actions:
   - variables:
       gaming: '{{ is_state(''input_boolean.gaming_mode'', ''on'') }}'
