@@ -110,7 +110,7 @@ target = {
 }
 override = {
     "doors_open": 70 if balcony_open else 0,
-    "sunset": 70 if sun["west"]["sunset"] else 0,
+    "sunset": 100 if sun["west"]["sunset"] else 0,
 }
 
 
