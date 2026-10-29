@@ -85,7 +85,7 @@
   alias: Avisar a Andreia <3
   description: ''
   triggers:
-  - trigger: battery.level_changed
+  - trigger: battery.level_crossed_threshold
     target:
       entity_id: sensor.pixel_9a_battery_level
     options:
