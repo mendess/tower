@@ -1561,6 +1561,12 @@
     options:
       behavior: any
       for: 00:00:00
+  - condition: timer.is_idle
+    target:
+      entity_id: timer.sleep_timer
+    options:
+      behavior: any
+      for: 00:00:00
   actions:
   - action: input_boolean.turn_on
     metadata: {}
@@ -1690,20 +1696,25 @@
       data:
         is_volume_muted: false
   mode: single
-- id: '1792048410425'
-  alias: Ensure I sleep with the lights off
+- id: '1792456906697'
+  alias: Prepare to sleep
   description: ''
   triggers:
-  - trigger: switch.turned_on
+  - trigger: timer.started
     target:
-      entity_id: input_boolean.sleeping
+      entity_id: timer.sleep_timer
     options:
       behavior: each
       for: 00:00:00
-  conditions:
-  - condition: light.is_on
+  - trigger: timer.restarted
     target:
-      area_id: bedroom
+      entity_id: timer.sleep_timer
+    options:
+      for: 00:00:00
+  conditions:
+  - condition: switch.is_off
+    target:
+      entity_id: input_boolean.gaming_mode
     options:
       behavior: any
       for: 00:00:00
@@ -1712,5 +1723,10 @@
     metadata: {}
     target:
       area_id: bedroom
+    data: {}
+  - action: switch.turn_off
+    metadata: {}
+    target:
+      entity_id: switch.living_room_aramanthinewall_screen
     data: {}
   mode: single
