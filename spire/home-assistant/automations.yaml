@@ -1448,12 +1448,16 @@
   alias: Avisar o Pedro <3
   description: ''
   triggers:
-  - type: battery_level
-    device_id: 9f08901dfaaf0b9b684849342ca86d8d
-    entity_id: sensor.whispersilk_battery_level
-    domain: sensor
-    trigger: device
-    below: 20
+  - trigger: battery.level_crossed_threshold
+    target:
+      entity_id: sensor.pixel_9a_battery_level
+    options:
+      for: 00:00:00
+      threshold:
+        type: below
+        value:
+          active_choice: number
+          number: 20
   conditions:
   - condition: zone.not_in_zone
     target:
@@ -1463,11 +1467,12 @@
       for: 00:00:00
       zone: zone.home
   actions:
-  - action: notify.mobile_app_whispersilk
+  - action: script.notify_mendes
     metadata: {}
     data:
-      title: low battery
+      priority: default
       message: "mor, where charger? \U0001F97A"
+      title: low battery
   mode: single
 - id: '1787099934513'
   alias: Baldurs Gate 3 Epic Soundtrack
