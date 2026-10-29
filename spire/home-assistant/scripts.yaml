@@ -63,7 +63,7 @@ boot_to_source:
   - action: switch.turn_on
     metadata: {}
     target:
-      entity_id: switch.tv_screen_switch
+      entity_id: switch.living_room_aramanthinewall_screen
     data: {}
   - if:
     - condition: template
@@ -206,7 +206,7 @@ notify_tv:
   - action: switch.turn_on
     metadata: {}
     target:
-      entity_id: switch.tv_screen_switch
+      entity_id: switch.living_room_aramanthinewall_screen
     data: {}
   - action: notify.lg_webos_tv_oled65b46la_deuqljp
     metadata: {}
