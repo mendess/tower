@@ -1,15 +1,5 @@
 tv_sleep_timer:
   sequence:
-  - action: switch.turn_off
-    metadata: {}
-    target:
-      entity_id: switch.tv_screen_switch
-    data: {}
-  - action: light.turn_off
-    metadata: {}
-    target:
-      area_id: bedroom
-    data: {}
   - action: timer.start
     metadata: {}
     target:
@@ -27,14 +17,15 @@ tv_sleep_timer:
       minutes: 40
       seconds: 0
       milliseconds: 0
-  - action: switch.turn_off
+  - action: input_boolean.turn_on
     metadata: {}
-    data: {}
     target:
-      entity_id: switch.aramathinewall_power_button
+      entity_id: input_boolean.sleeping
+    data: {}
   alias: TV sleep timer
   description: ''
   icon: mdi:sleep
+  mode: restart
 turn_on_tolaria_w_steam_if_tolaria_is_off:
   sequence:
   - if:
