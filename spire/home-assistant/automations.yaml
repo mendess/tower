@@ -387,6 +387,11 @@
     target:
       entity_id: switch.aramathinewall_power_button
     data: {}
+  - action: light.turn_off
+    metadata: {}
+    target:
+      area_id: bedroom
+    data: {}
   mode: single
 - id: '1776790105614'
   alias: Ver as noticias quando acordo
